@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Flutter (SM A505N)",
+            "program": "lib/main.dart",
+            "deviceId": "R59N105P3SY",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}
