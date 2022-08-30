@@ -11,14 +11,55 @@ import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/network_service.dart';
 import 'package:teragate_v3/services/permission_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
+import 'package:teragate_v3/state/home_state.dart';
+import 'package:teragate_v3/state/login_state.dart';
+import 'package:teragate_v3/state/place_state.dart';
+import 'package:teragate_v3/state/theme_state.dart';
+import 'package:teragate_v3/state/week_state.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 
 void main() {
-  runApp(const MyApp());
+  MyApp myApp = MyApp();
+  myApp.init();
+  runApp(myApp);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+
+  StreamController? eventStreamController;
+  StreamController? beaconStreamController;
+  StreamController? weekStreamController;
+
+  StreamSubscription? connectivityStreamSubscription;
+  StreamSubscription? beaconStreamSubscription;
+  StreamSubscription? eventStreamSubscription;
+
+  SecureStorage? secureStorage;
+
+  MyApp({
+    this.eventStreamController, 
+    this.beaconStreamController, 
+    this.weekStreamController, 
+  Key? key}) : super(key: key);
+
+  void init() {
+    beaconStreamController = StreamController<String>.broadcast(); 
+    eventStreamController = StreamController<String>.broadcast();
+    weekStreamController = StreamController<String>.broadcast();
+    secureStorage = SecureStorage();
+
+    eventStreamSubscription = eventStreamController!.stream.listen((event) {
+      if (event.isNotEmpty) {
+        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+      }
+    });
+
+    // initIp().then((value) => connectivityStreamSubscription = value);
+
+    beaconStreamSubscription = startBeaconSubscription(beaconStreamController!, secureStorage!, null);
+
+    // startBeaconTimer(context, _successCheck, secureStorage).then((timer) => beaconTimer = timer);
+  }
 
   // This widget is the root of your application.
   @override
@@ -28,9 +69,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: "/login",
+      routes: <String, WidgetBuilder> {
+        "/login": (BuildContext context) => Login(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
+        "/home": (BuildContext context) =>  Home(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
+        "/place": (BuildContext context) => Place(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
+        "/theme": (BuildContext context) => ThemeMain(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
+        "/week": (BuildContext context) =>  Week(eventStreamController: eventStreamController!, weekStreamController: weekStreamController!, beaconStreamController: beaconStreamController!)
+      },
+      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      
     );
   }
+
 }
 
 class MyHomePage extends StatefulWidget {
@@ -47,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late StreamController eventStreamController;
   StreamController? beaconStreamController;
   late StreamController weekStreamController;
+
   late StreamSubscription connectivityStreamSubscription;
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
@@ -59,12 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     secureStorage = SecureStorage();
 
-    callPermissions().then((value) {
-      if (value) {
-        _initForBeacon();
-      }
-      Log.debug(" $value ");
-    });
+    callPermissions();
 
     _createUuidsOfTest();
 
@@ -74,19 +121,19 @@ class _MyHomePageState extends State<MyHomePage> {
     eventStreamSubscription = eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
-        setUI(" workInfo.solardate =  ${workInfo.solardate}");
       }
     });
 
-    // startBeaconTimer(context, _successCheck, secureStorage).then((timer) => beaconTimer = timer);
+    startBeaconTimer(context, _successCheck, secureStorage).then((timer) => beaconTimer = timer);
+
+    move();
   }
 
   @override
   void dispose() {
     eventStreamSubscription.cancel();
     eventStreamController.onCancel!();
-    // stopTimer(beaconTimer);
-
+    stopTimer(beaconTimer);
     super.dispose();
   }
 
@@ -135,13 +182,6 @@ class _MyHomePageState extends State<MyHomePage> {
     //   //   Log.debug(" success === ${configInfo.success.toString()} ");
     //   // });
     // });
-
-  }
-
-  void setUI(String value) {
-    setState(() {
-      result = value;
-    });
   }
 
   WillPopScope _createWillPopScope(Widget widget) {
@@ -197,16 +237,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _initForBeacon() async {
-    if ( beaconStreamController == null ) {
+    if (beaconStreamController == null) {
       beaconStreamController = StreamController<String>.broadcast();
       initBeacon(context, beaconStreamController!, secureStorage);
     }
   }
 
   Future<void> _startForBeacon() async {
-     beaconStreamSubscription = startBeaconSubscription(beaconStreamController!, secureStorage);
+    beaconStreamSubscription = startBeaconSubscription(beaconStreamController!, secureStorage, null);
   }
-
 
   void _createUuidsOfTest() {
     String sampleUUID1 = "12345678-9A12-3456-789B-123456FFFFFF";
@@ -221,5 +260,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _successCheck(WorkInfo workInfo) {
     Log.debug(" ${workInfo.message} ");
+  }
+
+  Future<void> move() async {
+    String? id = await secureStorage.read(Env.LOGIN_ID);
+    String? pw = await secureStorage.read(Env.LOGIN_PW);
+
+    if ( id == null || pw == null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
+    }
+
+    login(id!, pw!).then((loginInfo) {
+      secureStorage.write(Env.KEY_ACCESS_TOKEN, loginInfo.tokenInfo!.getAccessToken());
+      secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
+      secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
+
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
+    });
+
   }
 }

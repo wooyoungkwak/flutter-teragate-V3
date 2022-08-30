@@ -1,21 +1,48 @@
 // ignore_for_file: prefer_const_constructors
+import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:teragate_v3/models/result_model.dart';
+import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 
-class Tema extends StatefulWidget {
-  const Tema({Key? key}) : super(key: key);
+class ThemeMain extends StatefulWidget {
+  final StreamController eventStreamController;
+  final StreamController beaconStreamController;
+
+  const ThemeMain({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
+
   @override
-  State<Tema> createState() => _TemaState();
+  State<ThemeMain> createState() => _ThemeState();
 }
 
-class _TemaState extends State<Tema> {
+class _ThemeState extends State<ThemeMain> {
   bool backgroundbool = false;
+
+  late StreamSubscription beaconStreamSubscription;
+  late StreamSubscription eventStreamSubscription;
+
+  late SecureStorage secureStorage;
+
+  late BeaconInfoData beaconInfoData;
 
   @override
   void initState() {
     super.initState();
+
+    secureStorage = new SecureStorage();
+
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+      if (event.isNotEmpty) {
+        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+      }
+    });
+
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
+
     setUI(false);
     //Get.to(Home);
   }
@@ -32,19 +59,16 @@ class _TemaState extends State<Tema> {
                   child: Column(
                     children: [
                       Container(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
+                          margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                           padding: const EdgeInsets.only(top: 15),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                CustomText(
-                                  text: "메인 테마 설정",
-                                  size: 18,
-                                  weight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ])),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+                            CustomText(
+                              text: "메인 테마 설정",
+                              size: 18,
+                              weight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ])),
                     ],
                   )),
               Expanded(
@@ -53,23 +77,21 @@ class _TemaState extends State<Tema> {
                     children: [
                       Expanded(
                         flex: 10,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                text: "테마 배경 사용",
-                                size: 16,
-                                color: Colors.black,
-                              ),
-                              Switch(
-                                  value: backgroundbool,
-                                  activeColor: Colors.white,
-                                  activeTrackColor: const Color(0xff26C145),
-                                  inactiveTrackColor: const Color(0xff444653),
-                                  onChanged: (value) {
-                                    setUI(value);
-                                  })
-                            ]),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          CustomText(
+                            text: "테마 배경 사용",
+                            size: 16,
+                            color: Colors.black,
+                          ),
+                          Switch(
+                              value: backgroundbool,
+                              activeColor: Colors.white,
+                              activeTrackColor: const Color(0xff26C145),
+                              inactiveTrackColor: const Color(0xff444653),
+                              onChanged: (value) {
+                                setUI(value);
+                              })
+                        ]),
                       ),
                       const Expanded(flex: 7, child: SizedBox()),
                       Expanded(
@@ -105,16 +127,7 @@ class _TemaState extends State<Tema> {
                           ))
                     ],
                   ))),
-              Expanded(
-                  flex: 2,
-                  child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: createContainerwhite(const CustomBusinessCard(
-                          company: "주식회사 테라비전",
-                          name: "홍길동",
-                          position: "과장",
-                          worktime: "09:00 ~ 18:00",
-                          workbool: true)))),
+              Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
               Expanded(
                   flex: 1,
                   child: Container(
@@ -143,6 +156,13 @@ class _TemaState extends State<Tema> {
         ));
   }
 
+  @override
+  void dispose() {
+    beaconStreamSubscription.cancel();
+    eventStreamSubscription.cancel();
+    super.dispose();
+  }
+
   Row initRowByiconText(String text) {
     return Row(
       children: [
@@ -158,20 +178,11 @@ class _TemaState extends State<Tema> {
   }
 
   Container createContainer(Widget widget) {
-    return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   Container createContainerwhite(Widget widget) {
-    return Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
 //이미지 박스
@@ -188,5 +199,13 @@ class _TemaState extends State<Tema> {
     setState(() {
       backgroundbool = value;
     });
+  }
+
+  void setBeaconUI(BeaconInfoData beaconInfoData) {
+    this.beaconInfoData = beaconInfoData;
+  }
+
+  void sendToBroadcast(WorkInfo workInfo) {
+    widget.eventStreamController.add(workInfo.toString());
   }
 }

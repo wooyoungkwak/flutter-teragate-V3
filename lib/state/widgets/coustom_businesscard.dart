@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teragate_v3/state/widgets/custom_text.dart';
 
 class CustomBusinessCard extends StatelessWidget {
   final String? company;

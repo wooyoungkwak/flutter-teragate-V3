@@ -1,10 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_ui/State/widgets/custom_text.dart';
-import 'package:flutter_test_ui/state/tema_state.dart';
-import 'package:flutter_test_ui/state/widgets/coustom_Businesscard.dart';
+import 'package:teragate_v3/State/widgets/custom_text.dart';
+import 'package:teragate_v3/models/result_model.dart';
+import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/state/theme_state.dart';
+import 'dart:convert';
+import 'package:teragate_v3/services/background_service.dart';
+import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
 
 class Place extends StatefulWidget {
-  const Place({Key? key}) : super(key: key);
+  final StreamController eventStreamController;
+  final StreamController beaconStreamController;
+
+  const Place({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
   // final controller = Get.put(Controller());
   @override
   State<Place> createState() => _HomeState();
@@ -14,10 +22,24 @@ class _HomeState extends State<Place> {
   List<String> locationlist = ["사무실", "휴게실", "기업부설연구소", "현장", "재고창고"];
   List<bool> locationlistbool = [false, true, false, false, false];
 
+  late StreamSubscription beaconStreamSubscription;
+  late StreamSubscription eventStreamSubscription;
+
+  late BeaconInfoData beaconInfoData;
+  late SecureStorage secureStorage;
+
   @override
   void initState() {
     super.initState();
     setUI();
+
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+      if (event.isNotEmpty) {
+        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+      }
+    });
+
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
     //Get.to(Home);
   }
 
@@ -33,19 +55,16 @@ class _HomeState extends State<Place> {
                   child: Column(
                     children: [
                       Container(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
+                          margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                           padding: const EdgeInsets.only(top: 15),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                CustomText(
-                                  text: "등록 단말기 정보",
-                                  size: 18,
-                                  weight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ])),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+                            CustomText(
+                              text: "등록 단말기 정보",
+                              size: 18,
+                              weight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ])),
                     ],
                   )),
               Expanded(
@@ -80,16 +99,7 @@ class _HomeState extends State<Place> {
                           )),
                     ],
                   ))),
-              Expanded(
-                  flex: 2,
-                  child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: createContainerwhite(const CustomBusinessCard(
-                          company: "주식회사 테라비전",
-                          name: "홍길동",
-                          position: "과장",
-                          worktime: "09:00 ~ 18:00",
-                          workbool: true)))),
+              Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
               Expanded(
                   flex: 1,
                   child: Container(
@@ -99,9 +109,7 @@ class _HomeState extends State<Place> {
           ),
         ),
         bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => Tema()));
-          },
+          onDestinationSelected: (int index) {},
           destinations: const <Widget>[
             NavigationDestination(
               icon: Icon(Icons.explore),
@@ -120,6 +128,13 @@ class _HomeState extends State<Place> {
         )));
   }
 
+  @override
+  void dispose() {
+    beaconStreamSubscription.cancel();
+    eventStreamSubscription.cancel();
+    super.dispose();
+  }
+
   WillPopScope _createWillPopScope(Widget widget) {
     return WillPopScope(
         onWillPop: () {
@@ -130,20 +145,11 @@ class _HomeState extends State<Place> {
   }
 
   Container createContainer(Widget widget) {
-    return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   Container createContainerwhite(Widget widget) {
-    return Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   GridView initGridView(List list, List listbool) {
@@ -159,9 +165,7 @@ class _HomeState extends State<Place> {
           return Container(
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: const Color(0xffF5F5F5),
-                  borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: const Color(0xffF5F5F5), borderRadius: BorderRadius.circular(8)),
               child: Stack(alignment: Alignment.topLeft, children: [
                 listbool[index] == true
                     ? const Icon(
@@ -186,18 +190,7 @@ class _HomeState extends State<Place> {
     setState(() {
       String location = "기업부설연구소";
       locationlist = ["사무실", "휴게실", "기업부설연구소", "현장", "재고창고"];
-      locationlistbool = [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ];
+      locationlistbool = [false, false, false, false, false, false, false, false, false, false];
       for (int i = 0; i < locationlist.length; i++) {
         if (location == locationlist[i]) {
           locationlistbool[i] = true;
@@ -206,5 +199,9 @@ class _HomeState extends State<Place> {
         }
       }
     });
+  }
+
+  void setBeaconUI(BeaconInfoData beaconInfoData) {
+    this.beaconInfoData = beaconInfoData;
   }
 }

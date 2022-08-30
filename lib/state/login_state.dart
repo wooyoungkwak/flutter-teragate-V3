@@ -1,32 +1,52 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
+import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/models/result_model.dart';
+import 'package:teragate_v3/services/beacon_service.dart';
+import 'package:teragate_v3/services/background_service.dart';
+import 'package:teragate_v3/services/permission_service.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  final StreamController eventStreamController;
+  final StreamController beaconStreamController;
+
+  const Login({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
+  late StreamSubscription beaconStreamSubscription;
+  late StreamSubscription eventStreamSubscription;
+
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _loginIdContoroller =
-      TextEditingController(text: "");
-  final TextEditingController _passwordContorller =
-      TextEditingController(text: "");
+  final TextEditingController _loginIdContoroller = TextEditingController(text: "");
+  final TextEditingController _passwordContorller = TextEditingController(text: "");
   bool checkBoxValue = false;
   Color boxColor = const Color(0xffEBEBF1);
-  TextStyle textStyle = const TextStyle(
-      fontWeight: FontWeight.w500,
-      fontFamily: 'SpoqaHanSansNeo',
-      color: Colors.white,
-      fontSize: 16.0);
+  TextStyle textStyle = const TextStyle(fontWeight: FontWeight.w500, fontFamily: 'SpoqaHanSansNeo', color: Colors.white, fontSize: 16.0);
 
-  TextStyle textFieldStyle = const TextStyle(
-      fontWeight: FontWeight.bold,
-      fontFamily: 'SpoqaHanSansNeo',
-      color: Color(0xffA3A6B9),
-      fontSize: 20);
+  TextStyle textFieldStyle = const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'SpoqaHanSansNeo', color: Color(0xffA3A6B9), fontSize: 20);
+
+  late SecureStorage secureStorage;
+
+  @override
+  void initState() {
+    secureStorage = SecureStorage();
+
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+      if (event.isNotEmpty) {
+        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+      }
+    });
+
+    callPermissions();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +67,7 @@ class _LoginState extends State<Login> {
                   child: Text(
                     "Groupware",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff3450FF),
-                        fontSize: 20.0),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff3450FF), fontSize: 20.0),
                   ),
                 ),
                 // Logo
@@ -69,13 +86,11 @@ class _LoginState extends State<Login> {
                 // TextFeild ID, PW
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: _createTextFormField(false, _loginIdContoroller,
-                      "아이디를 입력해 주세요", textFieldStyle, "Id"),
+                  child: _createTextFormField(false, _loginIdContoroller, "아이디를 입력해 주세요", textFieldStyle, "Id"),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: _createTextFormField(true, _passwordContorller,
-                      " 패스워드를 입력해 주세요", textFieldStyle, "Password"),
+                  child: _createTextFormField(true, _passwordContorller, " 패스워드를 입력해 주세요", textFieldStyle, "Password"),
                 ),
                 // FutureBuilder(
                 //     // future: _setsaveid(),
@@ -129,8 +144,7 @@ class _LoginState extends State<Login> {
                 //   }
                 // }),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 35.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
                   child: Material(
                     elevation: 5.0,
                     borderRadius: BorderRadius.circular(8.0),
@@ -138,12 +152,12 @@ class _LoginState extends State<Login> {
                     child: MaterialButton(
                         height: 60.0,
                         onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/home', (route) => false);
-                          if (_formKey.currentState!.validate()) {
-                            // await _setLogin();
-
-                          }
+                          login("", "").then((workInfo) {
+                            // if (workInfo.success) {
+                            //   _initForBeacon();
+                            //   Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                            // }
+                          });
                         },
                         child: const CustomText(
                           text: "로그인",
@@ -159,12 +173,14 @@ class _LoginState extends State<Login> {
     );
   }
 
-  TextFormField _createTextFormField(
-      bool isObscureText,
-      TextEditingController controller,
-      String message,
-      TextStyle style,
-      String decorationType) {
+  @override
+  void dispose() {
+    beaconStreamSubscription.cancel();
+    eventStreamSubscription.cancel();
+    super.dispose();
+  }
+
+  TextFormField _createTextFormField(bool isObscureText, TextEditingController controller, String message, TextStyle style, String decorationType) {
     return TextFormField(
       obscureText: isObscureText,
       controller: controller,
@@ -183,9 +199,7 @@ class _LoginState extends State<Login> {
               ),
               hintText: "아이디",
               hintStyle: textFieldStyle,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide.none),
             )
           : InputDecoration(
               filled: true,
@@ -199,9 +213,7 @@ class _LoginState extends State<Login> {
               ),
               hintText: "비밀번호",
               hintStyle: textFieldStyle,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide.none),
             ),
     );
   }
@@ -246,4 +258,14 @@ class _LoginState extends State<Login> {
   //     }
   //   });
   // }
+
+  // 비콘 시작
+  Future<void> _initForBeacon() async {
+    initBeacon(context, widget.beaconStreamController, secureStorage);
+  }
+
+  // 비콘 종료
+  Future<void> _stopForBeacon() async {
+    stopBeacon();
+  }
 }

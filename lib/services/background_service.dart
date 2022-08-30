@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
@@ -9,17 +10,17 @@ import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
-StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage) {
+StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage, Function? callback) {
   return streamController.stream.listen((event) {
     if (event.isNotEmpty) {
-      _processEvent(secureStorage, event);
+      _processEvent(secureStorage, event, callback!);
     }
   }, onError: (dynamic error) {
     Log.error('Received error: ${error.message}');
   });
 }
 
-Future<void> _processEvent(SecureStorage secureStorage, event) async {
+Future<void> _processEvent(SecureStorage secureStorage, var event, Function callback) async {
   String uuid = getUUID(event);
   
   if (!Env.UUIDS.containsKey(uuid)) {
@@ -30,12 +31,16 @@ Future<void> _processEvent(SecureStorage secureStorage, event) async {
 
   if (Env.CURRENT_UUID != uuid) {
     Env.CURRENT_UUID = uuid;
-    _getPlace(secureStorage, uuid).then((location) {
-      if (Env.CURRENT_LOCATION != location) {
-        Env.CURRENT_LOCATION = location!;
+    _getPlace(secureStorage, uuid).then((place) {
+      if (Env.CURRENT_LOCATION != place) {
+        Env.CURRENT_LOCATION = place!;
+        callback(BeaconInfoData( uuid: uuid, place: place));
       }
     });
   }
+
+  
+
 }
 
 Future<String?> _getPlace(SecureStorage secureStorage, String uuid) async {

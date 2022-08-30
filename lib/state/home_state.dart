@@ -1,15 +1,31 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/models/result_model.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  final StreamController eventStreamController;
+  final StreamController beaconStreamController;
+
+  const Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  late StreamSubscription connectivityStreamSubscription;
+  late StreamSubscription beaconStreamSubscription;
+  late StreamSubscription eventStreamSubscription;
+
+  late BeaconInfoData beaconInfoData;
+
+  late SecureStorage secureStorage;
+
   String currentHour = "";
   String currentMinute = "";
   String currentDay = "";
@@ -28,13 +44,23 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     setUI(location: "외부");
-    print("홈 실행");
+
+    secureStorage = SecureStorage();
+    
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+      if (event.isNotEmpty) {
+        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+      }
+    });
+
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
   }
 
   @override
   void dispose() {
+    beaconStreamSubscription.cancel();
+    eventStreamSubscription.cancel();
     super.dispose();
-    print("홈 화면 사라짐");
   }
 
   @override
@@ -73,8 +99,7 @@ class _HomeState extends State<Home> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (route) => false);
+                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -152,8 +177,7 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               CustomText(
-                                padding: const EdgeInsets.only(
-                                    left: 14.0, right: 4.0),
+                                padding: const EdgeInsets.only(left: 14.0, right: 4.0),
                                 text: profileName,
                                 size: 28.0,
                               ),
@@ -234,8 +258,7 @@ class _HomeState extends State<Home> {
       currentMinute = "52";
       currentDay = "6월 21일 화요일";
       company = "주식회사 테라비전";
-      profilePicture =
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
+      profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
       profileName = "홍길동";
       profilePosition = "과장";
       currentTimeHHMM = "19:55";
@@ -272,6 +295,11 @@ class _HomeState extends State<Home> {
       return Colors.white;
     }
   }
+
+  void setBeaconUI(BeaconInfoData beaconInfoData) {
+    this.beaconInfoData = beaconInfoData;
+  }
+
 }
 
 Card _createWorkCard({

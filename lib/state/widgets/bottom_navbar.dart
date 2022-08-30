@@ -86,7 +86,7 @@ class BottomNavBar extends StatelessWidget {
                   icon: Icons.access_time_filled,
                   text: "출퇴근",
                   function: () => {
-                    _passNextPage(context, '/coummuting'),
+                    _passNextPage(context, '/week'),
                   },
                 ),
                 _createIconByContainer(

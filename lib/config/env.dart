@@ -1,5 +1,7 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
+
 class Env {
   // static const String TEST_SERVER = "http://192.168.0.247";  // local 테스트 서버
   static const String TEST_SERVER = "http://teraenergy.iptime.org"; // 개발 테스트 서버
