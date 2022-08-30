@@ -11,7 +11,6 @@ import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/network_service.dart';
 import 'package:teragate_v3/services/permission_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
-import 'package:teragate_v3/states/sample_state.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 
 void main() {
