@@ -6,6 +6,7 @@ import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/state/theme_state.dart';
 import 'dart:convert';
 import 'package:teragate_v3/services/background_service.dart';
+import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
 
 class Place extends StatefulWidget {
@@ -31,6 +32,9 @@ class _HomeState extends State<Place> {
 
   late BeaconInfoData beaconInfoData;
   late SecureStorage secureStorage;
+
+  String currentTimeHHMM = "";
+  String currentLocation = "";
 
   @override
   void initState() {
@@ -128,23 +132,9 @@ class _HomeState extends State<Place> {
             ],
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {},
-          destinations: const <Widget>[
-            NavigationDestination(
-              icon: Icon(Icons.explore),
-              label: 'Explore',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.commute),
-              label: 'Commute',
-            ),
-            NavigationDestination(
-              selectedIcon: Icon(Icons.bookmark),
-              icon: Icon(Icons.bookmark_border),
-              label: 'Saved',
-            ),
-          ],
+        bottomNavigationBar: BottomNavBar(
+          currentLocation: currentLocation,
+          currentTime: currentTimeHHMM,
         )));
   }
 
@@ -218,6 +208,8 @@ class _HomeState extends State<Place> {
   }
 
   void setUI() {
+    currentTimeHHMM = "19:30";
+    currentLocation = "사무실";
     setState(() {
       String location = "기업부설연구소";
       locationlist = ["사무실", "휴게실", "기업부설연구소", "현장", "재고창고"];

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
+import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 
@@ -30,8 +31,10 @@ class _ThemeState extends State<ThemeMain> {
   late StreamSubscription eventStreamSubscription;
 
   late SecureStorage secureStorage;
-
   late BeaconInfoData beaconInfoData;
+
+  String currentTimeHHMM = "";
+  String currentLocation = "";
 
   @override
   void initState() {
@@ -148,31 +151,12 @@ class _ThemeState extends State<ThemeMain> {
                           position: "과장",
                           worktime: "09:00 ~ 18:00",
                           workbool: true)))),
-              Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.pink,
-                  ))
             ],
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {},
-          destinations: const <Widget>[
-            NavigationDestination(
-              icon: Icon(Icons.explore),
-              label: 'Explore',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.commute),
-              label: 'Commute',
-            ),
-            NavigationDestination(
-              selectedIcon: Icon(Icons.bookmark),
-              icon: Icon(Icons.bookmark_border),
-              label: 'Saved',
-            ),
-          ],
+        bottomNavigationBar: BottomNavBar(
+          currentLocation: currentLocation,
+          currentTime: currentTimeHHMM,
         ));
   }
 
@@ -225,6 +209,8 @@ class _ThemeState extends State<ThemeMain> {
   }
 
   void setUI(bool value) {
+    currentTimeHHMM = "19:30";
+    currentLocation = "사무실";
     setState(() {
       backgroundbool = value;
     });
