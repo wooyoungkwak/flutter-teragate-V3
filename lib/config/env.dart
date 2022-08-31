@@ -30,6 +30,12 @@ class Env {
 
   static const String WORK_TYPE_TODAY = "today";
   static const String WORK_TYPE_WEEK = "week";
+  
+  static String? WORK_KR_NAME;
+  static String? WORK_POSITION_NAME;
+  static String? WORK_PHOTO_PATH;
+  static String? WORK_COMPANY_NAME;
+
 
   static const String KEY_USER_ID = "USER_ID"; // Login 후에 서버로부터 부여 받은 사용자 ID 값
   static const String KEY_ID_CHECK = 'KEY_ID_CHECK';
@@ -41,8 +47,12 @@ class Env {
   static const String KEY_SETTING_SOUND = "SOUND";
   static const String KEY_SETTING_ALARM = "ALARM";
   static const String KEY_LOGIN_SUCCESS = "success";
-  static const String KEY_PHOTO_PATH = "photo_path";
   static const String KEY_UUID_SIZE = "uuidSize";
+
+  static const String KEY_PHOTO_PATH = "photo_path";
+  static const String KEY_KR_NAME = "krName";
+  static const String KEY_POSITION_NAME = "positionName";
+  static const String KEY_COMPANY_NAME = "companyName";
   
   static const String MSG_NOT_TOKEN = "로그 아웃 후에 다시 로그인 해주세요.";
   static const String MSG_LOGIN_FAIL = "ID 또는 Passwoard 를 확인하세요.";
@@ -77,28 +87,6 @@ class Env {
   static int CHANGE_COUNT = 1;
   static DateTime INNER_TIME = DateTime.now();
 
-  static String TITLE_SETTING_GET_IN = "WORK ON";
-  static String TITLE_SETTING_GET_IN_SUB = "Set up your work schedule";
-  static String TITLE_SETTING_GET_OFF = "WORK OFF";
-  static String TITLE_SETTING_GET_OFF_SUB = "Set up your work schedule";
-  static String TITLE_SETTING_ALARM = "Alarm Setting";
-  static String TITLE_SETTING_INITIALIZATION = "Initialization";
-  static String TITLE_SETTING_UUID = "UUID";
-  static String TITLE_SETTING_UUID_SUB = "Currently set UUID:";
-  static String TITLE_SETTING_UUID_DEFAULT_BUTTON = "Default Value Setting";
-  static String TITLE_SETTING_UUID_GET_BUTTON = "Get UUID";
-
   static StreamSubscription? connectivityStreamSubscription;
 
-  void UUID_SUBtKR() {
-    TITLE_SETTING_GET_IN = "출근";
-    TITLE_SETTING_GET_IN_SUB = "출근 일정을 설정하세요";
-    TITLE_SETTING_GET_OFF = "퇴근";
-    TITLE_SETTING_GET_OFF_SUB = "퇴근 알람을 설정하세요";
-    TITLE_SETTING_ALARM = "알람 설정";
-    TITLE_SETTING_INITIALIZATION = "초기화";
-    TITLE_SETTING_UUID_SUB = "현재 설정된 UUID:";
-    TITLE_SETTING_UUID_DEFAULT_BUTTON = "초기값 세팅";
-    TITLE_SETTING_UUID_GET_BUTTON = "UUID 가져오기";
-  }
 }

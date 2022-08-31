@@ -136,7 +136,15 @@ class _MyHomePageState extends State<MyHomePage> {
     //   secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
     //   secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
 
-    //   Log.debug("loginInfo.photoPath = ${loginInfo.photoPath()}");
+      // Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
+      // Env.WORK_KR_NAME = loginInfo.getKrName();
+      // Env.WORK_POSITION_NAME = loginInfo.getPositionName();
+      // Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
+
+      // Log.debug(" photopath = ${loginInfo.getKrName()}");
+      // Log.debug(" krname = ${loginInfo.getPhotoPath()}");
+      // Log.debug(" positionname = ${loginInfo.()}");
+      // Log.debug(" companyName = ${loginInfo.getCompanyName()}");
 
     //   // state 페이지 이동
     //   Navigator.push(

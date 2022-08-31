@@ -24,9 +24,22 @@ class LoginInfo {
 
   Map<String, dynamic> toJson() => {"success": success, "data": data};
 
-  String photoPath() {
+  String getPhotoPath() {
     return data![Env.KEY_PHOTO_PATH];
   }
+
+  String getKrName(){
+    return data![Env.KEY_KR_NAME];
+  }
+
+  String getPositionName(){
+    return data![Env.KEY_POSITION_NAME];
+  }
+  
+  String getCompanyName(){
+    return data![Env.KEY_COMPANY_NAME];
+  }
+  
 }
 
 class WorkInfo {
