@@ -13,7 +13,11 @@ class ThemeMain extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const ThemeMain({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
+  const ThemeMain(
+      {required this.eventStreamController,
+      required this.beaconStreamController,
+      Key? key})
+      : super(key: key);
 
   @override
   State<ThemeMain> createState() => _ThemeState();
@@ -35,13 +39,15 @@ class _ThemeState extends State<ThemeMain> {
 
     secureStorage = new SecureStorage();
 
-    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+    eventStreamSubscription =
+        widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
       }
     });
 
-    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
+    beaconStreamSubscription = startBeaconSubscription(
+        widget.beaconStreamController, secureStorage, setBeaconUI);
 
     setUI(false);
     //Get.to(Home);
@@ -59,16 +65,19 @@ class _ThemeState extends State<ThemeMain> {
                   child: Column(
                     children: [
                       Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 10),
                           padding: const EdgeInsets.only(top: 15),
-                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                            CustomText(
-                              text: "메인 테마 설정",
-                              size: 18,
-                              weight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ])),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                CustomText(
+                                  text: "메인 테마 설정",
+                                  size: 18,
+                                  weight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ])),
                     ],
                   )),
               Expanded(
@@ -77,21 +86,23 @@ class _ThemeState extends State<ThemeMain> {
                     children: [
                       Expanded(
                         flex: 10,
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          CustomText(
-                            text: "테마 배경 사용",
-                            size: 16,
-                            color: Colors.black,
-                          ),
-                          Switch(
-                              value: backgroundbool,
-                              activeColor: Colors.white,
-                              activeTrackColor: const Color(0xff26C145),
-                              inactiveTrackColor: const Color(0xff444653),
-                              onChanged: (value) {
-                                setUI(value);
-                              })
-                        ]),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomText(
+                                text: "테마 배경 사용",
+                                size: 16,
+                                color: Colors.black,
+                              ),
+                              Switch(
+                                  value: backgroundbool,
+                                  activeColor: Colors.white,
+                                  activeTrackColor: const Color(0xff26C145),
+                                  inactiveTrackColor: const Color(0xff444653),
+                                  onChanged: (value) {
+                                    setUI(value);
+                                  })
+                            ]),
                       ),
                       const Expanded(flex: 7, child: SizedBox()),
                       Expanded(
@@ -127,7 +138,16 @@ class _ThemeState extends State<ThemeMain> {
                           ))
                     ],
                   ))),
-              Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
+              Expanded(
+                  flex: 2,
+                  child: Container(
+                      padding: const EdgeInsets.all(8),
+                      child: createContainerwhite(const CustomBusinessCard(
+                          company: "주식회사 테라비전",
+                          name: "홍길동",
+                          position: "과장",
+                          worktime: "09:00 ~ 18:00",
+                          workbool: true)))),
               Expanded(
                   flex: 1,
                   child: Container(
@@ -178,11 +198,20 @@ class _ThemeState extends State<ThemeMain> {
   }
 
   Container createContainer(Widget widget) {
-    return Container(margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
+    return Container(
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        child: widget);
   }
 
   Container createContainerwhite(Widget widget) {
-    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
+    return Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        child: widget);
   }
 
 //이미지 박스
@@ -191,7 +220,7 @@ class _ThemeState extends State<ThemeMain> {
       margin: EdgeInsets.all(8),
       height: 100,
       width: 50,
-      child: Image.asset("images/$img.png", fit: BoxFit.fitHeight),
+      child: Image.asset("assets/$img.png", fit: BoxFit.fitHeight),
     );
   }
 

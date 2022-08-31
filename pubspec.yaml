@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -63,9 +63,10 @@ dependencies:
 
   #데이터 저장
   shared_preferences: ^2.0.15
-  flutter_secure_storage: ^5.0.2
+  flutter_secure_storage:
+    ^5.0.2
 
-   # Dialog or Toast
+    # Dialog or Toast
   simple_fontellico_progress_dialog: ^0.2.1
   fluttertoast: ^8.0.9
 
@@ -85,11 +86,20 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/
+  fonts:
+    - family: SpoqaHanSansNeo
+      fonts:
+        - asset: assets/fonts/SpoqaHanSansNeo-Bold.ttf
+        - asset: assets/fonts/SpoqaHanSansNeo-Light.ttf
+        - asset: assets/fonts/SpoqaHanSansNeo-Medium.ttf
+        - asset: assets/fonts/SpoqaHanSansNeo-Regular.ttf
+        - asset: assets/fonts/SpoqaHanSansNeo-Thin.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
