@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:date_format/date_format.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
+import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/place_state.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:get/get.dart';
+import 'package:teragate_v3/utils/log_util.dart';
+import 'package:teragate_v3/utils/time_util.dart';
 
 class Week extends StatefulWidget {
   final StreamController weekStreamController;
@@ -34,7 +38,8 @@ class _WeekState extends State<Week> {
 
   int worktime = 32;
   List<String> week = [];
-  List<String> weekTime = [];
+  List<String> workinTime = [];
+  List<String> workoutTime = [];
   List<String> weekinTime = [];
   List<String> weekoutTime = [];
   List<bool> workinOk = []; // 정상 출근 true/ 지각 false
@@ -47,8 +52,6 @@ class _WeekState extends State<Week> {
   @override
   void initState() {
     super.initState();
-    setUI();
-
     secureStorage = SecureStorage();
 
     weekStreamSubscription = widget.weekStreamController.stream.listen((event) {
@@ -60,90 +63,135 @@ class _WeekState extends State<Week> {
     beaconStreamSubscription = startBeaconSubscription(
         widget.beaconStreamController, secureStorage, setBeaconUI);
 
+    setUI();
     //Get.to(Home);
   }
 
   @override
   Widget build(BuildContext context) {
+    final statusBarHeight = MediaQuery.of(context).padding.top;
     // final controller = Get.put(Controller());
     // controller.increment();
 
-    return _createWillPopScope(Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
+    return _createWillPopScope(Container(
+      padding: EdgeInsets.only(top: statusBarHeight),
+      decoration: const BoxDecoration(color: Color(0xffF5F5F5)),
+      child: Scaffold(
+          body: Stack(
             children: [
-              Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Container(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
-                          padding: const EdgeInsets.only(top: 15),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                CustomText(
-                                  text: "금주 출퇴근 시간",
-                                  size: 18,
-                                  weight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ])),
-                    ],
-                  )),
-              Expanded(
-                  flex: 8,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      initListView(),
-                      // Obx(() => Text("TEXT: ${controller.location}")),
-                      // Obx(() => Text("TEXT: ${controller.week}")),
-                      // Obx(() => Text("${controller.weekData["week"]}")),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const CustomText(
-                            text: "이번 주 설정된총 근무 시간은",
-                            size: 12,
-                            weight: FontWeight.normal,
-                            color: Color(0xff6E6C6C),
-                          ),
-                          CustomText(
-                            text: "*$worktime",
-                            size: 12,
-                            weight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          const CustomText(
-                            text: "시간 입니다",
-                            size: 12,
-                            weight: FontWeight.normal,
-                            color: Color(0xff6E6C6C),
-                          )
-                        ],
-                      )
-                    ],
-                  )),
-              Expanded(
-                  flex: 2,
-                  child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: _createContainerwhite(const CustomBusinessCard(
-                          company: "주식회사 테라비전",
-                          name: "홍길동",
-                          position: "과장",
-                          worktime: "09:00 ~ 18:00",
-                          workbool: true)))),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 40.0,
+                    width: 40.0,
+                    margin: const EdgeInsets.only(top: 20.0, right: 20.0),
+                    // padding: const EdgeInsets.all(1.0),
+                    decoration: const BoxDecoration(),
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(6.0),
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/login', (route) => false);
+                        },
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                        child: const Icon(
+                          Icons.logout,
+                          size: 18.0,
+                          color: Color(0xff3450FF),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 40),
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      CustomText(
+                                        text: "금주 출퇴근 시간",
+                                        size: 18,
+                                        weight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ])),
+                          ],
+                        )),
+                    Expanded(
+                        flex: 7,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(flex: 10, child: initListView()),
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const CustomText(
+                                    text: "이번 주 설정된총 근무 시간은",
+                                    size: 12,
+                                    weight: FontWeight.normal,
+                                    color: Color(0xff6E6C6C),
+                                  ),
+                                  CustomText(
+                                    text: "*$worktime",
+                                    size: 12,
+                                    weight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                  const CustomText(
+                                    text: "시간 입니다",
+                                    size: 12,
+                                    weight: FontWeight.normal,
+                                    color: Color(0xff6E6C6C),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        )),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: _createContainerwhite(
+                                const CustomBusinessCard(
+                                    company: "주식회사 테라비전",
+                                    name: "홍길동",
+                                    position: "과장",
+                                    worktime: "09:00 ~ 18:00",
+                                    workbool: true)))),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-        bottomNavigationBar: BottomNavBar(
-          currentLocation: currentLocation,
-          currentTime: currentTimeHHMM,
-        )));
+          bottomNavigationBar: BottomNavBar(
+            currentLocation: currentLocation,
+            currentTime: currentTimeHHMM,
+            // currentLocation: beaconInfoData.place,
+            // currentTime: getPickerTime(getNow()),
+          )),
+    ));
   }
 
   @override
@@ -184,8 +232,8 @@ class _WeekState extends State<Week> {
   }
 
   // 아이콘 ,요일, 출퇴근 시간 text
-  Container initContainerByweektext(
-      Color color, String week, String worktime, bool today) {
+  Container initContainerByweektext(Color color, String week, String workintime,
+      String workouttime, bool today) {
     if (today == true) {
       color = Color(0xff25A45F);
     }
@@ -205,7 +253,9 @@ class _WeekState extends State<Week> {
                     color: color, borderRadius: BorderRadius.circular(6)),
                 child: CustomText(text: week, size: 13)),
             const SizedBox(width: 10),
-            CustomText(text: worktime, size: 13, color: Colors.black)
+            CustomText(text: workintime, size: 13, color: Colors.black),
+            CustomText(text: "~", size: 13, color: Colors.black),
+            CustomText(text: workouttime, size: 13, color: Colors.black)
           ],
         ));
   }
@@ -247,7 +297,8 @@ class _WeekState extends State<Week> {
                   ? Color(0xff3C5FEB)
                   : Color(0xff77787B),
               week[i],
-              weekTime[i],
+              weekinTime[i],
+              weekoutTime[i],
               today[i]),
           SizedBox(
             child: Row(
@@ -286,29 +337,49 @@ class _WeekState extends State<Week> {
   }
 
   void setUI() {
-    currentTimeHHMM = "19:30";
-    currentLocation = "사무실";
+    int count = 0;
+    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+      // Log.debug(" success === ${workInfo.success.toString()} ");
+      Log.debug(weekInfo.success);
+      Log.debug(weekInfo.workInfos);
+      List<WorkInfo> worklist = weekInfo.workInfos;
+      for (int i = 0; i <= worklist.length; i++) {
+        worklist[i].isweekend;
+        worklist[i].isholiday;
+        workinTime[i] = worklist[i].targetAttendTime!;
+        workoutTime[i] = worklist[i].targetLeaveTime!;
+        worklist[i].attendtime;
+        worklist[i].leavetime;
+        if (worklist[i].isweekend == "true" ||
+            worklist[i].isholiday == "true") {
+          count++;
+        }
+        if (worklist[i].isweekend == "true") {
+          workinTime[i] = "주말";
+        } else if (worklist[i].isholiday == "true") {
+          workinTime[i] = "휴일";
+        }
+      }
+      Log.debug(worklist[0]);
+      // String? isweekend; // 주말 여부
+      // String? isholiday; // 휴일 여부
+      // String? targetAttendTime; // 출근 해야 되는 시간 (예> 09:00)
+      // String? targetLeaveTime; // 퇴근 해야 되는 시간 (예> 18:00)
+      // String? attendtime; // 출근 시간
+      // String? leavetime; // 퇴근 시간
+    });
+
     setState(() {
-      week = ["일", "월", "화", "수", "목", "금", "토"];
-      worktime = 40;
-      weekTime = [
-        "휴일",
-        "08:30~16:00",
-        "08:30~16:00",
-        "08:30~16:00",
-        "08:30~16:00",
-        "08:30~16:00",
-        "휴일"
-      ];
-      weekinTime = [
-        "",
-        "08:30",
-        "08:30",
-        "08:30",
-        "",
-        "08:30",
-        "08:30",
-      ];
+      currentTimeHHMM = "asda";
+      currentLocation = "dsas";
+      // currentTimeHHMM = beaconInfoData.uuid;
+      // currentLocation = beaconInfoData.place;
+      week = ["월", "화", "수", "목", "금", "토", "일"];
+
+      worktime = (7 - count) * 8;
+      //반차에 대한 시간 계산은 나중에...처리
+
+      weekinTime = ["08:30", "08:30", "", "08:30", "08:30", "", ""];
       weekoutTime = [
         "",
         "",
@@ -347,6 +418,8 @@ class _WeekState extends State<Week> {
       ]; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
     });
   }
+
+  //일주일간 출근 퇴근 정보 요청
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;

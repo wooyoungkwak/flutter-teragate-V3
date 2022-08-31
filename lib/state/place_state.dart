@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/theme_state.dart';
 import 'dart:convert';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
+import 'package:teragate_v3/utils/log_util.dart';
 
 class Place extends StatefulWidget {
   final StreamController eventStreamController;
@@ -39,7 +41,6 @@ class _HomeState extends State<Place> {
   @override
   void initState() {
     super.initState();
-    setUI();
 
     secureStorage = SecureStorage();
 
@@ -52,90 +53,130 @@ class _HomeState extends State<Place> {
 
     beaconStreamSubscription = startBeaconSubscription(
         widget.beaconStreamController, secureStorage, setBeaconUI);
+
+    setUI();
     //Get.to(Home);
   }
 
   @override
   Widget build(BuildContext context) {
-    return _createWillPopScope(Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    return _createWillPopScope(Container(
+      padding: EdgeInsets.only(top: statusBarHeight),
+      decoration: const BoxDecoration(color: Color(0xffF5F5F5)),
+      child: Scaffold(
+          body: Stack(
             children: [
-              Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Container(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
-                          padding: const EdgeInsets.only(top: 15),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                CustomText(
-                                  text: "등록 단말기 정보",
-                                  size: 18,
-                                  weight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ])),
-                    ],
-                  )),
-              Expanded(
-                  flex: 7,
-                  child: createContainer(Column(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: initGridView(locationlist, locationlistbool),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 40.0,
+                    width: 40.0,
+                    margin: const EdgeInsets.only(top: 20.0, right: 20.0),
+                    // padding: const EdgeInsets.all(1.0),
+                    decoration: const BoxDecoration(),
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(6.0),
                       ),
-                      Expanded(
-                          flex: 1,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              CustomText(
-                                text: "신규등록한 단말기가 보이지 않을 경우",
-                                size: 12,
-                                weight: FontWeight.w400,
-                                color: Color(0xff6E6C6C),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: CustomText(
-                                  text: "하단 동기화 버튼을 눌러주세요",
-                                  size: 12,
-                                  weight: FontWeight.w400,
-                                  color: Color(0xff6E6C6C),
-                                ),
-                              ),
-                            ],
-                          )),
-                    ],
-                  ))),
-              Expanded(
-                  flex: 2,
-                  child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: createContainerwhite(const CustomBusinessCard(
-                          company: "주식회사 테라비전",
-                          name: "홍길동",
-                          position: "과장",
-                          worktime: "09:00 ~ 18:00",
-                          workbool: true)))),
-              Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.pink,
-                  ))
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/login', (route) => false);
+                        },
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                        child: const Icon(
+                          Icons.logout,
+                          size: 18.0,
+                          color: Color(0xff3450FF),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Container(
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 5),
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      CustomText(
+                                        text: "등록 단말기 정보",
+                                        size: 18,
+                                        weight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ])),
+                          ],
+                        )),
+                    Expanded(
+                        flex: 7,
+                        child: createContainer(Column(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child:
+                                  initGridView(locationlist, locationlistbool),
+                            ),
+                            Expanded(
+                                flex: 1,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    CustomText(
+                                      text: "신규등록한 단말기가 보이지 않을 경우",
+                                      size: 12,
+                                      weight: FontWeight.w400,
+                                      color: Color(0xff6E6C6C),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 8.0),
+                                      child: CustomText(
+                                        text: "하단 동기화 버튼을 눌러주세요",
+                                        size: 12,
+                                        weight: FontWeight.w400,
+                                        color: Color(0xff6E6C6C),
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                          ],
+                        ))),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: createContainerwhite(
+                                const CustomBusinessCard(
+                                    company: "주식회사 테라비전",
+                                    name: "홍길동",
+                                    position: "과장",
+                                    worktime: "09:00 ~ 18:00",
+                                    workbool: true)))),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-        bottomNavigationBar: BottomNavBar(
-          currentLocation: currentLocation,
-          currentTime: currentTimeHHMM,
-        )));
+          bottomNavigationBar: BottomNavBar(
+            currentLocation: currentLocation,
+            currentTime: currentTimeHHMM,
+          )),
+    ));
   }
 
   @override
@@ -192,6 +233,7 @@ class _HomeState extends State<Place> {
                     ? const Icon(
                         Icons.location_on_rounded,
                         color: Colors.red,
+                        size: 10,
                       )
                     : Container(),
                 Center(
@@ -208,6 +250,14 @@ class _HomeState extends State<Place> {
   }
 
   void setUI() {
+    //  비콘 정보 요청 ( 동기화 )
+    sendMessageByBeacon(context, secureStorage).then((configInfo) {
+      Log.debug(" success === ${configInfo.success.toString()} ");
+      List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
+      Log.debug(" placeInfo === ${configInfo.message.toString()} ");
+      Log.debug(" placeInfo === ${configInfo.beaconInfoDatas.toString()} ");
+    });
+
     currentTimeHHMM = "19:30";
     currentLocation = "사무실";
     setState(() {

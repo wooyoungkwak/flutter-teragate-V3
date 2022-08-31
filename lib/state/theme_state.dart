@@ -58,106 +58,151 @@ class _ThemeState extends State<ThemeMain> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    return Container(
+      padding: EdgeInsets.only(top: statusBarHeight),
+      decoration: const BoxDecoration(color: Color(0xffF5F5F5)),
+      child: Scaffold(
+          body: Stack(
             children: [
-              Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Container(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
-                          padding: const EdgeInsets.only(top: 15),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                CustomText(
-                                  text: "메인 테마 설정",
-                                  size: 18,
-                                  weight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ])),
-                    ],
-                  )),
-              Expanded(
-                  flex: 7,
-                  child: createContainer(Column(
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                text: "테마 배경 사용",
-                                size: 16,
-                                color: Colors.black,
-                              ),
-                              Switch(
-                                  value: backgroundbool,
-                                  activeColor: Colors.white,
-                                  activeTrackColor: const Color(0xff26C145),
-                                  inactiveTrackColor: const Color(0xff444653),
-                                  onChanged: (value) {
-                                    setUI(value);
-                                  })
-                            ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 40.0,
+                    width: 40.0,
+                    margin: const EdgeInsets.only(top: 20.0, right: 20.0),
+                    // padding: const EdgeInsets.all(1.0),
+                    decoration: const BoxDecoration(),
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(6.0),
                       ),
-                      const Expanded(flex: 7, child: SizedBox()),
-                      Expanded(
-                          flex: 45,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              initRowByiconText("배경색 사용"),
-                              Row(
-                                children: [
-                                  initContainerByImageBox("배경1"),
-                                  initContainerByImageBox("배경2"),
-                                  initContainerByImageBox("배경3"),
-                                  initContainerByImageBox("배경4"),
-                                ],
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 45,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              initRowByiconText("테마 사용"),
-                              Row(
-                                children: [
-                                  initContainerByImageBox("테마1"),
-                                  initContainerByImageBox("테마2"),
-                                  initContainerByImageBox("테마3"),
-                                ],
-                              )
-                            ],
-                          ))
-                    ],
-                  ))),
-              Expanded(
-                  flex: 2,
-                  child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: createContainerwhite(const CustomBusinessCard(
-                          company: "주식회사 테라비전",
-                          name: "홍길동",
-                          position: "과장",
-                          worktime: "09:00 ~ 18:00",
-                          workbool: true)))),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/login', (route) => false);
+                        },
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                        child: const Icon(
+                          Icons.logout,
+                          size: 18.0,
+                          color: Color(0xff3450FF),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 40),
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      CustomText(
+                                        text: "메인 테마 설정",
+                                        size: 18,
+                                        weight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ])),
+                          ],
+                        )),
+                    Expanded(
+                        flex: 7,
+                        child: createContainer(Column(
+                          children: [
+                            Expanded(
+                              flex: 10,
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    CustomText(
+                                      text: "테마 배경 사용",
+                                      size: 16,
+                                      color: Colors.black,
+                                    ),
+                                    Switch(
+                                        value: backgroundbool,
+                                        activeColor: Colors.white,
+                                        activeTrackColor:
+                                            const Color(0xff26C145),
+                                        inactiveTrackColor:
+                                            const Color(0xff444653),
+                                        onChanged: (value) {
+                                          setUI(value);
+                                        })
+                                  ]),
+                            ),
+                            const Expanded(flex: 7, child: SizedBox()),
+                            Expanded(
+                                flex: 45,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    initRowByiconText("배경색 사용"),
+                                    Row(
+                                      children: [
+                                        initContainerByImageBox("배경1"),
+                                        initContainerByImageBox("배경2"),
+                                        initContainerByImageBox("배경3"),
+                                        initContainerByImageBox("배경4"),
+                                      ],
+                                    )
+                                  ],
+                                )),
+                            Expanded(
+                                flex: 45,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    initRowByiconText("테마 사용"),
+                                    Row(
+                                      children: [
+                                        initContainerByImageBox("테마1"),
+                                        initContainerByImageBox("테마2"),
+                                        initContainerByImageBox("테마3"),
+                                      ],
+                                    )
+                                  ],
+                                ))
+                          ],
+                        ))),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: createContainerwhite(
+                                const CustomBusinessCard(
+                                    company: "주식회사 테라비전",
+                                    name: "홍길동",
+                                    position: "과장",
+                                    worktime: "09:00 ~ 18:00",
+                                    workbool: true)))),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-        bottomNavigationBar: BottomNavBar(
-          currentLocation: currentLocation,
-          currentTime: currentTimeHHMM,
-        ));
+          bottomNavigationBar: BottomNavBar(
+            currentLocation: currentLocation,
+            currentTime: currentTimeHHMM,
+          )),
+    );
   }
 
   @override
