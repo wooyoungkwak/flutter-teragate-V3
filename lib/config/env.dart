@@ -77,8 +77,6 @@ class Env {
 
   static String UUID_DEFAULT = "74278BDB-B644-4520-8F0C-720EEAFFFFFF";
 
-  static Map<String, String> UUIDS = {};
-
   static String CURRENT_STATE = "";
   static String DEVICE_IP = "";
   static String CURRENT_UUID = "";
@@ -87,6 +85,7 @@ class Env {
   static int CHANGE_COUNT = 1;
   static DateTime INNER_TIME = DateTime.now();
 
-  static StreamSubscription? connectivityStreamSubscription;
+  static Map<String, String> UUIDS = {};
+  static StreamSubscription? CONNECTIVITY_STREAM_SUBSCRIPTION;
 
 }

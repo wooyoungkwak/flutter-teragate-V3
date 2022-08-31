@@ -28,18 +28,17 @@ class LoginInfo {
     return data![Env.KEY_PHOTO_PATH];
   }
 
-  String getKrName(){
+  String getKrName() {
     return data![Env.KEY_KR_NAME];
   }
 
-  String getPositionName(){
+  String getPositionName() {
     return data![Env.KEY_POSITION_NAME];
   }
-  
-  String getCompanyName(){
+
+  String getCompanyName() {
     return data![Env.KEY_COMPANY_NAME];
   }
-  
 }
 
 class WorkInfo {
@@ -72,9 +71,10 @@ class WorkInfo {
     WorkInfo? workInfo;
     for (var data in json["data"]) {
       workInfo = WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
-        json["placeWorkName"], json["solardate"], success: json["success"], message: json["message"]);
+          json["placeWorkName"], json["solardate"],
+          success: json["success"], message: json["message"]);
     }
-    
+
     return workInfo!;
   }
 
@@ -137,22 +137,30 @@ class WeekInfo {
 class ConfigInfo {
   bool? success;
   String? message;
-  List<dynamic> config;
+  // List<dynamic> config;
+  List<BeaconInfoData> beaconInfoDatas;
 
-  ConfigInfo({this.success, this.message, required this.config});
+  ConfigInfo({this.success, this.message, required this.beaconInfoDatas});
 
   static ConfigInfo fromJson(Map<String, dynamic> json) {
-    return ConfigInfo(success: json["success"], config: json["config"]);
+    List<dynamic> config = json["config"];
+    List<BeaconInfoData> beaconInfoDatas = [];
+
+    Env.UUIDS.clear();
+    
+    for (var element in config) {
+      Env.UUIDS["${element["uuid"]}"] = element["place"];
+    }
+
+    ConfigInfo configInfo = ConfigInfo(success: json["success"], beaconInfoDatas: beaconInfoDatas);
+    return configInfo;
   }
 
-  Map<String, dynamic> toJson() => {"success": success, "config": config};
+  Map<String, dynamic> toJson() => {"success": success, "beaconInfoDatas": beaconInfoDatas};
 
-  List<BeaconInfoData> toBeaconDatas() {
-    List<BeaconInfoData> beaconInfoDatas = [];
-    for (Map<String, dynamic> element in config) {
-      beaconInfoDatas.add(BeaconInfoData.fromJson(element));
-    }
-    return beaconInfoDatas;
+  @override
+  String toString() {
+    return jsonEncode(toJson());
   }
 }
 
@@ -177,6 +185,11 @@ class BeaconInfoData {
   }
 
   Map<String, dynamic> toJson() => {"place": place, "uuid": uuid};
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
 }
 
 class TokenInfo {

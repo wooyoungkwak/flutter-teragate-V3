@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamController? beaconStreamController;
   late StreamController weekStreamController;
 
-  late StreamSubscription connectivityStreamSubscription;
+  late StreamSubscription CONNECTIVITY_STREAM_SUBSCRIPTION;
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
 
@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _createUuidsOfTest();
 
-    initIp().then((value) => connectivityStreamSubscription = value);
+    initIp().then((value) => CONNECTIVITY_STREAM_SUBSCRIPTION = value);
 
     eventStreamController = StreamController<String>.broadcast();
     eventStreamSubscription = eventStreamController.stream.listen((event) {
@@ -155,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //               eventStreamController: eventStreamController,
     //               beaconStreamController: beaconStreamController,
     //               weekStreamController: weekStreamController,
-    //               connectivityStreamSubscription: connectivityStreamSubscription,
+    //               CONNECTIVITY_STREAM_SUBSCRIPTION: CONNECTIVITY_STREAM_SUBSCRIPTION,
     //               beaconStreamSubscription: beaconStreamSubscription,
     //               eventStreamSubscription: eventStreamSubscription)));
 

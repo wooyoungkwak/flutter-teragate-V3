@@ -232,7 +232,7 @@ Future<ConfigInfo> _processBeaconInfos(SecureStorage secureStorage, String acces
           if (repeat < 2) {
             return await _processBeaconInfos(secureStorage, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), userId, repeat);
           } else {
-            return ConfigInfo(success: false, config: []);
+            return ConfigInfo(success: false, beaconInfoDatas: []);
           }
         }
       }
@@ -240,7 +240,7 @@ Future<ConfigInfo> _processBeaconInfos(SecureStorage secureStorage, String acces
     return configInfo;
   } catch (err) {
     Log.log(" processTracking Exception : ${err.toString()}");
-    return ConfigInfo(success: false, config: []);
+    return ConfigInfo(success: false, beaconInfoDatas: []);
   }
 }
 
