@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 
-LoginInfo resultInfoFromJson(String str) =>
-    LoginInfo.fromJson(json.decode(str));
+LoginInfo resultInfoFromJson(String str) => LoginInfo.fromJson(json.decode(str));
 
 String resultInfoToJson(LoginInfo loginInfo) => json.encode(loginInfo.toJson());
 
@@ -17,15 +16,11 @@ class LoginInfo {
   TokenInfo? tokenInfo;
 
   static LoginInfo fromJson(Map<String, dynamic> json) {
-    TokenInfo tokenInfo = TokenInfo(
-        accessToken: json["accessToken"],
-        refreshToken: json["refreshToken"],
-        isUpdated: true);
+    TokenInfo tokenInfo = TokenInfo(accessToken: json["accessToken"], refreshToken: json["refreshToken"], isUpdated: true);
     return LoginInfo(json["success"], json["data"], "", tokenInfo);
   }
 
-  static LoginInfo fromJsonByFail(Map<String, dynamic> json) =>
-      LoginInfo(json["success"], {}, Env.MSG_LOGIN_FAIL, null);
+  static LoginInfo fromJsonByFail(Map<String, dynamic> json) => LoginInfo(json["success"], {}, Env.MSG_LOGIN_FAIL, null);
 
   Map<String, dynamic> toJson() => {"success": success, "data": data};
 
@@ -65,52 +60,25 @@ class WorkInfo {
   String? placeWorkName; //
   String? solardate; // 일자
 
-  WorkInfo(
-      this.userId,
-      this.krName,
-      this.isweekend,
-      this.isholiday,
-      this.attendtime,
-      this.leavetime,
-      this.attIpIn,
-      this.attIpOut,
-      this.targetAttendTime,
-      this.targetLeaveTime,
-      this.strAttendLeaveTime,
-      this.noAttendCheckYn,
-      this.placeWork,
-      this.placeWorkName,
-      this.solardate,
-      {required this.success,
-      required this.message});
+  WorkInfo(this.userId, this.krName, this.isweekend, this.isholiday, this.attendtime, this.leavetime, this.attIpIn, this.attIpOut, this.targetAttendTime, this.targetLeaveTime, this.strAttendLeaveTime, this.noAttendCheckYn, this.placeWork, this.placeWorkName, this.solardate,
+      {required this.success, required this.message});
+
+  static WorkInfo fromJsonByWeek(bool success, String message, Map<String, dynamic> json) {
+    return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
+        json["placeWorkName"], json["solardate"],
+        success: success, message: message);
+  }
 
   static WorkInfo fromJson(Map<String, dynamic> json) {
     if (json == null) {
-      return WorkInfo(null, null, null, null, null, null, null, null, null,
-          null, null, null, null, null, null,
-          success: false, message: "");
+      return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
     }
 
     WorkInfo? workInfo;
     for (var data in json["data"]) {
-      workInfo = WorkInfo(
-          json["userId"],
-          json["krName"],
-          json["isweekend"],
-          json["isholiday"],
-          json["attendtime"],
-          json["leavetime"],
-          json["attIpIn"],
-          json["attIpOut"],
-          json["targetAttendTime"],
-          json["targetLeaveTime"],
-          json["strAttendLeaveTime"],
-          json["noAttendCheckYn"],
-          json["placeWork"],
-          json["placeWorkName"],
-          json["solardate"],
-          success: json["success"],
-          message: json["message"]);
+      workInfo = WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
+          json["placeWorkName"], json["solardate"],
+          success: json["success"], message: json["message"]);
     }
 
     return workInfo!;
@@ -156,7 +124,7 @@ class WeekInfo {
     }
 
     for (var data in json["data"]) {
-      workInfos.add(WorkInfo.fromJson(data));
+      workInfos.add(WorkInfo.fromJsonByWeek(json["success"], json["message"], data));
     }
 
     return WeekInfo(json["success"], json["message"], workInfos: workInfos);
@@ -190,13 +158,11 @@ class ConfigInfo {
       beaconInfoDatas.add(BeaconInfoData.fromJson(element));
     }
 
-    ConfigInfo configInfo =
-        ConfigInfo(success: json["success"], beaconInfoDatas: beaconInfoDatas);
+    ConfigInfo configInfo = ConfigInfo(success: json["success"], beaconInfoDatas: beaconInfoDatas);
     return configInfo;
   }
 
-  Map<String, dynamic> toJson() =>
-      {"success": success, "beaconInfoDatas": beaconInfoDatas};
+  Map<String, dynamic> toJson() => {"success": success, "beaconInfoDatas": beaconInfoDatas};
 
   @override
   String toString() {
@@ -238,11 +204,7 @@ class TokenInfo {
   String refreshToken;
   String? message;
 
-  TokenInfo(
-      {required this.accessToken,
-      required this.refreshToken,
-      this.message,
-      required this.isUpdated});
+  TokenInfo({required this.accessToken, required this.refreshToken, this.message, required this.isUpdated});
 
   String getAccessToken() {
     return accessToken;
