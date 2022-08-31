@@ -11,14 +11,17 @@ class Home extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
+  const Home(
+      {required this.eventStreamController,
+      required this.beaconStreamController,
+      Key? key})
+      : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  late StreamSubscription connectivityStreamSubscription;
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
 
@@ -46,14 +49,16 @@ class _HomeState extends State<Home> {
     setUI(location: "외부");
 
     secureStorage = SecureStorage();
-    
-    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+
+    eventStreamSubscription =
+        widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
       }
     });
 
-    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
+    beaconStreamSubscription = startBeaconSubscription(
+        widget.beaconStreamController, secureStorage, setBeaconUI);
   }
 
   @override
@@ -65,12 +70,15 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+
     return WillPopScope(
       onWillPop: () {
         return Future(() => false);
       },
       child: Container(
         // 배경화면
+        padding: EdgeInsets.only(top: statusBarHeight),
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/background.png"),
@@ -99,7 +107,8 @@ class _HomeState extends State<Home> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -177,7 +186,8 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               CustomText(
-                                padding: const EdgeInsets.only(left: 14.0, right: 4.0),
+                                padding: const EdgeInsets.only(
+                                    left: 14.0, right: 4.0),
                                 text: profileName,
                                 size: 28.0,
                               ),
@@ -258,7 +268,8 @@ class _HomeState extends State<Home> {
       currentMinute = "52";
       currentDay = "6월 21일 화요일";
       company = "주식회사 테라비전";
-      profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
+      profilePicture =
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
       profileName = "홍길동";
       profilePosition = "과장";
       currentTimeHHMM = "19:55";
@@ -299,7 +310,6 @@ class _HomeState extends State<Home> {
   void setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
   }
-
 }
 
 Card _createWorkCard({
