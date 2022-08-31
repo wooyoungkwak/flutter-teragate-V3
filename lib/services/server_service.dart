@@ -252,32 +252,34 @@ Future<WorkInfo> _processTracking(SecureStorage secureStorage, String accessToke
 }
 
 // 업무 정보 동기화 메시지 전송 (type : Env.WORK_TYPE_TODAY or Env.WORK_TYPE_WEEK )
-Future<WorkInfo> sendMessageByWork(BuildContext context, SecureStorage secureStorage, String type) async {
+Future<WorkInfo> sendMessageByWork(BuildContext? context, SecureStorage secureStorage, String type) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
 
   WorkInfo workInfo = await _processWork(secureStorage, acccessToken!, refreshToken!, type, 0);
   if (workInfo.message == Env.MSG_FAIL_REGISTER) {
-    showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER);
+    // ignore: use_build_context_synchronously
+    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
   }
   return workInfo;
 }
 
 // 비콘 정보 동기화 메시지 전송
-Future<ConfigInfo> sendMessageByBeacon(BuildContext context, SecureStorage secureStorage) async {
+Future<ConfigInfo> sendMessageByBeacon(BuildContext? context, SecureStorage secureStorage) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
   String? userId = await secureStorage.read(Env.KEY_USER_ID);
 
   ConfigInfo configInfo = await _processBeaconInfos(secureStorage, acccessToken!, refreshToken!, userId!, 0);
   if (configInfo.message == Env.MSG_FAIL_REGISTER) {
-    showConfirmDialog(context, "알림", Env.MSG_FAIL_BEACON);
+    // ignore: use_build_context_synchronously
+    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_BEACON) : "";
   }
   return configInfo;
 }
 
 // 추적 정보 등록 메시지 전송
-Future<WorkInfo> sendMessageTracking(BuildContext context, SecureStorage secureStorage, String uuid, String place) async {
+Future<WorkInfo> sendMessageTracking(BuildContext? context, SecureStorage secureStorage, String uuid, String place) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
   String? userId = await secureStorage.read(Env.KEY_USER_ID);
@@ -285,7 +287,8 @@ Future<WorkInfo> sendMessageTracking(BuildContext context, SecureStorage secureS
   WorkInfo workInfo = await _processTracking(secureStorage, acccessToken!, refreshToken!, userId!, Env.DEVICE_IP, uuid, place, 0);
 
   if (workInfo.message == Env.MSG_FAIL_REGISTER) {
-    showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER);
+    // ignore: use_build_context_synchronously
+    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
   }
   return workInfo;
 }

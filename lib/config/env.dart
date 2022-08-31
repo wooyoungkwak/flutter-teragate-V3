@@ -88,6 +88,8 @@ class Env {
   static String TITLE_SETTING_UUID_DEFAULT_BUTTON = "Default Value Setting";
   static String TITLE_SETTING_UUID_GET_BUTTON = "Get UUID";
 
+  static StreamSubscription? connectivityStreamSubscription;
+
   void UUID_SUBtKR() {
     TITLE_SETTING_GET_IN = "출근";
     TITLE_SETTING_GET_IN_SUB = "출근 일정을 설정하세요";

@@ -25,65 +25,54 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   StreamController? eventStreamController;
   StreamController? beaconStreamController;
   StreamController? weekStreamController;
 
-  StreamSubscription? connectivityStreamSubscription;
-  StreamSubscription? beaconStreamSubscription;
-  StreamSubscription? eventStreamSubscription;
-
   SecureStorage? secureStorage;
+  Timer? beaconTimer;
 
-  MyApp({
-    this.eventStreamController, 
-    this.beaconStreamController, 
-    this.weekStreamController, 
-  Key? key}) : super(key: key);
+  MyApp({this.eventStreamController, this.beaconStreamController, this.weekStreamController, Key? key}) : super(key: key);
 
   void init() {
-    beaconStreamController = StreamController<String>.broadcast(); 
+    beaconStreamController = StreamController<String>.broadcast();
     eventStreamController = StreamController<String>.broadcast();
     weekStreamController = StreamController<String>.broadcast();
     secureStorage = SecureStorage();
 
-    eventStreamSubscription = eventStreamController!.stream.listen((event) {
-      if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
-      }
-    });
-
-    // initIp().then((value) => connectivityStreamSubscription = value);
-
-    beaconStreamSubscription = startBeaconSubscription(beaconStreamController!, secureStorage!, null);
-
-    // startBeaconTimer(context, _successCheck, secureStorage).then((timer) => beaconTimer = timer);
+    startBeaconTimer(null, _broadcastByEvent, secureStorage!).then((timer) => beaconTimer = timer);
   }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Groupware WorkOn',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       initialRoute: "/login",
-      routes: <String, WidgetBuilder> {
+      routes: <String, WidgetBuilder>{
         "/login": (BuildContext context) => Login(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
-        "/home": (BuildContext context) =>  Home(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
+        "/home": (BuildContext context) => Home(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
         "/place": (BuildContext context) => Place(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
         "/theme": (BuildContext context) => ThemeMain(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
-        "/week": (BuildContext context) =>  Week(eventStreamController: eventStreamController!, weekStreamController: weekStreamController!, beaconStreamController: beaconStreamController!)
+        "/week": (BuildContext context) => Week(eventStreamController: eventStreamController!, weekStreamController: weekStreamController!, beaconStreamController: beaconStreamController!)
       },
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      
     );
   }
 
+  Future<void> _broadcastByEvent(String type, dynamic data) async {
+    if (type == Env.WORK_TYPE_TODAY) {
+      eventStreamController!.add(data);
+    } else if (type == Env.WORK_TYPE_WEEK) {
+      weekStreamController!.add(data);
+    }
+  }
 }
 
+// deprecated
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -266,7 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
     String? id = await secureStorage.read(Env.LOGIN_ID);
     String? pw = await secureStorage.read(Env.LOGIN_PW);
 
-    if ( id == null || pw == null) {
+    if (id == null || pw == null) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
     }
 
@@ -277,6 +266,5 @@ class _MyHomePageState extends State<MyHomePage> {
 
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
     });
-
   }
 }

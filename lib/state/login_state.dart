@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/services/network_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/models/result_model.dart';
@@ -23,7 +25,8 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
-
+  StreamSubscription? connectivityStreamSubscription;
+  
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _loginIdContoroller = TextEditingController(text: "");
   final TextEditingController _passwordContorller = TextEditingController(text: "");
@@ -46,6 +49,8 @@ class _LoginState extends State<Login> {
     });
 
     callPermissions();
+    initIp().then((value) => Env.connectivityStreamSubscription = value);
+    //   Env.connectivityStreamSubscription!.cancel();
   }
 
   @override
