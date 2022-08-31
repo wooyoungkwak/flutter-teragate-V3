@@ -53,7 +53,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
 
   Timer? timer = Timer.periodic(const Duration(seconds: 1), (timer) {
     Log.debug(" ip = ${Env.DEVICE_IP}");
-    
+
     // ignore: unnecessary_null_comparison
     if (Env.INNER_TIME == null) return;
 
@@ -99,17 +99,17 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
     if (count == 60) {
       
       // 금일 출근 퇴근 정보 요청
-      sendMessageByWork(context, secureStorage, Env.WORK_TYPE_TODAY).then((workInfo) {
+      sendMessageByWork(context, secureStorage).then((workInfo) {
         callback!(Env.WORK_TYPE_TODAY, workInfo);
       });
 
       Future.delayed(const Duration(seconds: 2), () {
         // 일주일간 출근 퇴근 정보 요청
-        sendMessageByWork(context, secureStorage, Env.WORK_TYPE_WEEK).then((workInfo) {
-          callback!(Env.WORK_TYPE_TODAY, workInfo);
+        sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+          callback!(Env.WORK_TYPE_WEEK, weekInfo);
         });
       });
-
+      count = 0;
     } else {
       count++;
     }

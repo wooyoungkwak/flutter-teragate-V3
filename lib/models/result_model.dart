@@ -52,21 +52,17 @@ class WorkInfo {
       {required this.success, required this.message});
 
   static WorkInfo fromJson(Map<String, dynamic> json) {
-
     if (json == null) {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
     }
 
-    if (json["success"] is String) {
-      json["success"] = (json["success"] == "true" ? true : false);
-    } else {
-      json["success"] ?? false;
+    WorkInfo? workInfo;
+    for (var data in json["data"]) {
+      workInfo = WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
+        json["placeWorkName"], json["solardate"], success: json["success"], message: json["message"]);
     }
-
-    return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
-        json["placeWorkName"], json["solardate"],
-        success: true, message: "");
-    // return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: json["success"] , message: ( json["message"] ?? "" )  );
+    
+    return workInfo!;
   }
 
   Map<String, dynamic> toJson() => {
@@ -88,6 +84,36 @@ class WorkInfo {
         "success": success,
         "message": message,
       };
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
+
+class WeekInfo {
+  bool success = true; // 요청 결과 (예> true (성공) / false (실패))
+  String message = ""; // 요청 결과 메시지 ( 오류가 있을때만 message 가 존재 )
+  List<WorkInfo> workInfos;
+  WeekInfo(this.success, this.message, {required this.workInfos});
+
+  static WeekInfo fromJson(Map<String, dynamic> json) {
+    List<WorkInfo> workInfos = [];
+
+    if (json == null) {
+      return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos: workInfos);
+    }
+
+    for (var data in json["data"]) {
+      workInfos.add(WorkInfo.fromJson(data));
+    }
+
+    return WeekInfo(json["success"], json["message"], workInfos: workInfos);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {"success": success, "message": message, "workInfos": workInfos};
+  }
 
   @override
   String toString() {

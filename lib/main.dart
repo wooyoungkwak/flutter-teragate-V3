@@ -157,12 +157,12 @@ class _MyHomePageState extends State<MyHomePage> {
     //   // });
 
     //   // 금일 출근 퇴근 정보 요청
-    //   // sendMessageByWork(context, secureStorage, Env.WORK_TYPE_TODAY).then((workInfo) {
+    //   // sendMessageByWork(context, secureStorage).then((workInfo) {
     //   //   Log.debug(" success === ${workInfo.success.toString()} ");
     //   // });
 
     //   // 일주일간 출근 퇴근 정보 요청
-    //   // sendMessageByWork(context, secureStorage, Env.WORK_TYPE_WEEK).then((workInfo) {
+    //   // sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
     //   //   Log.debug(" success === ${workInfo.success.toString()} ");
     //   // });
 

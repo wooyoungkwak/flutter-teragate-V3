@@ -52,7 +52,7 @@ Future<WorkInfo> _getWokrInfoByToday(String accessToken) async {
 }
 
 // 일주일간 정보 
-Future<List<WorkInfo>> _getWokrInfoByWeeks(String accessToken) async {
+Future<WeekInfo> _getWokrInfoByWeek(String accessToken) async {
   
   int diff = 0;
 
@@ -92,13 +92,7 @@ Future<List<WorkInfo>> _getWokrInfoByWeeks(String accessToken) async {
   final response = await http.get(url, headers: {"Content-Type": "application/json", "Authorization": accessToken});
 
   if (response.statusCode == 200) {
-    List<dynamic> list = json.decode(response.body);
-    List<WorkInfo> workInfos = [];
-    for ( Map<String, String> element in list  ) {
-      workInfos.add(WorkInfo.fromJson(element));
-    }
-
-    return workInfos;
+      return WeekInfo.fromJson(json.decode(response.body));
   } else {
     throw Exception(response.body);
   }
@@ -148,7 +142,7 @@ Future<TokenInfo> _getTokenByRefreshToken(String refreshToken) async {
 }
 
 // 업무 동기화 처리 
-Future<WorkInfo> _processWork(SecureStorage secureStorage, String accessToken, String refreshToken, String type, int repeat) async {
+Future<WorkInfo> _processWorkByToday(SecureStorage secureStorage, String accessToken, String refreshToken, int repeat) async {
 
   WorkInfo workInfo = await _getWokrInfoByToday(accessToken);
   TokenInfo tokenInfo;
@@ -168,7 +162,7 @@ Future<WorkInfo> _processWork(SecureStorage secureStorage, String accessToken, S
 
           repeat++;
           if (repeat < 2) {
-            return await _processWork(secureStorage, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), type, repeat);
+            return await _processWorkByToday(secureStorage, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), repeat);
           } else {
             return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_FAIL_REGISTER);
           }
@@ -179,6 +173,40 @@ Future<WorkInfo> _processWork(SecureStorage secureStorage, String accessToken, S
   } catch (err) {
     Log.log(" processTracking Exception : ${err.toString()}");
     return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_FAIL_REGISTER);
+  }
+}
+
+Future<WeekInfo> _processWorkByWeek(SecureStorage secureStorage, String accessToken, String refreshToken, int repeat) async {
+
+  WeekInfo weekInfo = await _getWokrInfoByWeek(accessToken);
+  TokenInfo tokenInfo;
+
+  try {
+    if (weekInfo.success) {
+      tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
+    } else {
+      if (weekInfo.message == "expired") {
+        // 만료 인 경우 재 요청 경우
+        tokenInfo = await _getTokenByRefreshToken(refreshToken);
+
+        if (tokenInfo.isUpdated == true) {
+          // Token 저장
+          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
+          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+
+          repeat++;
+          if (repeat < 2) {
+            return await _processWorkByWeek(secureStorage, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), repeat);
+          } else {
+            return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos:[]);
+          }
+        }
+      }
+    }
+    return weekInfo;
+  } catch (err) {
+    Log.log(" processTracking Exception : ${err.toString()}");
+    return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos:[]);
   }
 }
 
@@ -252,16 +280,29 @@ Future<WorkInfo> _processTracking(SecureStorage secureStorage, String accessToke
 }
 
 // 업무 정보 동기화 메시지 전송 (type : Env.WORK_TYPE_TODAY or Env.WORK_TYPE_WEEK )
-Future<WorkInfo> sendMessageByWork(BuildContext? context, SecureStorage secureStorage, String type) async {
+Future<WorkInfo> sendMessageByWork(BuildContext? context, SecureStorage secureStorage) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
 
-  WorkInfo workInfo = await _processWork(secureStorage, acccessToken!, refreshToken!, type, 0);
+  WorkInfo workInfo = await _processWorkByToday(secureStorage, acccessToken!, refreshToken!, 0);
   if (workInfo.message == Env.MSG_FAIL_REGISTER) {
     // ignore: use_build_context_synchronously
     context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
   }
   return workInfo;
+}
+
+// 업무 정보 동기화 메시지 전송 (type : Env.WORK_TYPE_TODAY or Env.WORK_TYPE_WEEK )
+Future<WeekInfo> sendMessageByWeekWork(BuildContext? context, SecureStorage secureStorage) async {
+  String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
+  String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
+
+  WeekInfo weekInfo = await _processWorkByWeek(secureStorage, acccessToken!, refreshToken!, 0);
+  if (weekInfo.message == Env.MSG_FAIL_REGISTER) {
+    // ignore: use_build_context_synchronously
+    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
+  }
+  return weekInfo;
 }
 
 // 비콘 정보 동기화 메시지 전송
