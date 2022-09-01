@@ -111,11 +111,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     showSyncDialog(context),
                   },
                 ),
-                _createIconByContainer(
-                  icon: Icons.camera,
-                  text: "테마",
-                ),
-                _createIconByContainer(icon: Icons.place_rounded, text: "등록", function: () => {Navigator.pop(context)}),
+                _createIconByContainer(icon: Icons.camera, text: "테마", function: () => {_passNextPage(context, '/theme')}),
+                _createIconByContainer(icon: Icons.place_rounded, text: "등록", function: () => {_passNextPage(context, '/place')}),
               ],
             ),
           ),

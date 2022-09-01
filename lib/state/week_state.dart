@@ -340,7 +340,7 @@ class _WeekState extends State<Week> {
     int count = 0;
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
       // Log.debug(" success === ${workInfo.success.toString()} ");
-      Log.debug(weekInfo.success);
+      Log.debug(weekInfo!.success);
       Log.debug(weekInfo.workInfos);
       List<WorkInfo> worklist = weekInfo.workInfos;
       for (int i = 0; i <= worklist.length; i++) {
@@ -422,6 +422,7 @@ class _WeekState extends State<Week> {
   //일주일간 출근 퇴근 정보 요청
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
+    Log.debug(" beaconInfoData = ${beaconInfoData.toString()}");
     this.beaconInfoData = beaconInfoData;
   }
 

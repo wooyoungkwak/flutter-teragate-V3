@@ -15,11 +15,7 @@ class Place extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const Place(
-      {required this.eventStreamController,
-      required this.beaconStreamController,
-      Key? key})
-      : super(key: key);
+  const Place({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
   // final controller = Get.put(Controller());
   @override
   State<Place> createState() => _HomeState();
@@ -44,15 +40,13 @@ class _HomeState extends State<Place> {
 
     secureStorage = SecureStorage();
 
-    eventStreamSubscription =
-        widget.eventStreamController.stream.listen((event) {
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
       }
     });
 
-    beaconStreamSubscription = startBeaconSubscription(
-        widget.beaconStreamController, secureStorage, setBeaconUI);
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
 
     setUI();
     //Get.to(Home);
@@ -83,8 +77,7 @@ class _HomeState extends State<Place> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (route) => false);
+                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -108,19 +101,16 @@ class _HomeState extends State<Place> {
                         child: Column(
                           children: [
                             Container(
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 5),
+                                margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 5),
                                 padding: const EdgeInsets.only(top: 15),
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      CustomText(
-                                        text: "등록 단말기 정보",
-                                        size: 18,
-                                        weight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                    ])),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+                                  CustomText(
+                                    text: "등록 단말기 정보",
+                                    size: 18,
+                                    weight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ])),
                           ],
                         )),
                     Expanded(
@@ -129,8 +119,7 @@ class _HomeState extends State<Place> {
                           children: [
                             Expanded(
                               flex: 5,
-                              child:
-                                  initGridView(locationlist, locationlistbool),
+                              child: initGridView(locationlist, locationlistbool),
                             ),
                             Expanded(
                                 flex: 1,
@@ -156,17 +145,7 @@ class _HomeState extends State<Place> {
                                 )),
                           ],
                         ))),
-                    Expanded(
-                        flex: 2,
-                        child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: createContainerwhite(
-                                const CustomBusinessCard(
-                                    company: "주식회사 테라비전",
-                                    name: "홍길동",
-                                    position: "과장",
-                                    worktime: "09:00 ~ 18:00",
-                                    workbool: true)))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
                   ],
                 ),
               ),
@@ -196,20 +175,11 @@ class _HomeState extends State<Place> {
   }
 
   Container createContainer(Widget widget) {
-    return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   Container createContainerwhite(Widget widget) {
-    return Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   GridView initGridView(List list, List listbool) {
@@ -225,9 +195,7 @@ class _HomeState extends State<Place> {
           return Container(
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: const Color(0xffF5F5F5),
-                  borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: const Color(0xffF5F5F5), borderRadius: BorderRadius.circular(8)),
               child: Stack(alignment: Alignment.topLeft, children: [
                 listbool[index] == true
                     ? const Icon(
@@ -252,8 +220,7 @@ class _HomeState extends State<Place> {
   void setUI() {
     //  비콘 정보 요청 ( 동기화 )
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
-      Log.debug(" success === ${configInfo.success.toString()} ");
-      List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
+      List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
       Log.debug(" placeInfo === ${configInfo.message.toString()} ");
       Log.debug(" placeInfo === ${configInfo.beaconInfoDatas.toString()} ");
     });
@@ -263,18 +230,7 @@ class _HomeState extends State<Place> {
     setState(() {
       String location = "기업부설연구소";
       locationlist = ["사무실", "휴게실", "기업부설연구소", "현장", "재고창고"];
-      locationlistbool = [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ];
+      locationlistbool = [false, false, false, false, false, false, false, false, false, false];
       for (int i = 0; i < locationlist.length; i++) {
         if (location == locationlist[i]) {
           locationlistbool[i] = true;
@@ -286,6 +242,7 @@ class _HomeState extends State<Place> {
   }
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
+    Log.debug(" beaconInfoData = ${beaconInfoData.toString()}");
     this.beaconInfoData = beaconInfoData;
   }
 }
