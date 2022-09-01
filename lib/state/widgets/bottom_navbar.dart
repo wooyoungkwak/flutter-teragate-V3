@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/config/env.dart';
+import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/services/server_service.dart';
@@ -91,14 +92,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   icon: Icons.home,
                   text: "홈",
                   function: () => {
-                    _passNextPage(context, '/home'),
+                    sendMessageByWork(context, secureStorage).then((workInfo) {
+                      Env.INIT_STATE_INFO = workInfo;
+                      _passNextPage(context, '/home');
+                    })
                   },
                 ),
                 _createIconByContainer(
                   icon: Icons.access_time_filled,
                   text: "출퇴근",
                   function: () => {
-                    _passNextPage(context, '/week'),
+                    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+                      Env.INIT_STATE_INFO = weekInfo;
+                      _passNextPage(context, '/week');
+                    })
                   },
                 ),
                 _createIconByContainer(
@@ -111,8 +118,24 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     showSyncDialog(context),
                   },
                 ),
-                _createIconByContainer(icon: Icons.camera, text: "테마", function: () => {_passNextPage(context, '/theme')}),
-                _createIconByContainer(icon: Icons.place_rounded, text: "등록", function: () => {_passNextPage(context, '/place')}),
+                _createIconByContainer(
+                    icon: Icons.camera,
+                    text: "테마",
+                    function: () => {
+                          sendMessageByWork(context, secureStorage).then((workInfo) {
+                            Env.INIT_STATE_INFO = workInfo;
+                            _passNextPage(context, '/theme');
+                          })
+                        }),
+                _createIconByContainer(
+                    icon: Icons.place_rounded,
+                    text: "등록",
+                    function: () => {
+                          sendMessageByWork(context, secureStorage).then((workInfo) {
+                            Env.INIT_STATE_INFO = workInfo;
+                            _passNextPage(context, '/place');
+                          })
+                        }),
               ],
             ),
           ),

@@ -42,7 +42,7 @@ class _HomeState extends State<Place> {
 
     eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
       }
     });
 

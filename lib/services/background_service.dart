@@ -22,7 +22,6 @@ StreamSubscription startBeaconSubscription(StreamController streamController, Se
 
 Future<void> _processEvent(SecureStorage secureStorage, var event, Function callback) async {
   String uuid = getUUID(event);
-
   if (!Env.UUIDS.containsKey(uuid)) {
     return;
   }
@@ -32,8 +31,8 @@ Future<void> _processEvent(SecureStorage secureStorage, var event, Function call
   if (Env.CURRENT_UUID != uuid) {
     Env.CURRENT_UUID = uuid;
     _getPlace(secureStorage, uuid).then((place) {
-      if (Env.CURRENT_LOCATION != place) {
-        Env.CURRENT_LOCATION = place!;
+      if (Env.CURRENT_PLACE != place) {
+        Env.CURRENT_PLACE = place!;
         callback(BeaconInfoData(uuid: uuid, place: place));
       }
     });
@@ -52,41 +51,36 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
   int count = 0;
 
   Timer? timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-    Log.debug(" ip = ${Env.DEVICE_IP}");
-
     // ignore: unnecessary_null_comparison
     if (Env.INNER_TIME == null) return;
 
     int diff = getNow().difference(Env.INNER_TIME).inSeconds;
     Log.debug(" *** diff = $diff");
 
-    if (diff > 60) {
+    if (diff == 60) {
       Env.CURRENT_UUID = "";
-      Env.CURRENT_LOCATION = "외부";
-
-      Env.OLD_LOCATION = Env.CURRENT_LOCATION;
+      Env.CURRENT_PLACE = "-";
+      Env.OLD_PLACE = Env.CURRENT_PLACE;
       Env.CHANGE_COUNT = 1;
-
       // 서버에 전송
-      sendMessageTracking(context, secureStorage, "", Env.CURRENT_LOCATION).then((workInfo) => callback!(workInfo));
+      sendMessageTracking(context, secureStorage, "", Env.CURRENT_PLACE).then((workInfo) => "");
     } else {
-      if (Env.OLD_LOCATION == "" || Env.OLD_LOCATION == "외부") {
+      if (Env.OLD_PLACE == "" || Env.OLD_PLACE == "-") {
         // 외부에서 내부 ( 사무실 또는 회의실 또는 기타 장소) 에 들어온 경우 와 처음 설치 했을때 경우의 변경 이벤트 체크
-        if (Env.OLD_LOCATION != Env.CURRENT_LOCATION) {
+        if (Env.OLD_PLACE != Env.CURRENT_PLACE) {
           Env.CHANGE_COUNT = 1;
-          Env.OLD_LOCATION = Env.CURRENT_LOCATION;
-
+          Env.OLD_PLACE = Env.CURRENT_PLACE;
           // 서버에 전송
-          sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_LOCATION).then((workInfo) => callback!(workInfo));
+          sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => "");
         }
       } else {
         // 같은 내부 공간에서 2개의 비콘이 지속적으로 잡히면 최소한 연속으로 60회에서 현재 위치가 아닌 곳으로 다른 곳으로 변경이 이루어 지면 변경 위치를 기준으로 변경 이벤트 체크
-        if (Env.OLD_LOCATION != Env.CURRENT_LOCATION) {
+        if (Env.OLD_PLACE != Env.CURRENT_PLACE) {
           if (Env.CHANGE_COUNT > 60) {
             Env.CHANGE_COUNT = 1;
-            Env.OLD_LOCATION = Env.CURRENT_LOCATION;
+            Env.OLD_PLACE = Env.CURRENT_PLACE;
             // 서버에 전송
-            sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_LOCATION).then((workInfo) => callback!(workInfo));
+            sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => "");
           } else {
             Env.CHANGE_COUNT++;
           }
@@ -97,7 +91,6 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
     }
 
     if (count == 60) {
-      
       // 금일 출근 퇴근 정보 요청
       sendMessageByWork(context, secureStorage).then((workInfo) {
         callback!(Env.WORK_TYPE_TODAY, workInfo);
@@ -113,6 +106,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
     } else {
       count++;
     }
+
   });
 
   return timer;

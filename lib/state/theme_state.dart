@@ -45,7 +45,7 @@ class _ThemeState extends State<ThemeMain> {
     eventStreamSubscription =
         widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
       }
     });
 

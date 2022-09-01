@@ -65,9 +65,9 @@ class MyApp extends StatelessWidget {
 
   Future<void> _broadcastByEvent(String type, dynamic data) async {
     if (type == Env.WORK_TYPE_TODAY) {
-      eventStreamController!.add(data);
+      eventStreamController!.add(data.toString());
     } else if (type == Env.WORK_TYPE_WEEK) {
-      weekStreamController!.add(data);
+      weekStreamController!.add(data.toString());
     }
   }
 }
@@ -87,7 +87,6 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamController? beaconStreamController;
   late StreamController weekStreamController;
 
-  late StreamSubscription CONNECTIVITY_STREAM_SUBSCRIPTION;
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
 
@@ -112,29 +111,15 @@ class _MyHomePageState extends State<MyHomePage> {
       if (state != null && state == "true") {
         _initForBeacon();
         initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
-        _setUUID();
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        sendMessageByWork(context, secureStorage).then((workInfo) {
+          _setEnv();
+          Env.INIT_STATE_INFO = workInfo;
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        });
       } else {
-        _writeUUIDTest();
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     });
-  }
-
-  Future<void> _setUUID() async{
-    List<String> uuidList = SharedStorage.readList("uuids") as List<String>;
-    for (String e in uuidList) {
-      Env.UUIDS[e] = (await secureStorage.read(e))!;
-    }
-  }
-
-  void _writeUUIDTest() {
-    List<String> values = ["12345678-9A12-3456-789B-123456FFFFFF", "74278BDB-B644-4520-8F0C-720EEAFFFFFF"];
-    SharedStorage.write("uuids", values);
-  }
-
-  Future<String?> _checkLogin() async {
-    return await secureStorage.read(Env.LOGIN_STATE);
   }
 
   @override
@@ -143,61 +128,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // eventStreamController.onCancel!();
     // stopTimer(beaconTimer);
     super.dispose();
-  }
-
-  void _sampleSendMessage() {
-    // String id = "raindrop891";
-    // String pw = "raindrop891";
-
-    // login
-    // login(id, pw).then((loginInfo) {
-    //   secureStorage.write(Env.KEY_ACCESS_TOKEN, loginInfo.tokenInfo!.getAccessToken());
-    //   secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
-    //   secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
-
-    // Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
-    // Env.WORK_KR_NAME = loginInfo.getKrName();
-    // Env.WORK_POSITION_NAME = loginInfo.getPositionName();
-    // Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
-
-    // Log.debug(" photopath = ${loginInfo.getKrName()}");
-    // Log.debug(" krname = ${loginInfo.getPhotoPath()}");
-    // Log.debug(" positionname = ${loginInfo.()}");
-    // Log.debug(" companyName = ${loginInfo.getCompanyName()}");
-
-    //   // state 페이지 이동
-    //   Navigator.push(
-    //       context,
-    //       MaterialPageRoute(
-    //           builder: (context) => MySamplePage(
-    //               title: "sample",
-    //               eventStreamController: eventStreamController,
-    //               beaconStreamController: beaconStreamController,
-    //               weekStreamController: weekStreamController,
-    //               CONNECTIVITY_STREAM_SUBSCRIPTION: CONNECTIVITY_STREAM_SUBSCRIPTION,
-    //               beaconStreamSubscription: beaconStreamSubscription,
-    //               eventStreamSubscription: eventStreamSubscription)));
-
-    //   // 이슈 정보 등록
-    //   // sendMessageTracking(context, secureStorage, Env.UUID_DEFAULT, "인비전테크놀로지 사무실").then((workInfo) {
-    //   //   Log.debug(" success === ${workInfo.success.toString()} ");
-    //   // });
-
-    //   // 금일 출근 퇴근 정보 요청
-    //   // sendMessageByWork(context, secureStorage).then((workInfo) {
-    //   //   Log.debug(" success === ${workInfo.success.toString()} ");
-    //   // });
-
-    //   // 일주일간 출근 퇴근 정보 요청
-    //   // sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-    //   //   Log.debug(" success === ${workInfo.success.toString()} ");
-    //   // });
-
-    //   // 비콘 정보 요청 ( 동기화 )
-    //   // sendMessageByBeacon(context, secureStorage).then((configInfo) {
-    //   //   Log.debug(" success === ${configInfo.success.toString()} ");
-    //   // });
-    // });
   }
 
   @override
@@ -214,47 +144,25 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> _startForBeacon() async {
-    beaconStreamSubscription = startBeaconSubscription(beaconStreamController!, secureStorage, null);
+  Future<String?> _checkLogin() async {
+    return await secureStorage.read(Env.LOGIN_STATE);
   }
 
-  void _createUuidsOfTest() {
-    String sampleUUID1 = "12345678-9A12-3456-789B-123456FFFFFF";
-    String sampleUUID2 = "74278BDB-B644-4520-8F0C-720EEAFFFFFF";
+  void _setEnv() async {
+    Env.WORK_PHOTO_PATH = await secureStorage.read(Env.KEY_PHOTO_PATH);
+    Env.WORK_KR_NAME = await secureStorage.read(Env.KEY_KR_NAME);
+    Env.WORK_POSITION_NAME = await secureStorage.read(Env.KEY_POSITION_NAME);
+    Env.WORK_COMPANY_NAME = await secureStorage.read(Env.KEY_COMPANY_NAME);
 
-    String samplePlace1 = "사무실";
-    String samplePlace2 = "회의실";
-
-    Env.UUIDS[sampleUUID1] = samplePlace1;
-    Env.UUIDS[sampleUUID2] = samplePlace2;
-  }
-
-  void _successCheck(WorkInfo workInfo) {
-    Log.debug(" ${workInfo.message} ");
-  }
-
-  Future<void> move() async {
-    String? id = await secureStorage.read(Env.LOGIN_ID);
-    String? pw = await secureStorage.read(Env.LOGIN_PW);
-
-    if (id == null || pw == null) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
-    }
-
-    login(id!, pw!).then((loginInfo) {
-      secureStorage.write(Env.KEY_ACCESS_TOKEN, loginInfo.tokenInfo!.getAccessToken());
-      secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
-      secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
-
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
+    SharedStorage.readList(Env.KEY_SHARE_UUID).then((uuids) {
+      for (String uuid in uuids!) {
+        _setUUID(uuid);
+      }
     });
   }
 
-  Future<void> _broadcastByEvent(String type, dynamic data) async {
-    if (type == Env.WORK_TYPE_TODAY) {
-      eventStreamController!.add(data);
-    } else if (type == Env.WORK_TYPE_WEEK) {
-      weekStreamController!.add(data);
-    }
+  void _setUUID(String uuid) async {
+    Env.UUIDS[uuid] = (await secureStorage.read(uuid)) ?? "";
   }
+
 }

@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
 
     eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
       }
     });
 
@@ -170,6 +170,11 @@ class _LoginState extends State<Login> {
                               _passwordContorller.text,
                             ).then((loginInfo) {
                               if (loginInfo.success!) {
+                                Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
+                                Env.WORK_KR_NAME = loginInfo.getKrName();
+                                Env.WORK_POSITION_NAME = loginInfo.getPositionName();
+                                Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
+
                                 secureStorage.write(Env.LOGIN_ID, _loginIdContoroller.text);
                                 secureStorage.write(Env.LOGIN_PW, _passwordContorller.text);
                                 secureStorage.write(Env.LOGIN_STATE, "true");
@@ -177,8 +182,11 @@ class _LoginState extends State<Login> {
                                 secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
                                 secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
                                 _initForBeacon();
-                                Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                                // _setUUID();
+
+                                sendMessageByWork(context, secureStorage).then((workInfo) {
+                                  Env.INIT_STATE_INFO = workInfo;
+                                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                                });
                               } else {
                                 Log.debug("workIfon Error");
                               }
@@ -309,24 +317,6 @@ class _LoginState extends State<Login> {
     return "...";
   }
 
-  // Future<void> _setLogin() async {
-  //   login(_loginIdContoroller.text, _passwordContorller.text).then((loginInfo) {
-  //     if (loginInfo.success!) {
-  //       secureStorage.write(Env.LOGIN_ID, _loginIdContoroller.text);
-  //       secureStorage.write(Env.LOGIN_PW, _passwordContorller.text);
-  //       secureStorage.write('krName', '${loginInfo.data?['krName']}');
-  //       secureStorage.write(Env.KEY_ACCESS_TOKEN, '${loginInfo.tokenInfo?.getAccessToken()}');
-  //       secureStorage.write(Env.KEY_REFRESH_TOKEN, '${loginInfo.tokenInfo?.getRefreshToken()}');
-  //       secureStorage.write(Env.LOGIN_STATE, "true");
-  //       secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
-
-  //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => const Dashboard()));
-  //     } else {
-  //       showSnackBar(context, loginInfo.message!);
-  //     }
-  //   });
-  // }
-
   // 비콘 시작
   Future<void> _initForBeacon() async {
     initBeacon(context, widget.beaconStreamController, secureStorage);
@@ -336,20 +326,4 @@ class _LoginState extends State<Login> {
   Future<void> _stopForBeacon() async {
     stopBeacon();
   }
-
-  // Future<void> _setUUID() async {
-  //   SharedStorage.readList("uuids").then((uuidList) {
-  //     if (uuidList != null) {
-  //       for (String e in uuidList) {
-  //         Log.debug("UUID : $e");
-
-  //         _setUUID2(e);
-  //       }
-  //     }
-  //   });
-  // }
-
-  // void _setUUID2(String uuid) async {
-  //   Env.UUIDS[uuid] = (await secureStorage.read(uuid)) ?? "";
-  // }
 }

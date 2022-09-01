@@ -31,6 +31,7 @@ class Env {
   static const String WORK_TYPE_TODAY = "today";
   static const String WORK_TYPE_WEEK = "week";
 
+  static bool WORK_PLACE_CHANGE_STATE = false;
   static String? WORK_KR_NAME;
   static String? WORK_POSITION_NAME;
   static String? WORK_PHOTO_PATH;
@@ -53,7 +54,9 @@ class Env {
   static const String KEY_POSITION_NAME = "positionName";
   static const String KEY_COMPANY_NAME = "companyName";
 
-  static const String MSG_NOT_TOKEN = "로그 아웃 후에 다시 로그인 해주세요.";
+  static const String KEY_SHARE_UUID = "share_uuid";
+
+  static const String MSG_NOT_TOKEN = "로그인 후 사용 해주세요.";
   static const String MSG_LOGIN_FAIL = "ID 또는 Passwoard 를 확인하세요.";
   static const String MSG_SUCCESS = "등록이 완료 되었습니다.";
   static const String MSG_FAIL_REGISTER = "등록이 실패 하였습니다.";
@@ -79,11 +82,12 @@ class Env {
   static String CURRENT_STATE = "";
   static String DEVICE_IP = "";
   static String CURRENT_UUID = "";
-  static String CURRENT_LOCATION = "";
-  static String OLD_LOCATION = "";
+  static String CURRENT_PLACE = "";
+  static String OLD_PLACE = "";
   static int CHANGE_COUNT = 1;
   static DateTime INNER_TIME = DateTime.now();
 
   static Map<String, String> UUIDS = {};
+  static dynamic INIT_STATE_INFO;
   static StreamSubscription? CONNECTIVITY_STREAM_SUBSCRIPTION;
 }

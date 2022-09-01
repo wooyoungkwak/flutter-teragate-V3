@@ -16,7 +16,7 @@ class Home extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
+  Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -28,7 +28,7 @@ class _HomeState extends State<Home> {
 
   late BeaconInfoData beaconInfoData;
 
-  late SecureStorage secureStorage;
+  SecureStorage? secureStorage;
 
   String currentHour = "";
   String currentMinute = "";
@@ -47,17 +47,33 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    setUI(location: "외부");
-
     secureStorage = SecureStorage();
+
+    profilePicture = Env.WORK_PHOTO_PATH ?? "";
 
     eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
         Log.debug("workInfo === ${workInfo.toString()}");
       }
     });
-    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage!, setBeaconUI);
+
+    Log.debug(Env.INIT_STATE_INFO.toString());
+
+    currentHour = "01";
+    currentMinute = "52";
+    currentDay = "6월 21일 화요일";
+    company = "주식회사 테라비전";
+    profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
+    profileName = "홍길동";
+    profilePosition = "과장";
+    currentTimeHHMM = "19:55";
+    workState = "업무중";
+    workTime = "08:30~18:00";
+    getInTime = "08:12";
+    getOutTime = "18:00";
+    currentLocation = "";
   }
 
   @override
@@ -69,6 +85,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+
     final statusBarHeight = MediaQuery.of(context).padding.top;
 
     return WillPopScope(
@@ -300,22 +317,36 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void setUI({required String location}) {
-    setState(() {
-      currentHour = "01";
-      currentMinute = "52";
-      currentDay = "6월 21일 화요일";
-      company = "주식회사 테라비전";
-      profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
-      profileName = "홍길동";
-      profilePosition = "과장";
-      currentTimeHHMM = "19:55";
-      workState = "업무중";
-      workTime = "08:30~18:00";
-      getInTime = "08:12";
-      getOutTime = "18:00";
-      currentLocation = location;
-    });
+  void setUI({required WorkInfo workInfo}) {
+    if (workInfo.success) {
+      // setState(() {
+
+      // });
+    } else {
+      setState(() {
+        currentHour = "01";
+        currentMinute = "52";
+        currentDay = "6월 21일 화요일";
+        company = "주식회사 테라비전";
+        profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
+        profileName = "홍길동";
+        profilePosition = "과장";
+        currentTimeHHMM = "19:55";
+        workState = "업무중";
+        workTime = "08:30~18:00";
+        getInTime = "08:12";
+        getOutTime = "18:00";
+        currentLocation = "";
+      });
+    }
+
+    // sendMessageByWork(context, secureStorage!).then((workInfo) {
+    //   Log.debug("workInfo = ${workInfo.toString()}");
+
+    //   if (workInfo!.message == Env.MSG_NOT_TOKEN) {
+    //     Log.debug(" ********* ${Env.MSG_NOT_TOKEN}");
+    //   }
+    // });
   }
 
   Color _setWorkStateColor(String workState) {
@@ -372,15 +403,15 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _logout(BuildContext context) async {
-    secureStorage.read(Env.KEY_ID_CHECK).then((value) {
+    secureStorage!.read(Env.KEY_ID_CHECK).then((value) {
       if (value == null && value == "false") {
-        secureStorage.write(Env.LOGIN_ID, "");
+        secureStorage!.write(Env.LOGIN_ID, "");
       }
     });
-    secureStorage.write(Env.LOGIN_PW, "");
-    secureStorage.write(Env.LOGIN_STATE, "false");
-    secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
-    secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
+    secureStorage!.write(Env.LOGIN_PW, "");
+    secureStorage!.write(Env.LOGIN_STATE, "false");
+    secureStorage!.write(Env.KEY_ACCESS_TOKEN, "");
+    secureStorage!.write(Env.KEY_REFRESH_TOKEN, "");
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 }
