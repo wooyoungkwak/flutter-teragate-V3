@@ -40,8 +40,7 @@ class MyApp extends StatelessWidget {
     weekStreamController = StreamController<String>.broadcast();
     secureStorage = SecureStorage();
 
-    // startBeaconTimer(null, _broadcastByEvent, secureStorage!)
-    //     .then((timer) => beaconTimer = timer);
+    startBeaconTimer(null, _broadcastByEvent, secureStorage!).then((timer) => beaconTimer = timer);
   }
 
   // This widget is the root of your application.
@@ -98,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    super.initState();
     secureStorage = SecureStorage();
 
     eventStreamController = StreamController<String>.broadcast();
@@ -107,16 +107,32 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
+    SharedStorage.deleteAll();
+
     _checkLogin().then((state) {
       Log.debug("Login State : ${state}");
       if (state != null && state == "true") {
         _initForBeacon();
         initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
+        _setUUID();
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       } else {
+        _writeUUIDTest();
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     });
+  }
+
+  Future<void> _setUUID() async{
+    List<String> uuidList = SharedStorage.readList("uuids") as List<String>;
+    for (String e in uuidList) {
+      Env.UUIDS[e] = (await secureStorage.read(e))!;
+    }
+  }
+
+  void _writeUUIDTest() {
+    List<String> values = ["12345678-9A12-3456-789B-123456FFFFFF", "74278BDB-B644-4520-8F0C-720EEAFFFFFF"];
+    SharedStorage.write("uuids", values);
   }
 
   Future<String?> _checkLogin() async {
@@ -128,7 +144,6 @@ class _MyHomePageState extends State<MyHomePage> {
     eventStreamSubscription.cancel();
     // eventStreamController.onCancel!();
     // stopTimer(beaconTimer);
-    startBeaconTimer(null, _broadcastByEvent, secureStorage!).then((timer) => beaconTimer = timer);
     super.dispose();
   }
 

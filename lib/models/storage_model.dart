@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:teragate_v3/utils/log_util.dart';
 
 class SecureStorage {
   static final SecureStorage _secureStorage = SecureStorage._interal();
@@ -43,7 +44,7 @@ class SecureStorage {
 
 class SharedStorage {
   
-  static Future<void> write(String key, var values) async {
+  static Future<void> write(String key, dynamic values) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
     switch (values.runtimeType.toString()) {
@@ -59,7 +60,7 @@ class SharedStorage {
       case "Bool":
         sharedPreferences.setBool(key, values);
         break;
-      case "List":
+      case "List<String>":
         sharedPreferences.setStringList(key, values);
         break;
     }
