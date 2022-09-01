@@ -149,10 +149,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _setEnv() async {
-    Env.WORK_PHOTO_PATH = await secureStorage.read(Env.KEY_PHOTO_PATH);
-    Env.WORK_KR_NAME = await secureStorage.read(Env.KEY_KR_NAME);
-    Env.WORK_POSITION_NAME = await secureStorage.read(Env.KEY_POSITION_NAME);
-    Env.WORK_COMPANY_NAME = await secureStorage.read(Env.KEY_COMPANY_NAME);
+    Env.WORK_PHOTO_PATH = (await secureStorage.read(Env.KEY_PHOTO_PATH)) ?? "";
+    Env.WORK_KR_NAME = (await secureStorage.read(Env.KEY_KR_NAME)) ?? "";
+    Env.WORK_POSITION_NAME = (await secureStorage.read(Env.KEY_POSITION_NAME)) ?? "";
+    Env.WORK_COMPANY_NAME = (await secureStorage.read(Env.KEY_COMPANY_NAME)) ?? "";
 
     SharedStorage.readList(Env.KEY_SHARE_UUID).then((uuids) {
       for (String uuid in uuids!) {
@@ -164,5 +164,4 @@ class _MyHomePageState extends State<MyHomePage> {
   void _setUUID(String uuid) async {
     Env.UUIDS[uuid] = (await secureStorage.read(uuid)) ?? "";
   }
-
 }
