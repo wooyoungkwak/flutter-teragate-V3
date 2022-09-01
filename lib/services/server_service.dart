@@ -117,7 +117,7 @@ Future<WorkInfo> _tracking(String accessToken, String userId, String ip, String 
   final response = await http.post(Uri.parse(Env.SERVER_POST_TRACKING), headers: {"Content-Type": "application/json", "Authorization": accessToken}, body: body);
 
   if (response.statusCode == 200) {
-    return WorkInfo.fromJson(json.decode(response.body));
+    return WorkInfo.fromJsonByTracking(json.decode(response.body));
   } else {
     throw Exception(response.body);
   }

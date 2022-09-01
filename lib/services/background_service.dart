@@ -22,6 +22,9 @@ StreamSubscription startBeaconSubscription(StreamController streamController, Se
 
 Future<void> _processEvent(SecureStorage secureStorage, var event, Function callback) async {
   String uuid = getUUID(event);
+
+  Log.debug( " *** uuid = $uuid :: UUIDS SIZE = ${Env.UUIDS.length}");
+
   if (!Env.UUIDS.containsKey(uuid)) {
     return;
   }
@@ -32,8 +35,8 @@ Future<void> _processEvent(SecureStorage secureStorage, var event, Function call
     Env.CURRENT_UUID = uuid;
     _getPlace(secureStorage, uuid).then((place) {
       if (Env.CURRENT_PLACE != place) {
-        Env.CURRENT_PLACE = place!;
-        callback(BeaconInfoData(uuid: uuid, place: place));
+        Env.CURRENT_PLACE = ( place ?? "" )  ;
+        callback(BeaconInfoData(uuid: uuid, place: Env.CURRENT_PLACE));
       }
     });
   }
@@ -63,7 +66,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
       Env.OLD_PLACE = Env.CURRENT_PLACE;
       Env.CHANGE_COUNT = 1;
       // 서버에 전송
-      sendMessageTracking(context, secureStorage, "", Env.CURRENT_PLACE).then((workInfo) => "");
+      sendMessageTracking(context, secureStorage, "", Env.CURRENT_PLACE).then((workInfo) => Log.debug(" tracking event = ${workInfo!.success.toString()}"));
     } else {
       if (Env.OLD_PLACE == "" || Env.OLD_PLACE == "-") {
         // 외부에서 내부 ( 사무실 또는 회의실 또는 기타 장소) 에 들어온 경우 와 처음 설치 했을때 경우의 변경 이벤트 체크
@@ -71,7 +74,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
           Env.CHANGE_COUNT = 1;
           Env.OLD_PLACE = Env.CURRENT_PLACE;
           // 서버에 전송
-          sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => "");
+          sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => Log.debug(" tracking event = ${workInfo!.success.toString()}"));
         }
       } else {
         // 같은 내부 공간에서 2개의 비콘이 지속적으로 잡히면 최소한 연속으로 60회에서 현재 위치가 아닌 곳으로 다른 곳으로 변경이 이루어 지면 변경 위치를 기준으로 변경 이벤트 체크
@@ -80,7 +83,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
             Env.CHANGE_COUNT = 1;
             Env.OLD_PLACE = Env.CURRENT_PLACE;
             // 서버에 전송
-            sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => "");
+            sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => Log.debug(" tracking event = ${workInfo!.success.toString()}"));
           } else {
             Env.CHANGE_COUNT++;
           }

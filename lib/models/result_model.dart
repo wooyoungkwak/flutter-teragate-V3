@@ -69,6 +69,14 @@ class WorkInfo {
         success: success, message: message);
   }
 
+  static WorkInfo fromJsonByTracking(Map<String, dynamic> json) {
+    if (json == null) {
+      return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
+    } 
+
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: json["success"], message: (json["message"] ?? "") );
+  }
+
   static WorkInfo fromJson(Map<String, dynamic> json) {
     if (json == null) {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
@@ -78,22 +86,21 @@ class WorkInfo {
     for (var data in json["data"]) {
       workInfo = WorkInfo(data["userId"], data["krName"], data["isweekend"], data["isholiday"], data["attendtime"], data["leavetime"], data["attIpIn"], data["attIpOut"], data["targetAttendTime"], data["targetLeaveTime"], data["strAttendLeaveTime"], data["noAttendCheckYn"], data["placeWork"],
           data["placeWorkName"], data["solardate"],
-          success: json["success"], message: json["message"]);
+          success: json["success"], message: (json["message"] ?? ""));
     }
 
     return workInfo!;
   }
 
-    static WorkInfo fromJsonByState(Map<String, dynamic> json) {
+  static WorkInfo fromJsonByState(Map<String, dynamic> json) {
     if (json == null) {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
     }
 
     return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
-        json["placeWorkName"], json["solardate"], success: json["success"], message: json["message"]);
-
+        json["placeWorkName"], json["solardate"],
+        success: json["success"], message: (json["message"] ?? ""));
   }
-
 
   Map<String, dynamic> toJson() => {
         "userId": userId,
