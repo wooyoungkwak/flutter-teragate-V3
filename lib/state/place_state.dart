@@ -22,8 +22,8 @@ class Place extends StatefulWidget {
 }
 
 class _HomeState extends State<Place> {
-  List<String> locationlist = ["사무실", "휴게실", "기업부설연구소", "현장", "재고창고"];
-  List<bool> locationlistbool = [false, true, false, false, false];
+  List<String> locationlist = [""];
+  List<bool> locationlistbool = [];
 
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
@@ -145,7 +145,11 @@ class _HomeState extends State<Place> {
                                 )),
                           ],
                         ))),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
                   ],
                 ),
               ),
@@ -223,6 +227,10 @@ class _HomeState extends State<Place> {
       List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
       Log.debug(" placeInfo === ${configInfo.message.toString()} ");
       Log.debug(" placeInfo === ${configInfo.beaconInfoDatas.toString()} ");
+
+      for (BeaconInfoData beaconInfoData in placeInfo) {
+        secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+      }
     });
 
     currentTimeHHMM = "19:30";
@@ -244,5 +252,9 @@ class _HomeState extends State<Place> {
   void setBeaconUI(BeaconInfoData beaconInfoData) {
     Log.debug(" beaconInfoData = ${beaconInfoData.toString()}");
     this.beaconInfoData = beaconInfoData;
+
+    setState(() {
+      currentLocation = beaconInfoData.place;
+    });
   }
 }
