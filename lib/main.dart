@@ -107,8 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
-    SharedStorage.deleteAll();
-
     _checkLogin().then((state) {
       Log.debug("Login State : ${state}");
       if (state != null && state == "true") {
