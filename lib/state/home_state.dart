@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/config/env.dart';
+import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,8 @@ import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/utils/log_util.dart';
+
+import 'package:teragate_v3/services/server_service.dart';
 
 class Home extends StatefulWidget {
   final StreamController eventStreamController;
@@ -52,16 +54,9 @@ class _HomeState extends State<Home> {
     eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+        Log.debug("workInfo === ${workInfo.toString()}");
       }
     });
-
-    // Log.debug("Login id : ${Env.LOGIN_ID}");
-    // Log.debug("Login pw : ${Env.LOGIN_PW}");
-    // Log.debug("Login State : ${Env.LOGIN_STATE}");
-    // Log.debug("Key Access Token : ${Env.KEY_ACCESS_TOKEN}");
-    // Log.debug("Key Refresh Token : ${Env.KEY_REFRESH_TOKEN}");
-    // Log.debug("Key User Id : ${Env.KEY_USER_ID}");
-
     beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
   }
 
@@ -386,7 +381,6 @@ class _HomeState extends State<Home> {
     secureStorage.write(Env.LOGIN_STATE, "false");
     secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
     secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
-    // 비콘 스탑 추가
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 }

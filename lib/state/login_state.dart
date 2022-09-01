@@ -178,6 +178,7 @@ class _LoginState extends State<Login> {
                                 secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
                                 _initForBeacon();
                                 Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                                // _setUUID();
                               } else {
                                 Log.debug("workIfon Error");
                               }
@@ -335,4 +336,20 @@ class _LoginState extends State<Login> {
   Future<void> _stopForBeacon() async {
     stopBeacon();
   }
+
+  // Future<void> _setUUID() async {
+  //   SharedStorage.readList("uuids").then((uuidList) {
+  //     if (uuidList != null) {
+  //       for (String e in uuidList) {
+  //         Log.debug("UUID : $e");
+
+  //         _setUUID2(e);
+  //       }
+  //     }
+  //   });
+  // }
+
+  // void _setUUID2(String uuid) async {
+  //   Env.UUIDS[uuid] = (await secureStorage.read(uuid)) ?? "";
+  // }
 }

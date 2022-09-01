@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:teragate_v3/config/env.dart';
+import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/services/server_service.dart';
+import 'package:teragate_v3/utils/log_util.dart';
 
-class BottomNavBar extends StatelessWidget {
+class BottomNavBar extends StatefulWidget {
   final String? currentLocation;
   final String? currentTime;
 
-  const BottomNavBar({this.currentLocation, this.currentTime, Key? key})
-      : super(key: key);
+  const BottomNavBar({this.currentLocation, this.currentTime, Key? key}) : super(key: key);
+
+  @override
+  State<BottomNavBar> createState() => _BottomNavBarState();
+}
+
+class _BottomNavBarState extends State<BottomNavBar> {
+  late SecureStorage secureStorage;
+
+  @override
+  void initState() {
+    super.initState();
+    secureStorage = SecureStorage();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +63,7 @@ class BottomNavBar extends StatelessWidget {
                       weight: FontWeight.w500,
                     ),
                     CustomText(
-                      text: currentLocation!,
+                      text: widget.currentLocation!,
                       size: 12.0,
                       color: Colors.black,
                       weight: FontWeight.bold,
@@ -67,11 +83,7 @@ class BottomNavBar extends StatelessWidget {
           Container(
             height: 90.0,
             padding: const EdgeInsets.only(bottom: 20.0),
-            decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20.0),
-                    topRight: Radius.circular(20.0))),
+            decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -94,16 +106,16 @@ class BottomNavBar extends StatelessWidget {
                   color: Colors.white,
                   backgroundColor: const Color.fromARGB(255, 60, 95, 235),
                   text: "동기화",
-                  function: () => showSyncDialog(context),
+                  function: () => {
+                    _synchronize(context, secureStorage),
+                    showSyncDialog(context),
+                  },
                 ),
                 _createIconByContainer(
                   icon: Icons.camera,
                   text: "테마",
                 ),
-                _createIconByContainer(
-                    icon: Icons.place_rounded,
-                    text: "등록",
-                    function: () => {Navigator.pop(context)}),
+                _createIconByContainer(icon: Icons.place_rounded, text: "등록", function: () => {Navigator.pop(context)}),
               ],
             ),
           ),
@@ -169,9 +181,7 @@ class BottomNavBar extends StatelessWidget {
             // 아이콘
             Padding(
               padding: const EdgeInsets.all(18.0),
-              child: _createIconByContainer(
-                  icon: Icons.replay_outlined,
-                  backgroundColor: const Color.fromARGB(255, 60, 95, 235)),
+              child: _createIconByContainer(icon: Icons.replay_outlined, backgroundColor: const Color.fromARGB(255, 60, 95, 235)),
             ),
             // Title
             const CustomText(
@@ -238,8 +248,7 @@ class BottomNavBar extends StatelessWidget {
   void showSyncDialog(BuildContext context) {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) =>
-          _initDialog(currentLocation!, currentTime!),
+      builder: (BuildContext context) => _initDialog(widget.currentLocation!, widget.currentTime!),
     );
   }
 
@@ -247,5 +256,28 @@ class BottomNavBar extends StatelessWidget {
     if (ModalRoute.of(context)!.settings.name != pushName) {
       Navigator.pushNamedAndRemoveUntil(context, pushName, (route) => false);
     }
+  }
+
+  Future<void> _synchronize(BuildContext context, SecureStorage secureStorage) async {
+    // 이슈 정보 등록
+    // sendMessageTracking(context, secureStorage, Env.UUID_DEFAULT, "인비전테크놀로지 사무실").then((workInfo) {
+    //   Log.debug(" success === ${workInfo.success.toString()} ");
+    // });
+
+    // 금일 출근 퇴근 정보 요청
+    // sendMessageByWork(context, secureStorage).then((workInfo) {
+    //   Log.debug(" success === ${workInfo.success.toString()} ");
+    // });
+
+    // 일주일간 출근 퇴근 정보 요청
+    // sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+    //   Log.debug(" success === ${weekInfo.success.toString()} ");
+    // });
+
+    // 비콘 정보 요청 ( 동기화 )
+    // sendMessageByBeacon(context, secureStorage).then((configInfo) {
+    //   Log.debug(" success === ${configInfo.success.toString()} ");
+    //   Log.debug(configInfo.beaconInfoDatas[]);
+    // });
   }
 }
