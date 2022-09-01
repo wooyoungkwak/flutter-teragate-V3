@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:move_to_background/move_to_background.dart';
+import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/models/result_model.dart';
+import 'package:teragate_v3/utils/log_util.dart';
 
 class Home extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const Home(
-      {required this.eventStreamController,
-      required this.beaconStreamController,
-      Key? key})
-      : super(key: key);
+  const Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -50,15 +49,20 @@ class _HomeState extends State<Home> {
 
     secureStorage = SecureStorage();
 
-    eventStreamSubscription =
-        widget.eventStreamController.stream.listen((event) {
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
       }
     });
 
-    beaconStreamSubscription = startBeaconSubscription(
-        widget.beaconStreamController, secureStorage, setBeaconUI);
+    // Log.debug("Login id : ${Env.LOGIN_ID}");
+    // Log.debug("Login pw : ${Env.LOGIN_PW}");
+    // Log.debug("Login State : ${Env.LOGIN_STATE}");
+    // Log.debug("Key Access Token : ${Env.KEY_ACCESS_TOKEN}");
+    // Log.debug("Key Refresh Token : ${Env.KEY_REFRESH_TOKEN}");
+    // Log.debug("Key User Id : ${Env.KEY_USER_ID}");
+
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
   }
 
   @override
@@ -74,6 +78,8 @@ class _HomeState extends State<Home> {
 
     return WillPopScope(
       onWillPop: () {
+        // Navigator.pop(context);
+        MoveToBackground.moveTaskToBack();
         return Future(() => false);
       },
       child: Container(
@@ -107,8 +113,8 @@ class _HomeState extends State<Home> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (route) => false);
+                          showAlertDialog(context);
+                          // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -186,8 +192,7 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               CustomText(
-                                padding: const EdgeInsets.only(
-                                    left: 14.0, right: 4.0),
+                                padding: const EdgeInsets.only(left: 14.0, right: 4.0),
                                 text: profileName,
                                 size: 28.0,
                               ),
@@ -262,14 +267,51 @@ class _HomeState extends State<Home> {
   //       child: widget);
   // }
 
+  Card _createWorkCard({
+    Color color = Colors.white,
+    String? title,
+    String? time,
+    String? currentTime,
+  }) {
+    return Card(
+      color: color,
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CustomText(
+              padding: const EdgeInsets.all(5.0),
+              text: title!,
+              size: 14.0,
+              weight: FontWeight.w400,
+              color: color == Colors.white ? Colors.black : Colors.white,
+            ),
+            CustomText(
+              padding: const EdgeInsets.all(5.0),
+              text: time!,
+              color: color == Colors.white ? Colors.black : Colors.white,
+            ),
+            if (currentTime != null)
+              CustomText(
+                padding: const EdgeInsets.all(5.0),
+                text: "현재시간 : $currentTime",
+                size: 13.0,
+                weight: FontWeight.w400,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void setUI({required String location}) {
     setState(() {
       currentHour = "01";
       currentMinute = "52";
       currentDay = "6월 21일 화요일";
       company = "주식회사 테라비전";
-      profilePicture =
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
+      profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
       profileName = "홍길동";
       profilePosition = "과장";
       currentTimeHHMM = "19:55";
@@ -310,42 +352,41 @@ class _HomeState extends State<Home> {
   void setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
   }
-}
 
-Card _createWorkCard({
-  Color color = Colors.white,
-  String? title,
-  String? time,
-  String? currentTime,
-}) {
-  return Card(
-    color: color,
-    child: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CustomText(
-            padding: const EdgeInsets.all(5.0),
-            text: title!,
-            size: 14.0,
-            weight: FontWeight.w400,
-            color: color == Colors.white ? Colors.black : Colors.white,
+  void showAlertDialog(BuildContext context) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('알림'),
+        content: const Text('로그인 페이지로 이동하시겠습니까?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('취소'),
           ),
-          CustomText(
-            padding: const EdgeInsets.all(5.0),
-            text: time!,
-            color: color == Colors.white ? Colors.black : Colors.white,
+          TextButton(
+            onPressed: () => {
+              Navigator.pop(context, 'OK'),
+              _logout(context),
+            },
+            child: const Text('확인'),
           ),
-          if (currentTime != null)
-            CustomText(
-              padding: const EdgeInsets.all(5.0),
-              text: "현재시간 : $currentTime",
-              size: 13.0,
-              weight: FontWeight.w400,
-            ),
         ],
       ),
-    ),
-  );
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    secureStorage.read(Env.KEY_ID_CHECK).then((value) {
+      if (value == null && value == "false") {
+        secureStorage.write(Env.LOGIN_ID, "");
+      }
+    });
+    secureStorage.write(Env.LOGIN_PW, "");
+    secureStorage.write(Env.LOGIN_STATE, "false");
+    secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
+    secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
+    // 비콘 스탑 추가
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
 }

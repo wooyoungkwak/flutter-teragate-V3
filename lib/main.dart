@@ -40,7 +40,8 @@ class MyApp extends StatelessWidget {
     weekStreamController = StreamController<String>.broadcast();
     secureStorage = SecureStorage();
 
-    startBeaconTimer(null, _broadcastByEvent, secureStorage!).then((timer) => beaconTimer = timer);
+    // startBeaconTimer(null, _broadcastByEvent, secureStorage!)
+    //     .then((timer) => beaconTimer = timer);
   }
 
   // This widget is the root of your application.
@@ -51,7 +52,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: "/login",
+      // initialRoute: "/login",
       routes: <String, WidgetBuilder>{
         "/login": (BuildContext context) => Login(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
         "/home": (BuildContext context) => Home(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
         "/theme": (BuildContext context) => ThemeMain(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
         "/week": (BuildContext context) => Week(eventStreamController: eventStreamController!, weekStreamController: weekStreamController!, beaconStreamController: beaconStreamController!)
       },
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 
@@ -74,8 +75,7 @@ class MyApp extends StatelessWidget {
 
 // deprecated
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -100,12 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     secureStorage = SecureStorage();
 
-    callPermissions();
-
-    _createUuidsOfTest();
-
-    initIp().then((value) => CONNECTIVITY_STREAM_SUBSCRIPTION = value);
-
     eventStreamController = StreamController<String>.broadcast();
     eventStreamSubscription = eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
@@ -113,16 +107,28 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
-    startBeaconTimer(context, _successCheck, secureStorage).then((timer) => beaconTimer = timer);
+    _checkLogin().then((state) {
+      Log.debug("Login State : ${state}");
+      if (state != null && state == "true") {
+        _initForBeacon();
+        initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      } else {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+    });
+  }
 
-    move();
+  Future<String?> _checkLogin() async {
+    return await secureStorage.read(Env.LOGIN_STATE);
   }
 
   @override
   void dispose() {
     eventStreamSubscription.cancel();
-    eventStreamController.onCancel!();
-    stopTimer(beaconTimer);
+    // eventStreamController.onCancel!();
+    // stopTimer(beaconTimer);
+    startBeaconTimer(null, _broadcastByEvent, secureStorage!).then((timer) => beaconTimer = timer);
     super.dispose();
   }
 
@@ -136,15 +142,15 @@ class _MyHomePageState extends State<MyHomePage> {
     //   secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
     //   secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
 
-      // Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
-      // Env.WORK_KR_NAME = loginInfo.getKrName();
-      // Env.WORK_POSITION_NAME = loginInfo.getPositionName();
-      // Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
+    // Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
+    // Env.WORK_KR_NAME = loginInfo.getKrName();
+    // Env.WORK_POSITION_NAME = loginInfo.getPositionName();
+    // Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
 
-      // Log.debug(" photopath = ${loginInfo.getKrName()}");
-      // Log.debug(" krname = ${loginInfo.getPhotoPath()}");
-      // Log.debug(" positionname = ${loginInfo.()}");
-      // Log.debug(" companyName = ${loginInfo.getCompanyName()}");
+    // Log.debug(" photopath = ${loginInfo.getKrName()}");
+    // Log.debug(" krname = ${loginInfo.getPhotoPath()}");
+    // Log.debug(" positionname = ${loginInfo.()}");
+    // Log.debug(" companyName = ${loginInfo.getCompanyName()}");
 
     //   // state 페이지 이동
     //   Navigator.push(
@@ -181,56 +187,11 @@ class _MyHomePageState extends State<MyHomePage> {
     // });
   }
 
-  WillPopScope _createWillPopScope(Widget widget) {
-    return WillPopScope(
-        onWillPop: () {
-          MoveToBackground.moveTaskToBack();
-          return Future(() => false);
-        },
-        child: widget);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return _createWillPopScope(Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$result ',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            TextButton(
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-                  if (states.contains(MaterialState.focused)) return Colors.red;
-                  return null; // Defer to the widget's default.
-                }),
-              ),
-              child: Text(
-                'Beacon',
-                style: TextStyle(fontSize: 20.0),
-              ),
-              onPressed: () {
-                _initForBeacon();
-              },
-            )
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _sampleSendMessage,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    ));
+    return const Scaffold(
+      body: null, // This trailing comma makes auto-formatting nicer for build methods.
+    );
   }
 
   Future<void> _initForBeacon() async {
@@ -274,5 +235,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home(eventStreamController: eventStreamController, beaconStreamController: beaconStreamController!)));
     });
+  }
+
+  Future<void> _broadcastByEvent(String type, dynamic data) async {
+    if (type == Env.WORK_TYPE_TODAY) {
+      eventStreamController!.add(data);
+    } else if (type == Env.WORK_TYPE_WEEK) {
+      weekStreamController!.add(data);
+    }
   }
 }

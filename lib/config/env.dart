@@ -19,7 +19,7 @@ class Env {
 
   static const String SERVER_GROUPWARE_TEST = "$SERVER_URL:8060/pageLnk/Home";
   static const String SERVER_GROUPWARE_REAL = "$SERVER_URL/signIn";
-  
+
   static bool isDebug = true;
 
   static const String SERVER_GROUPWARE_URL = SERVER_GROUPWARE_TEST;
@@ -30,18 +30,17 @@ class Env {
 
   static const String WORK_TYPE_TODAY = "today";
   static const String WORK_TYPE_WEEK = "week";
-  
+
   static String? WORK_KR_NAME;
   static String? WORK_POSITION_NAME;
   static String? WORK_PHOTO_PATH;
   static String? WORK_COMPANY_NAME;
-
+  static const String LOGIN_STATE = "LOGIN_STATE";
 
   static const String KEY_USER_ID = "USER_ID"; // Login 후에 서버로부터 부여 받은 사용자 ID 값
   static const String KEY_ID_CHECK = 'KEY_ID_CHECK';
   static const String KEY_ACCESS_TOKEN = "accessToken";
   static const String KEY_REFRESH_TOKEN = "refreshToken";
-  static const String KEY_LOGIN_STATE = "loginState";
   static const String KEY_SETTING_UUID = "uuid";
   static const String KEY_SETTING_VIBRATE = "VIBRATE";
   static const String KEY_SETTING_SOUND = "SOUND";
@@ -53,7 +52,7 @@ class Env {
   static const String KEY_KR_NAME = "krName";
   static const String KEY_POSITION_NAME = "positionName";
   static const String KEY_COMPANY_NAME = "companyName";
-  
+
   static const String MSG_NOT_TOKEN = "로그 아웃 후에 다시 로그인 해주세요.";
   static const String MSG_LOGIN_FAIL = "ID 또는 Passwoard 를 확인하세요.";
   static const String MSG_SUCCESS = "등록이 완료 되었습니다.";
@@ -87,5 +86,4 @@ class Env {
 
   static Map<String, String> UUIDS = {};
   static StreamSubscription? CONNECTIVITY_STREAM_SUBSCRIPTION;
-
 }
