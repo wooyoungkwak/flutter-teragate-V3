@@ -34,6 +34,7 @@ class CustomBusinessCard extends StatelessWidget {
               child: Image.network(
                 //에러핸들러 추가 [나중에 통합할때 변경]
                 profilePicture,
+                errorBuilder: ((context, error, stackTrace) => _errorImage()),
                 fit: BoxFit.cover,
                 width: 48,
                 height: 48,
@@ -85,5 +86,14 @@ class CustomBusinessCard extends StatelessWidget {
   Container _createContainer(Widget widget) {
     return Container(
         margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xff3C5FEB), borderRadius: BorderRadius.circular(6)), child: widget);
+  }
+
+  Image _errorImage() {
+    return Image.network(
+      "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg",
+      fit: BoxFit.cover,
+      width: 48,
+      height: 48,
+    );
   }
 }
