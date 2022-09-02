@@ -71,6 +71,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                       size: 12.0,
                       color: Colors.black,
                       weight: FontWeight.bold,
+                      isOverlfow: true,
                     ),
                     const CustomText(
                       text: " 입니다.",

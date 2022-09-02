@@ -8,6 +8,7 @@ class CustomText extends StatelessWidget {
   final Color color;
   final double? height;
   final EdgeInsetsGeometry padding;
+  final bool? isOverlfow;
 
   const CustomText({
     Key? key,
@@ -18,6 +19,7 @@ class CustomText extends StatelessWidget {
     this.color = Colors.white,
     this.height,
     this.padding = const EdgeInsets.all(0.0),
+    this.isOverlfow = false,
   }) : super(key: key);
 
   @override
@@ -32,7 +34,7 @@ class CustomText extends StatelessWidget {
           fontWeight: weight,
           color: color,
           fontFamily: family,
-          overflow: TextOverflow.ellipsis,
+          overflow: isOverlfow! ? TextOverflow.ellipsis : TextOverflow.visible,
         ),
       ),
     );

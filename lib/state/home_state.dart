@@ -9,6 +9,7 @@ import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/utils/log_util.dart';
+import 'package:teragate_v3/utils/time_util.dart';
 
 import 'package:teragate_v3/services/server_service.dart';
 
@@ -43,6 +44,8 @@ class _HomeState extends State<Home> {
   String getInTime = "";
   String getOutTime = "";
   String currentLocation = "";
+  bool isAttendTimeOut = false;
+  bool isLeave = false;
 
   @override
   void initState() {
@@ -56,24 +59,27 @@ class _HomeState extends State<Home> {
         WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
         Log.debug("workInfo === ${workInfo.toString()}");
       }
+      _setDateTime();
     });
     beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage!, setBeaconUI);
 
-    Log.debug(Env.INIT_STATE_INFO.toString());
+    Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_INFO);
 
-    currentHour = "01";
-    currentMinute = "52";
-    currentDay = "6월 21일 화요일";
-    company = "주식회사 테라비전";
-    profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
-    profileName = "홍길동";
-    profilePosition = "과장";
-    currentTimeHHMM = "19:55";
-    workState = "업무중";
-    workTime = "08:30~18:00";
-    getInTime = "08:12";
-    getOutTime = "18:00";
-    currentLocation = "";
+    currentHour = getDateToStringForHHInNow();
+    currentMinute = getDateToStringForMMInNow();
+    currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+    company = Env.WORK_COMPANY_NAME ?? "-";
+    profilePicture = Env.WORK_PHOTO_PATH ?? "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg";
+    profileName = Env.WORK_KR_NAME ?? "-";
+    profilePosition = Env.WORK_POSITION_NAME ?? "-";
+    currentTimeHHMM = getDateToStringForHHMMInNow();
+    workState = setInfoMap["state"];
+    workTime = Env.INIT_STATE_INFO.strAttendLeaveTime ?? "-";
+    getInTime = Env.INIT_STATE_INFO.attendtime ?? "-";
+    getOutTime = Env.INIT_STATE_INFO.leavetime ?? "-";
+    currentLocation = Env.INIT_STATE_INFO.placeWorkName ?? "-";
+    isAttendTimeOut = setInfoMap["isAttendTimeOut"];
+    isLeave = setInfoMap["isLeaveTime"];
   }
 
   @override
@@ -85,7 +91,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-
     final statusBarHeight = MediaQuery.of(context).padding.top;
 
     return WillPopScope(
@@ -195,6 +200,7 @@ class _HomeState extends State<Home> {
                           ClipOval(
                             child: Image.network(
                               profilePicture,
+                              errorBuilder: ((context, error, stackTrace) => _errorImage()),
                               fit: BoxFit.cover,
                               width: 48,
                               height: 48,
@@ -309,10 +315,73 @@ class _HomeState extends State<Home> {
                 padding: const EdgeInsets.all(5.0),
                 text: "현재시간 : $currentTime",
                 size: 13.0,
+                color: color == Colors.white ? Colors.black : Colors.white,
                 weight: FontWeight.w400,
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Image _errorImage() {
+    return Image.network(
+      "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg",
+      fit: BoxFit.cover,
+      width: 48,
+      height: 48,
+    );
+  }
+
+  Color _setWorkStateColor(String workState) {
+    if (workState == "업무중") {
+      return const Color(0xff25A45F);
+    } else {
+      return Colors.white;
+    }
+  }
+
+  Color _setGetInColor(String getInTime) {
+    if (getInTime != "-") {
+      return const Color(0xff3C5FEB);
+    } else if (isAttendTimeOut) {
+      return const Color(0xff7C8298);
+    } else {
+      return Colors.white;
+    }
+  }
+
+  Color _setGetOutColor(String getOutTime) {
+    if (isLeave) {
+      return const Color(0xffFF3823);
+    } else {
+      return Colors.white;
+    }
+  }
+
+  void setBeaconUI(BeaconInfoData beaconInfoData) {
+    this.beaconInfoData = beaconInfoData;
+  }
+
+  void showAlertDialog(BuildContext context) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('알림'),
+        content: const Text('로그인 페이지로 이동하시겠습니까?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => {
+              Navigator.pop(context, 'OK'),
+              _logout(context),
+            },
+            child: const Text('확인'),
+          ),
+        ],
       ),
     );
   }
@@ -349,59 +418,6 @@ class _HomeState extends State<Home> {
     // });
   }
 
-  Color _setWorkStateColor(String workState) {
-    if (workState == "업무외") {
-      return const Color(0xff7C8298);
-    } else if (workState == "업무중") {
-      return const Color(0xff25A45F);
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color _setGetInColor(String getInTime) {
-    if (getInTime == "08:12") {
-      return const Color(0xff3C5FEB);
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color _setGetOutColor(String getOutTime) {
-    if (getOutTime == "18:00") {
-      return const Color(0xffFF3823);
-    } else {
-      return Colors.white;
-    }
-  }
-
-  void setBeaconUI(BeaconInfoData beaconInfoData) {
-    this.beaconInfoData = beaconInfoData;
-  }
-
-  void showAlertDialog(BuildContext context) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('알림'),
-        content: const Text('로그인 페이지로 이동하시겠습니까?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => {
-              Navigator.pop(context, 'OK'),
-              _logout(context),
-            },
-            child: const Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _logout(BuildContext context) async {
     secureStorage!.read(Env.KEY_ID_CHECK).then((value) {
       if (value == null && value == "false") {
@@ -413,5 +429,14 @@ class _HomeState extends State<Home> {
     secureStorage!.write(Env.KEY_ACCESS_TOKEN, "");
     secureStorage!.write(Env.KEY_REFRESH_TOKEN, "");
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
+  _setDateTime() {
+    setState(() {
+      currentHour = getDateToStringForHHInNow();
+      currentMinute = getDateToStringForMMInNow();
+      currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+      currentTimeHHMM = getDateToStringForHHMMInNow();
+    });
   }
 }

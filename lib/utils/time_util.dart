@@ -35,6 +35,10 @@ String getDateToStringForYYYYMMDDKORInNow() {
   return getDateToString(getNow(), "yyyy년 MM월 dd일");
 }
 
+String getDateToStringForMMDDKORInNow() {
+  return getDateToString(getNow(), "MM월 dd일");
+}
+
 String getDateToStringForAllInNow() {
   return getDateToStringForAll(getNow());
 }
@@ -43,8 +47,20 @@ String getPickerTime(DateTime datetime) {
   return getDateToString(datetime, "kk:mm");
 }
 
-String getDateToStringForHHMMInNow() {
+String getDateToStringForHHMMSSInNow() {
   return getDateToString(getNow(), "kk:mm:ss");
+}
+
+String getDateToStringForHHMMInNow() {
+  return getDateToString(getNow(), "kk:mm");
+}
+
+String getDateToStringForHHInNow() {
+  return getDateToString(getNow(), "kk");
+}
+
+String getDateToStringForMMInNow() {
+  return getDateToString(getNow(), "mm");
 }
 
 String getMinorToDate() {
@@ -123,8 +139,6 @@ Map<String, dynamic> getWorkState(WorkInfo workInfo) {
 
       stateMap["state"] = "-";
     }
-
-    
   } else {
     stateMap["state"] = attendLeaveTime;
 

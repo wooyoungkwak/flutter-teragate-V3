@@ -175,6 +175,11 @@ class _LoginState extends State<Login> {
                                 Env.WORK_POSITION_NAME = loginInfo.getPositionName();
                                 Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
 
+                                secureStorage.write(Env.KEY_PHOTO_PATH, loginInfo.getPhotoPath());
+                                secureStorage.write(Env.KEY_KR_NAME, loginInfo.getKrName());
+                                secureStorage.write(Env.KEY_POSITION_NAME, loginInfo.getPositionName());
+                                secureStorage.write(Env.KEY_COMPANY_NAME, loginInfo.getCompanyName());
+
                                 secureStorage.write(Env.LOGIN_ID, _loginIdContoroller.text);
                                 secureStorage.write(Env.LOGIN_PW, _passwordContorller.text);
                                 secureStorage.write(Env.LOGIN_STATE, "true");
