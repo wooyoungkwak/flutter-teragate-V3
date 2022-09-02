@@ -10,10 +10,10 @@ import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
-StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage, Function? callback) {
+StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage, Function callback) {
   return streamController.stream.listen((event) {
     if (event.isNotEmpty) {
-      _processEvent(secureStorage, event, callback!);
+      _processEvent(secureStorage, event, callback);
     }
   }, onError: (dynamic error) {
     Log.error('Received error: ${error.message}');
