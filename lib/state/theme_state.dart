@@ -9,16 +9,13 @@ import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/utils/time_util.dart';
 
 class ThemeMain extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const ThemeMain(
-      {required this.eventStreamController,
-      required this.beaconStreamController,
-      Key? key})
-      : super(key: key);
+  const ThemeMain({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<ThemeMain> createState() => _ThemeState();
@@ -42,15 +39,13 @@ class _ThemeState extends State<ThemeMain> {
 
     secureStorage = new SecureStorage();
 
-    eventStreamSubscription =
-        widget.eventStreamController.stream.listen((event) {
+    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
       }
     });
 
-    beaconStreamSubscription = startBeaconSubscription(
-        widget.beaconStreamController, secureStorage, setBeaconUI);
+    // beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
 
     setUI(false);
     //Get.to(Home);
@@ -81,8 +76,7 @@ class _ThemeState extends State<ThemeMain> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (route) => false);
+                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -106,19 +100,16 @@ class _ThemeState extends State<ThemeMain> {
                         child: Column(
                           children: [
                             Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 40),
+                                margin: const EdgeInsets.symmetric(horizontal: 40),
                                 padding: const EdgeInsets.only(top: 15),
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      CustomText(
-                                        text: "메인 테마 설정",
-                                        size: 18,
-                                        weight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                    ])),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+                                  CustomText(
+                                    text: "메인 테마 설정",
+                                    size: 18,
+                                    weight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ])),
                           ],
                         )),
                     Expanded(
@@ -127,26 +118,21 @@ class _ThemeState extends State<ThemeMain> {
                           children: [
                             Expanded(
                               flex: 10,
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    CustomText(
-                                      text: "테마 배경 사용",
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
-                                    Switch(
-                                        value: backgroundbool,
-                                        activeColor: Colors.white,
-                                        activeTrackColor:
-                                            const Color(0xff26C145),
-                                        inactiveTrackColor:
-                                            const Color(0xff444653),
-                                        onChanged: (value) {
-                                          setUI(value);
-                                        })
-                                  ]),
+                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                                CustomText(
+                                  text: "테마 배경 사용",
+                                  size: 16,
+                                  color: Colors.black,
+                                ),
+                                Switch(
+                                    value: backgroundbool,
+                                    activeColor: Colors.white,
+                                    activeTrackColor: const Color(0xff26C145),
+                                    inactiveTrackColor: const Color(0xff444653),
+                                    onChanged: (value) {
+                                      setUI(value);
+                                    })
+                              ]),
                             ),
                             const Expanded(flex: 7, child: SizedBox()),
                             Expanded(
@@ -182,17 +168,7 @@ class _ThemeState extends State<ThemeMain> {
                                 ))
                           ],
                         ))),
-                    Expanded(
-                        flex: 2,
-                        child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: createContainerwhite(
-                                const CustomBusinessCard(
-                                    company: "주식회사 테라비전",
-                                    name: "홍길동",
-                                    position: "과장",
-                                    worktime: "09:00 ~ 18:00",
-                                    workbool: true)))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard()))),
                   ],
                 ),
               ),
@@ -227,20 +203,11 @@ class _ThemeState extends State<ThemeMain> {
   }
 
   Container createContainer(Widget widget) {
-    return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   Container createContainerwhite(Widget widget) {
-    return Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
 //이미지 박스
@@ -263,6 +230,11 @@ class _ThemeState extends State<ThemeMain> {
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
+
+    setState(() {
+      currentTimeHHMM = getPickerTime(getNow());
+      currentLocation = beaconInfoData.place;
+    });
   }
 
   void sendToBroadcast(WorkInfo workInfo) {

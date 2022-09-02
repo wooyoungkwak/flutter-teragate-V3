@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
@@ -9,8 +11,9 @@ import 'package:teragate_v3/utils/log_util.dart';
 class BottomNavBar extends StatefulWidget {
   final String? currentLocation;
   final String? currentTime;
+  final Function? function;
 
-  const BottomNavBar({this.currentLocation, this.currentTime, Key? key}) : super(key: key);
+  const BottomNavBar({this.currentLocation, this.currentTime, this.function, Key? key}) : super(key: key);
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
@@ -116,6 +119,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   function: () => {
                     _synchronize(context, secureStorage),
                     showSyncDialog(context),
+                    widget.function,
                   },
                 ),
                 _createIconByContainer(

@@ -19,12 +19,7 @@ class Week extends StatefulWidget {
   final StreamController beaconStreamController;
   final StreamController eventStreamController;
 
-  const Week(
-      {required this.weekStreamController,
-      required this.beaconStreamController,
-      required this.eventStreamController,
-      Key? key})
-      : super(key: key);
+  const Week({required this.weekStreamController, required this.beaconStreamController, required this.eventStreamController, Key? key}) : super(key: key);
   State<Week> createState() => _WeekState();
 }
 
@@ -32,14 +27,14 @@ class _WeekState extends State<Week> {
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription weekStreamSubscription;
 
-  late BeaconInfoData beaconInfoData;
+  // late BeaconInfoData beaconInfoData;
 
   late SecureStorage secureStorage;
 
-  int worktime = 32;
+  int workingtime = 32;
   List<String> week = [];
-  List<String> workinTime = [];
-  List<String> workoutTime = [];
+  List<String> workTime = [];
+
   List<String> weekinTime = [];
   List<String> weekoutTime = [];
   List<bool> workinOk = []; // 정상 출근 true/ 지각 false
@@ -60,8 +55,7 @@ class _WeekState extends State<Week> {
       }
     });
 
-    beaconStreamSubscription = startBeaconSubscription(
-        widget.beaconStreamController, secureStorage, setBeaconUI);
+    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
 
     setUI();
     //Get.to(Home);
@@ -95,8 +89,7 @@ class _WeekState extends State<Week> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (route) => false);
+                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -120,19 +113,16 @@ class _WeekState extends State<Week> {
                         child: Column(
                           children: [
                             Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 40),
+                                margin: const EdgeInsets.symmetric(horizontal: 40),
                                 padding: const EdgeInsets.only(top: 15),
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      CustomText(
-                                        text: "금주 출퇴근 시간",
-                                        size: 18,
-                                        weight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                    ])),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+                                  CustomText(
+                                    text: "금주 출퇴근 시간",
+                                    size: 18,
+                                    weight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ])),
                           ],
                         )),
                     Expanded(
@@ -153,7 +143,7 @@ class _WeekState extends State<Week> {
                                     color: Color(0xff6E6C6C),
                                   ),
                                   CustomText(
-                                    text: "*$worktime",
+                                    text: "*$workingtime",
                                     size: 12,
                                     weight: FontWeight.bold,
                                     color: Colors.black,
@@ -169,17 +159,7 @@ class _WeekState extends State<Week> {
                             )
                           ],
                         )),
-                    Expanded(
-                        flex: 2,
-                        child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: _createContainerwhite(
-                                const CustomBusinessCard(
-                                    company: "주식회사 테라비전",
-                                    name: "홍길동",
-                                    position: "과장",
-                                    worktime: "09:00 ~ 18:00",
-                                    workbool: true)))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: _createContainerwhite(CustomBusinessCard()))),
                   ],
                 ),
               ),
@@ -203,20 +183,11 @@ class _WeekState extends State<Week> {
 
   Container _createContainer(Widget widget) {
     return Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: const Color(0xff3C5FEB),
-            borderRadius: BorderRadius.circular(6)),
-        child: widget);
+        margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xff3C5FEB), borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   Container _createContainerwhite(Widget widget) {
-    return Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: widget);
+    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
   ListView initListView() {
@@ -232,8 +203,7 @@ class _WeekState extends State<Week> {
   }
 
   // 아이콘 ,요일, 출퇴근 시간 text
-  Container initContainerByweektext(Color color, String week, String workintime,
-      String workouttime, bool today) {
+  Container initContainerByweektext(Color color, String week, String workTime, bool today) {
     if (today == true) {
       color = Color(0xff25A45F);
     }
@@ -249,19 +219,15 @@ class _WeekState extends State<Week> {
             Container(
                 margin: const EdgeInsets.all(2),
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                    color: color, borderRadius: BorderRadius.circular(6)),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
                 child: CustomText(text: week, size: 13)),
             const SizedBox(width: 10),
-            CustomText(text: workintime, size: 13, color: Colors.black),
-            CustomText(text: "~", size: 13, color: Colors.black),
-            CustomText(text: workouttime, size: 13, color: Colors.black)
+            CustomText(text: workTime, size: 13, color: Colors.black),
           ],
         ));
   }
 
-  Container initOpacityByworktime(
-      String workTime, bool workOk, bool workinoutCheck) {
+  Container initOpacityByworktime(String workTime, bool workOk, bool workinoutCheck) {
     Color workColor;
     //workOk 정상적인 출 퇴근 true : false 지각,조기퇴근 등
     //workinoutCheck 들어온 값이 출근인지 퇴근인지 [true:출근 false:퇴근 색이 다름]
@@ -279,48 +245,26 @@ class _WeekState extends State<Week> {
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          color: workColor, borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(color: workColor, borderRadius: BorderRadius.circular(6)),
       child: Text(workTime),
     );
   }
 
   Container initContainerByWork(int i) {
     return Container(
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          initContainerByweektext(
-              weekoutTime[i] != "" && weekinTime[i] != ""
-                  ? Color(0xff3C5FEB)
-                  : Color(0xff77787B),
-              week[i],
-              weekinTime[i],
-              weekoutTime[i],
-              today[i]),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          initContainerByweektext(weekoutTime[i] != "" && weekinTime[i] != "" ? Color(0xff3C5FEB) : Color(0xff77787B), week[i], workTime[i], today[i]),
           SizedBox(
             child: Row(
               children: [
                 weekinTime[i] != ""
                     ? initOpacityByworktime(weekinTime[i], workinOk[i], true)
-                    : Visibility(
-                        maintainSize: true,
-                        maintainAnimation: true,
-                        maintainState: true,
-                        visible: false,
-                        child: initOpacityByworktime(
-                            weekinTime[i], workinOk[i], true)),
+                    : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
                 weekoutTime[i] != ""
                     ? initOpacityByworktime(weekoutTime[i], workoutOk[i], false)
-                    : Visibility(
-                        maintainSize: true,
-                        maintainAnimation: true,
-                        maintainState: true,
-                        visible: false,
-                        child: initOpacityByworktime(
-                            weekinTime[i], workinOk[i], true)),
+                    : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
               ],
             ),
           ),
@@ -339,91 +283,79 @@ class _WeekState extends State<Week> {
   void setUI() {
     int count = 0;
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-      // Log.debug(" success === ${workInfo.success.toString()} ");
-      Log.debug(weekInfo!.success);
-      Log.debug(weekInfo.workInfos);
-      List<WorkInfo> worklist = weekInfo.workInfos;
-      for (int i = 0; i <= worklist.length; i++) {
-        worklist[i].isweekend;
-        worklist[i].isholiday;
-        workinTime[i] = worklist[i].targetAttendTime!;
-        workoutTime[i] = worklist[i].targetLeaveTime!;
-        worklist[i].attendtime;
-        worklist[i].leavetime;
-        if (worklist[i].isweekend == "true" ||
-            worklist[i].isholiday == "true") {
-          count++;
-        }
-        if (worklist[i].isweekend == "true") {
-          workinTime[i] = "주말";
-        } else if (worklist[i].isholiday == "true") {
-          workinTime[i] = "휴일";
-        }
-      }
-      Log.debug(worklist[0]);
+      List<WorkInfo> worklist = weekInfo!.workInfos;
+      Log.debug(" success === ${weekInfo.success.toString()} ");
       // String? isweekend; // 주말 여부
       // String? isholiday; // 휴일 여부
       // String? targetAttendTime; // 출근 해야 되는 시간 (예> 09:00)
       // String? targetLeaveTime; // 퇴근 해야 되는 시간 (예> 18:00)
       // String? attendtime; // 출근 시간
       // String? leavetime; // 퇴근 시간
+      workTime.clear;
+      setState(() {
+        for (int i = 0; i < worklist.length; i++) {
+          Log.debug(worklist[i].toString());
+
+          workTime.add((worklist[i].strAttendLeaveTime!));
+
+          weekinTime.add(worklist[i].attendtime ?? "");
+          weekoutTime.add(worklist[i].leavetime ?? "");
+          worklist[i].leavetime;
+          if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+            count++;
+          }
+          // if (worklist[i].isweekend == "Y") {
+          //   workTime[i] = "주말";
+          //   workoutTime[i] = "";
+          // } else if (worklist[i].isholiday == "Y") {
+          //   workTime[i] = "휴일";
+          //   workoutTime[i] = "";
+          // }
+        }
+
+        week = [
+          "일",
+          "월",
+          "화",
+          "수",
+          "목",
+          "금",
+          "토",
+        ];
+        workingtime = (7 - count) * 8;
+        //반차에 대한 시간 계산은 나중에...처리
+        //지각에 대하 계산은 나중에...처리
+        workinOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 지각 false
+        workoutOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 조기퇴근 false
+        today = [false, false, false, false, false, false, false]; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
+
+        String daynow = getWeekByKor();
+        for (int i = 0; i < week.length; i++) {
+          if (daynow == week[i]) {
+            today[i] = true;
+          }
+        }
+      });
     });
-
-    setState(() {
-      currentTimeHHMM = "asda";
-      currentLocation = "dsas";
-      // currentTimeHHMM = beaconInfoData.uuid;
-      // currentLocation = beaconInfoData.place;
-      week = ["월", "화", "수", "목", "금", "토", "일"];
-
-      worktime = (7 - count) * 8;
-      //반차에 대한 시간 계산은 나중에...처리
-
-      weekinTime = ["08:30", "08:30", "", "08:30", "08:30", "", ""];
-      weekoutTime = [
-        "",
-        "",
-        "18:00",
-        "18:00",
-        "18:00",
-        "",
-        "",
-      ];
-      workinOk = [
-        true,
-        true,
-        false,
-        true,
-        false,
-        true,
-        false
-      ]; // 정상 출근 true/ 지각 false
-      workoutOk = [
-        false,
-        true,
-        true,
-        true,
-        false,
-        true,
-        false
-      ]; // 정상 출근 true/ 조기퇴근 false
-      today = [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true
-      ]; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
-    });
+    // if (beaconInfoData == null) {
+    //   setState(() {
+    //     currentLocation = "---";
+    //     currentTimeHHMM = getPickerTime(getNow());
+    //   });
+    // } else
+    //   setBeaconUI(beaconInfoData);
   }
 
-  //일주일간 출근 퇴근 정보 요청
-
   void setBeaconUI(BeaconInfoData beaconInfoData) {
-    Log.debug(" beaconInfoData = ${beaconInfoData.toString()}");
-    this.beaconInfoData = beaconInfoData;
+    // this.beaconInfoData = beaconInfoData;
+    // setState(() {
+    //   if (this.beaconInfoData == null) {
+    //     currentLocation = "---";
+    //   } else {
+    //     currentLocation = beaconInfoData.place;
+    //     currentTimeHHMM = getPickerTime(getNow());
+    //   }
+    // });
   }
 
   void sendToBroadcast(WorkInfo workInfo) {

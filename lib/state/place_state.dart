@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
+import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/server_service.dart';
@@ -10,6 +11,7 @@ import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
 import 'package:teragate_v3/utils/log_util.dart';
+import 'package:teragate_v3/utils/time_util.dart';
 
 class Place extends StatefulWidget {
   final StreamController eventStreamController;
@@ -18,12 +20,12 @@ class Place extends StatefulWidget {
   const Place({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
   // final controller = Get.put(Controller());
   @override
-  State<Place> createState() => _HomeState();
+  State<Place> createState() => _PlaceState();
 }
 
-class _HomeState extends State<Place> {
+class _PlaceState extends State<Place> {
   List<String> locationlist = [""];
-  List<bool> locationlistbool = [];
+  List<bool> locationlistbool = [false];
 
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription eventStreamSubscription;
@@ -36,8 +38,7 @@ class _HomeState extends State<Place> {
 
   @override
   void initState() {
-    super.initState();
-
+    Log.debug("init@########@#@#@#@#@");
     secureStorage = SecureStorage();
 
     eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
@@ -48,7 +49,9 @@ class _HomeState extends State<Place> {
 
     beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
 
-    setUI();
+    initUI();
+
+    super.initState();
     //Get.to(Home);
   }
 
@@ -117,10 +120,7 @@ class _HomeState extends State<Place> {
                         flex: 7,
                         child: createContainer(Column(
                           children: [
-                            Expanded(
-                              flex: 5,
-                              child: initGridView(locationlist, locationlistbool),
-                            ),
+                            Expanded(flex: 5, child: locationlist != null ? initGridView(locationlist, locationlistbool) : SizedBox()),
                             Expanded(
                                 flex: 1,
                                 child: Column(
@@ -145,11 +145,7 @@ class _HomeState extends State<Place> {
                                 )),
                           ],
                         ))),
-                    Expanded(
-                        flex: 2,
-                        child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: createContainerwhite(const CustomBusinessCard(company: "주식회사 테라비전", name: "홍길동", position: "과장", worktime: "09:00 ~ 18:00", workbool: true)))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard()))),
                   ],
                 ),
               ),
@@ -158,6 +154,7 @@ class _HomeState extends State<Place> {
           bottomNavigationBar: BottomNavBar(
             currentLocation: currentLocation,
             currentTime: currentTimeHHMM,
+            function: setUI,
           )),
     ));
   }
@@ -221,40 +218,47 @@ class _HomeState extends State<Place> {
         }));
   }
 
-  void setUI() {
+  void setUI() async {
     //  비콘 정보 요청 ( 동기화 )
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
       List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
-      Log.debug(" placeInfo === ${configInfo.message.toString()} ");
       Log.debug(" placeInfo === ${configInfo.beaconInfoDatas.toString()} ");
-
-      for (BeaconInfoData beaconInfoData in placeInfo) {
-        secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
-      }
-    });
-
-    currentTimeHHMM = "19:30";
-    currentLocation = "사무실";
-    setState(() {
-      String location = "기업부설연구소";
-      locationlist = ["사무실", "휴게실", "기업부설연구소", "현장", "재고창고"];
-      locationlistbool = [false, false, false, false, false, false, false, false, false, false];
-      for (int i = 0; i < locationlist.length; i++) {
-        if (location == locationlist[i]) {
-          locationlistbool[i] = true;
-        } else {
-          locationlistbool[i] = false;
+      locationlist.clear();
+      locationlistbool.clear();
+      setState(() {
+        for (BeaconInfoData beaconInfoData in placeInfo) {
+          secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+          locationlist.add(beaconInfoData.place);
+          locationlistbool.add(false);
         }
-      }
+        String location = currentLocation;
+        for (int i = 0; i < locationlist.length; i++) {
+          if (location == locationlist[i]) {
+            locationlistbool[i] = true;
+          } else {
+            locationlistbool[i] = false;
+          }
+        }
+      });
     });
   }
 
+  void initUI() async {
+    setUI(); // storege 이용해서 처리해야되는데 기억이 안나는데 우선...처리를
+  }
+
   void setBeaconUI(BeaconInfoData beaconInfoData) {
-    Log.debug(" beaconInfoData = ${beaconInfoData.toString()}");
+    Log.debug("beacon ://///////////////// ${beaconInfoData.place.toString()}");
+
     this.beaconInfoData = beaconInfoData;
 
     setState(() {
-      currentLocation = beaconInfoData.place;
+      if (this.beaconInfoData == null) {
+        currentLocation = "---";
+      } else {
+        currentLocation = beaconInfoData.place;
+        currentTimeHHMM = getPickerTime(getNow());
+      }
     });
   }
 }
