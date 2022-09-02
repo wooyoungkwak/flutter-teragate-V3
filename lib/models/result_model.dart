@@ -54,7 +54,7 @@ class WorkInfo {
   String? attIpOut; //
   String? targetAttendTime; // 출근 해야 되는 시간 (예> 09:00)
   String? targetLeaveTime; // 퇴근 해야 되는 시간 (예> 18:00)
-  String? strAttendLeaveTime; // 출퇴근 상태 표현    (예> 휴일 )
+  String? strAttendLeaveTime; // 출퇴근 상태 표현 (예> 휴일 or 09:00 ~ 18:00)
   String? noAttendCheckYn; //
   String? placeWork; //
   String? placeWorkName; //
@@ -78,7 +78,7 @@ class WorkInfo {
   }
 
   static WorkInfo fromJson(Map<String, dynamic> json) {
-    if (json == null) {
+    if (json == null || !json["success"]) {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
     }
 
