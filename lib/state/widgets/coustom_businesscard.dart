@@ -6,17 +6,17 @@ import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 class CustomBusinessCard extends StatelessWidget {
-  final String company = Env.KEY_COMPANY_NAME;
+  final String? company = Env.WORK_COMPANY_NAME;
   final String? name = Env.WORK_KR_NAME;
   final String? position = Env.WORK_POSITION_NAME;
-
-  CustomBusinessCard({Key? key}) : super(key: key);
+  WorkInfo? workInfo;
+  CustomBusinessCard(this.workInfo, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    WorkInfo workInfo = Env.INIT_STATE_INFO;
     bool workbool = false;
-    String worktime = "${workInfo.targetAttendTime} ~ ${workInfo.targetLeaveTime}";
+    workInfo = workInfo ?? WorkInfo(1, "---", "", "", "", "", "", "", "--:--", "--:--", "", "", "", "", "", success: false, message: "");
+    String worktime = "${workInfo!.targetAttendTime} ~ ${workInfo!.targetLeaveTime}";
     workbool = true;
     String profilePicture = Env.WORK_PHOTO_PATH!;
 
@@ -37,7 +37,7 @@ class CustomBusinessCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 5),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                CustomText(text: company, weight: FontWeight.w500, size: 14, color: Colors.black),
+                CustomText(text: company!, weight: FontWeight.w500, size: 14, color: Colors.black),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [

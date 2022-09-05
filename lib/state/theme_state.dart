@@ -25,31 +25,18 @@ class ThemeMain extends StatefulWidget {
 class _ThemeState extends State<ThemeMain> {
   bool backgroundbool = false;
 
-  late StreamSubscription beaconStreamSubscription;
-  late StreamSubscription eventStreamSubscription;
-
   late SecureStorage secureStorage;
   late BeaconInfoData beaconInfoData;
-
-  String currentTimeHHMM = "";
-  String currentLocation = "";
+  WorkInfo? workInfo;
 
   @override
   void initState() {
     super.initState();
+    secureStorage = SecureStorage();
+    Env.EVENT_FUNCTION = _setUI;
+    Env.BEACON_FUNCTION = _setBeaconUI;
 
-    secureStorage = new SecureStorage();
-
-    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
-      if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
-      }
-    });
-
-    // beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
-
-    setUI(false);
-    //Get.to(Home);
+    _synchonizationThemeUI();
   }
 
   @override
@@ -131,7 +118,7 @@ class _ThemeState extends State<ThemeMain> {
                                     activeTrackColor: const Color(0xff26C145),
                                     inactiveTrackColor: const Color(0xff444653),
                                     onChanged: (value) {
-                                      setUI(value);
+                                      
                                     })
                               ]),
                             ),
@@ -169,23 +156,22 @@ class _ThemeState extends State<ThemeMain> {
                                 ))
                           ],
                         ))),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard()))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard(workInfo)))),
                   ],
                 ),
               ),
             ],
           ),
           bottomNavigationBar: BottomNavBar(
-            currentLocation: currentLocation,
-            currentTime: currentTimeHHMM,
+            currentLocation: Env.CURRENT_PLACE,
+            currentTime: getPickerTime(getNow()),
+            function: _synchonizationThemeUI
           )),
     );
   }
 
   @override
   void dispose() {
-    beaconStreamSubscription.cancel();
-    eventStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -221,21 +207,21 @@ class _ThemeState extends State<ThemeMain> {
     );
   }
 
-  void setUI(bool value) {
-    currentTimeHHMM = "19:30";
-    currentLocation = "사무실";
+  void _setUI(WorkInfo workInfo) {
     setState(() {
-      backgroundbool = value;
+      this.workInfo = workInfo;
     });
   }
 
-  void setBeaconUI(BeaconInfoData beaconInfoData) {
-    this.beaconInfoData = beaconInfoData;
-
+  void _synchonizationThemeUI() {
     setState(() {
-      currentTimeHHMM = getPickerTime(getNow());
-      currentLocation = Env.CURRENT_PLACE;
+      
     });
+  }
+
+  void _setBeaconUI(BeaconInfoData beaconInfoData) {
+    this.beaconInfoData = beaconInfoData;
+    setState(() { });
   }
 
   void sendToBroadcast(WorkInfo workInfo) {

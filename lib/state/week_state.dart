@@ -40,14 +40,16 @@ class _WeekState extends State<Week> {
   List<bool> workoutOk = []; // 정상 출근 true/ 조기퇴근 false
   List<bool> today = []; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
 
+  WorkInfo? workInfo;
+  
   @override
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
-    Env.EVENT_FUNCTION = setUI;
+    Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
 
-    setUI();
+    _synchonizationWeekUI();
   }
 
   @override
@@ -148,7 +150,7 @@ class _WeekState extends State<Week> {
                             )
                           ],
                         )),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard()))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard(workInfo)))),
                   ],
                 ),
               ),
@@ -157,7 +159,7 @@ class _WeekState extends State<Week> {
           bottomNavigationBar: BottomNavBar(
             currentLocation: Env.CURRENT_PLACE,
             currentTime: getPickerTime(getNow()),
-            function: setUI,
+            function: _synchonizationWeekUI,
           )),
     ));
   }
@@ -253,7 +255,7 @@ class _WeekState extends State<Week> {
         child: widget);
   }
 
-  void setUI() {
+  void _synchonizationWeekUI() {
     int count = 0;
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
       List<WorkInfo> worklist = weekInfo!.workInfos;
@@ -311,6 +313,11 @@ class _WeekState extends State<Week> {
     //   });
     // } else
     //   setBeaconUI(beaconInfoData);
+  }
+
+  void _setUI(WorkInfo workInfo) {
+    this.workInfo = workInfo;
+    setState(() { });
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {

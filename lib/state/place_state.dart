@@ -18,21 +18,24 @@ class Place extends StatefulWidget {
   final StreamController beaconStreamController;
 
   const Place({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
-  
+
   @override
   State<Place> createState() => _PlaceState();
 }
 
 class _PlaceState extends State<Place> {
-  List<String> locationlist = [""];
+  List<String> placeList = [""];
 
   BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
   late SecureStorage secureStorage;
-
+  WorkInfo? workInfo;
+  
   @override
   void initState() {
     secureStorage = SecureStorage();
-    initUI();
+    _initUUIDList();
+
+    Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
     super.initState();
   }
@@ -102,7 +105,7 @@ class _PlaceState extends State<Place> {
                         flex: 7,
                         child: createContainer(Column(
                           children: [
-                            Expanded(flex: 5, child: locationlist == null ? SizedBox() : initGridView(locationlist)),
+                            Expanded(flex: 5, child: placeList == null ? SizedBox() : initGridView(placeList)),
                             Expanded(
                                 flex: 1,
                                 child: Column(
@@ -127,7 +130,7 @@ class _PlaceState extends State<Place> {
                                 )),
                           ],
                         ))),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard()))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard(workInfo)))),
                   ],
                 ),
               ),
@@ -136,7 +139,7 @@ class _PlaceState extends State<Place> {
           bottomNavigationBar: BottomNavBar(
             currentLocation: Env.CURRENT_PLACE,
             currentTime: getPickerTime(getNow()),
-            function: setUI,
+            function: _synchonizationPlaceUI,
           )),
     ));
   }
@@ -200,7 +203,13 @@ class _PlaceState extends State<Place> {
         }));
   }
 
-  Future<void> setUI() async{
+  void _setUI() {
+    setState(() {
+
+    });
+  }
+
+  Future<void> _synchonizationPlaceUI() async {
     Log.debug("###########잘작동하고있나요?##########");
     //  비콘 정보 요청 ( 동기화 )
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
@@ -211,13 +220,13 @@ class _PlaceState extends State<Place> {
       }
 
       setState(() {
-        locationlist = Env.UUIDS.entries.map((e) => e.value).toList();
+        placeList = Env.UUIDS.entries.map((e) => e.value).toList();
       });
     });
   }
 
-  void initUI() async {
-    locationlist = Env.UUIDS.entries.map((e) => e.value).toList();
+  void _initUUIDList() async {
+    placeList = Env.UUIDS.entries.map((e) => e.value).toList();
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
