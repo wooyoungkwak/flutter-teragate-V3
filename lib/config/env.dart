@@ -90,4 +90,8 @@ class Env {
   static Map<String, String> UUIDS = {};
   static dynamic INIT_STATE_INFO;
   static StreamSubscription? CONNECTIVITY_STREAM_SUBSCRIPTION;
+  static StreamSubscription? EVENT_STREAM_SUBSCRIPTION;
+  static StreamSubscription? BEACON_STREAM_SUBSCRIPTION;
+  static Function? EVENT_FUNCTION;
+  static Function? BEACON_FUNCTION;
 }

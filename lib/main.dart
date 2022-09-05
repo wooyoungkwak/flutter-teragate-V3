@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         "/theme": (BuildContext context) => ThemeMain(eventStreamController: eventStreamController!, beaconStreamController: beaconStreamController!),
         "/week": (BuildContext context) => Week(eventStreamController: eventStreamController!, weekStreamController: weekStreamController!, beaconStreamController: beaconStreamController!)
       },
-      home: const MyHomePage(),
+      home: MyHomePage(beaconStreamController: beaconStreamController!),
     );
   }
 
@@ -74,7 +74,8 @@ class MyApp extends StatelessWidget {
 
 // deprecated
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  final StreamController beaconStreamController;
+  const MyHomePage({required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -84,11 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String result = "";
 
   late StreamController eventStreamController;
-  StreamController? beaconStreamController;
   late StreamController weekStreamController;
-
-  late StreamSubscription beaconStreamSubscription;
-  late StreamSubscription eventStreamSubscription;
 
   late SecureStorage secureStorage;
 
@@ -100,9 +97,11 @@ class _MyHomePageState extends State<MyHomePage> {
     secureStorage = SecureStorage();
 
     eventStreamController = StreamController<String>.broadcast();
-    eventStreamSubscription = eventStreamController.stream.listen((event) {
+    Env.EVENT_STREAM_SUBSCRIPTION = eventStreamController.stream.listen((event) {
+      // eventStreamSubscription = eventStreamController.stream.listen((event) {
       if (event.isNotEmpty) {
         WorkInfo workInfo = WorkInfo.fromJson(json.decode(event));
+        Env.EVENT_FUNCTION == null ? Log.debug(workInfo.success.toString()) : Env.EVENT_FUNCTION!(workInfo);
       }
     });
 
@@ -124,9 +123,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    eventStreamSubscription.cancel();
-    // eventStreamController.onCancel!();
-    // stopTimer(beaconTimer);
     super.dispose();
   }
 
@@ -138,10 +134,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _initForBeacon() async {
-    if (beaconStreamController == null) {
-      beaconStreamController = StreamController<String>.broadcast();
-      initBeacon(context, beaconStreamController!, secureStorage);
-    }
+    Env.BEACON_STREAM_SUBSCRIPTION = startBeaconSubscription(widget.beaconStreamController, secureStorage, Env.BEACON_FUNCTION);
+    initBeacon(context, widget.beaconStreamController, secureStorage);
   }
 
   Future<String?> _checkLogin() async {

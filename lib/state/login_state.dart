@@ -27,8 +27,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  late StreamSubscription beaconStreamSubscription;
-  late StreamSubscription eventStreamSubscription;
+  // late StreamSubscription beaconStreamSubscription;
+  // late StreamSubscription eventStreamSubscription;
   StreamSubscription? connectivityStreamSubscription;
 
   final _formKey = GlobalKey<FormState>();
@@ -48,16 +48,11 @@ class _LoginState extends State<Login> {
     super.initState();
     secureStorage = SecureStorage();
 
-    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
-      if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
-      }
-    });
-
     callPermissions();
     initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
-    //   Env.CONNECTIVITY_STREAM_SUBSCRIPTION!.cancel();
     _checkLogin();
+
+    Env.BEACON_FUNCTION = null;
   }
 
   @override
@@ -215,7 +210,7 @@ class _LoginState extends State<Login> {
   @override
   void dispose() {
     // beaconStreamSubscription.cancel();
-    eventStreamSubscription.cancel();
+    // eventStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -324,6 +319,7 @@ class _LoginState extends State<Login> {
 
   // 비콘 시작
   Future<void> _initForBeacon() async {
+    Env.BEACON_STREAM_SUBSCRIPTION = startBeaconSubscription(widget.beaconStreamController, secureStorage, Env.BEACON_FUNCTION);
     initBeacon(context, widget.beaconStreamController, secureStorage);
   }
 

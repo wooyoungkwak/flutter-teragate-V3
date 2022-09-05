@@ -10,7 +10,7 @@ import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
-StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage, Function callback) {
+StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage, Function? callback) {
   return streamController.stream.listen((event) {
     if (event.isNotEmpty) {
       _processEvent(secureStorage, event, callback);
@@ -20,7 +20,7 @@ StreamSubscription startBeaconSubscription(StreamController streamController, Se
   });
 }
 
-Future<void> _processEvent(SecureStorage secureStorage, var event, Function callback) async {
+Future<void> _processEvent(SecureStorage secureStorage, var event, Function? callback) async {
   String uuid = getUUID(event);
 
   Log.debug( " *** uuid = $uuid :: UUIDS SIZE = ${Env.UUIDS.length}");
@@ -36,7 +36,7 @@ Future<void> _processEvent(SecureStorage secureStorage, var event, Function call
     _getPlace(secureStorage, uuid).then((place) {
       if (Env.CURRENT_PLACE != place) {
         Env.CURRENT_PLACE = ( place ?? "" )  ;
-        callback(BeaconInfoData(uuid: uuid, place: Env.CURRENT_PLACE));
+        callback == null ? Log.log(" uuid = $uuid :: place = ${Env.CURRENT_PLACE}") : (BeaconInfoData(uuid: uuid, place: Env.CURRENT_PLACE));
       }
     });
   }

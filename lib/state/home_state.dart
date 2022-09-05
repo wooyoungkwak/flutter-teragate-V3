@@ -24,8 +24,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late StreamSubscription beaconStreamSubscription;
-  late StreamSubscription eventStreamSubscription;
+  // late StreamSubscription beaconStreamSubscription;
+  // late StreamSubscription eventStreamSubscription;
 
   late BeaconInfoData beaconInfoData;
 
@@ -54,14 +54,17 @@ class _HomeState extends State<Home> {
 
     profilePicture = Env.WORK_PHOTO_PATH ?? "";
 
-    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
-      if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
-        Log.debug("workInfo === ${workInfo.toString()}");
-      }
-      _setDateTime();
-    });
-    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage!, setBeaconUI);
+    // eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
+    //   if (event.isNotEmpty) {
+    //     WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
+    //     Log.debug("workInfo === ${workInfo.toString()}");
+    //   }
+    //   _setDateTime();
+    // });
+    // beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage!, setBeaconUI);
+
+    Env.EVENT_FUNCTION = _setDateTime;
+    Env.BEACON_FUNCTION = setBeaconUI;
 
     Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_INFO);
 
@@ -84,8 +87,8 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
-    beaconStreamSubscription.cancel();
-    eventStreamSubscription.cancel();
+    // beaconStreamSubscription.cancel();
+    // eventStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -325,6 +328,7 @@ class _HomeState extends State<Home> {
   }
 
   Image _errorImage() {
+    Log.debug(" errorImage ... ");
     return Image.network(
       "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg",
       fit: BoxFit.cover,
@@ -361,6 +365,15 @@ class _HomeState extends State<Home> {
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
+
+    setState(() {
+      if (this.beaconInfoData == null) {
+        currentLocation = "---";
+      } else {
+        currentLocation = beaconInfoData.place;
+        currentTimeHHMM = getPickerTime(getNow());
+      }
+    });
   }
 
   void showAlertDialog(BuildContext context) {
