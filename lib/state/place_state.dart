@@ -18,40 +18,23 @@ class Place extends StatefulWidget {
   final StreamController beaconStreamController;
 
   const Place({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
-  // final controller = Get.put(Controller());
+  
   @override
   State<Place> createState() => _PlaceState();
 }
 
 class _PlaceState extends State<Place> {
   List<String> locationlist = [""];
-  List<bool> locationlistbool = [false];
 
-  late StreamSubscription beaconStreamSubscription;
-  late StreamSubscription eventStreamSubscription;
-
-  late BeaconInfoData beaconInfoData;
+  BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
   late SecureStorage secureStorage;
-
-  String currentTimeHHMM = "";
-  String currentLocation = "";
 
   @override
   void initState() {
     secureStorage = SecureStorage();
-
-    eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
-      if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
-      }
-    });
-
-    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
-
     initUI();
-
+    Env.BEACON_FUNCTION = _setBeaconUI;
     super.initState();
-    //Get.to(Home);
   }
 
   @override
@@ -119,7 +102,7 @@ class _PlaceState extends State<Place> {
                         flex: 7,
                         child: createContainer(Column(
                           children: [
-                            Expanded(flex: 5, child: locationlist != null ? initGridView(locationlist, locationlistbool) : SizedBox()),
+                            Expanded(flex: 5, child: locationlist == null ? SizedBox() : initGridView(locationlist)),
                             Expanded(
                                 flex: 1,
                                 child: Column(
@@ -151,8 +134,8 @@ class _PlaceState extends State<Place> {
             ],
           ),
           bottomNavigationBar: BottomNavBar(
-            currentLocation: currentLocation,
-            currentTime: currentTimeHHMM,
+            currentLocation: Env.CURRENT_PLACE,
+            currentTime: getPickerTime(getNow()),
             function: setUI,
           )),
     ));
@@ -160,8 +143,6 @@ class _PlaceState extends State<Place> {
 
   @override
   void dispose() {
-    beaconStreamSubscription.cancel();
-    eventStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -182,7 +163,7 @@ class _PlaceState extends State<Place> {
     return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
-  GridView initGridView(List list, List listbool) {
+  GridView initGridView(List list) {
     return GridView.builder(
         itemCount: list.length, //item 개수
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -197,13 +178,15 @@ class _PlaceState extends State<Place> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: const Color(0xffF5F5F5), borderRadius: BorderRadius.circular(8)),
               child: Stack(alignment: Alignment.topLeft, children: [
-                listbool[index] == true
-                    ? const Icon(
-                        Icons.location_on_rounded,
-                        color: Colors.red,
-                        size: 10,
-                      )
-                    : Container(),
+                beaconInfoData.place == ""
+                    ? Container()
+                    : (beaconInfoData.place != list[index]
+                        ? Container()
+                        : const Icon(
+                            Icons.location_on_rounded,
+                            color: Colors.red,
+                            size: 10,
+                          )),
                 Center(
                     child: Align(
                         alignment: Alignment.center,
@@ -217,65 +200,28 @@ class _PlaceState extends State<Place> {
         }));
   }
 
-  void setUI() {
+  Future<void> setUI() async{
     Log.debug("###########잘작동하고있나요?##########");
     //  비콘 정보 요청 ( 동기화 )
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
       List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
-      Log.debug(" placeInfo === ${configInfo.beaconInfoDatas.toString()} ");
-      locationlist.clear();
-      locationlistbool.clear();
-      Env.UUIDLIST.clear();
+
+      for (BeaconInfoData beaconInfoData in placeInfo) {
+        secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+      }
+
       setState(() {
-        for (BeaconInfoData beaconInfoData in placeInfo) {
-          secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
-          Env.UUIDLIST.add(beaconInfoData.uuid);
-          locationlist.add(beaconInfoData.place);
-          locationlistbool.add(false);
-        }
-        String location = currentLocation;
-        for (int i = 0; i < locationlist.length; i++) {
-          if (location == locationlist[i]) {
-            locationlistbool[i] = true;
-          } else {
-            locationlistbool[i] = false;
-          }
-        }
+        locationlist = Env.UUIDS.entries.map((e) => e.value).toList();
       });
     });
   }
 
   void initUI() async {
-    locationlist.clear();
-    locationlistbool.clear();
-    setState(() {
-      for (int i = 0; i < Env.UUIDLIST.length; i++) {
-        locationlist.add(Env.UUIDS[Env.UUIDLIST[i]]!);
-        locationlistbool.add(false);
-      }
-      String location = currentLocation;
-      for (int i = 0; i < locationlist.length; i++) {
-        if (location == locationlist[i]) {
-          locationlistbool[i] = true;
-        } else {
-          locationlistbool[i] = false;
-        }
-      }
-    });
+    locationlist = Env.UUIDS.entries.map((e) => e.value).toList();
   }
 
-  void setBeaconUI(BeaconInfoData beaconInfoData) {
-    Log.debug("beacon ://///////////////// ${beaconInfoData.place.toString()}");
-
+  void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
-
-    setState(() {
-      if (Env.CURRENT_PLACE == null) {
-        currentLocation = "---";
-      } else {
-        currentLocation = Env.CURRENT_PLACE;
-        currentTimeHHMM = getPickerTime(getNow());
-      }
-    });
+    setState(() {});
   }
 }

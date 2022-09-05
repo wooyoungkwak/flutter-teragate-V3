@@ -21,16 +21,14 @@ class Week extends StatefulWidget {
   final StreamController eventStreamController;
 
   const Week({required this.weekStreamController, required this.beaconStreamController, required this.eventStreamController, Key? key}) : super(key: key);
+
+  @override
   State<Week> createState() => _WeekState();
 }
 
 class _WeekState extends State<Week> {
-  late StreamSubscription beaconStreamSubscription;
-  late StreamSubscription weekStreamSubscription;
-
-  late BeaconInfoData beaconInfoData;
-
   late SecureStorage secureStorage;
+  BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
 
   int workingtime = 32;
   List<String> week = [];
@@ -42,24 +40,14 @@ class _WeekState extends State<Week> {
   List<bool> workoutOk = []; // 정상 출근 true/ 조기퇴근 false
   List<bool> today = []; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
 
-  String currentTimeHHMM = "";
-  String currentLocation = "";
-
   @override
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
-
-    weekStreamSubscription = widget.weekStreamController.stream.listen((event) {
-      if (event.isNotEmpty) {
-        WorkInfo workInfo = WorkInfo.fromJsonByState(json.decode(event));
-      }
-    });
-
-    beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage, setBeaconUI);
+    Env.EVENT_FUNCTION = setUI;
+    Env.BEACON_FUNCTION = _setBeaconUI;
 
     setUI();
-    //Get.to(Home);
   }
 
   @override
@@ -167,18 +155,15 @@ class _WeekState extends State<Week> {
             ],
           ),
           bottomNavigationBar: BottomNavBar(
-            currentLocation: currentLocation,
-            currentTime: currentTimeHHMM,
-            // currentLocation: beaconInfoData.place,
-            // currentTime: getPickerTime(getNow()),
+            currentLocation: Env.CURRENT_PLACE,
+            currentTime: getPickerTime(getNow()),
+            function: setUI,
           )),
     ));
   }
 
   @override
   void dispose() {
-    beaconStreamSubscription.cancel();
-    weekStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -212,11 +197,7 @@ class _WeekState extends State<Week> {
             CustomText(text: "·", size: 40, color: color),
             // Icon(Icons.keyboard_double_arrow_right_rounded),
             const SizedBox(width: 5),
-            Container(
-                margin: const EdgeInsets.all(2),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
-                child: CustomText(text: week, size: 13)),
+            Container(margin: const EdgeInsets.all(2), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)), child: CustomText(text: week, size: 13)),
             const SizedBox(width: 10),
             CustomText(text: workTime, size: 13, color: Colors.black),
           ],
@@ -255,12 +236,8 @@ class _WeekState extends State<Week> {
           SizedBox(
             child: Row(
               children: [
-                weekinTime[i] != ""
-                    ? initOpacityByworktime(weekinTime[i], workinOk[i], true)
-                    : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
-                weekoutTime[i] != ""
-                    ? initOpacityByworktime(weekoutTime[i], workoutOk[i], false)
-                    : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
+                weekinTime[i] != "" ? initOpacityByworktime(weekinTime[i], workinOk[i], true) : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
+                weekoutTime[i] != "" ? initOpacityByworktime(weekoutTime[i], workoutOk[i], false) : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
               ],
             ),
           ),
@@ -280,7 +257,7 @@ class _WeekState extends State<Week> {
     int count = 0;
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
       List<WorkInfo> worklist = weekInfo!.workInfos;
-      Log.debug(" success === ${weekInfo.success.toString()} ");
+      // Log.debug(" success === ${weekInfo.success.toString()} ");
       workTime.clear;
       setState(() {
         for (int i = 0; i < worklist.length; i++) {
@@ -336,19 +313,9 @@ class _WeekState extends State<Week> {
     //   setBeaconUI(beaconInfoData);
   }
 
-  void setBeaconUI(BeaconInfoData beaconInfoData) {
+  void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
-    setState(() {
-      if (Env.CURRENT_PLACE.isEmpty) {
-        currentLocation = "---";
-      } else {
-        currentLocation = Env.CURRENT_PLACE;
-        currentTimeHHMM = getPickerTime(getNow());
-      }
-    });
+    setState(() { });
   }
 
-  void sendToBroadcast(WorkInfo workInfo) {
-    widget.eventStreamController.add(workInfo.toString());
-  }
 }

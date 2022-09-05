@@ -1,8 +1,5 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/config/env.dart';
-import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/services/server_service.dart';
@@ -72,7 +69,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                       weight: FontWeight.w500,
                     ),
                     CustomText(
-                      text: widget.currentLocation!,
+                      text: widget.currentLocation ?? "---",
                       size: 12.0,
                       color: Colors.black,
                       weight: FontWeight.bold,
@@ -123,9 +120,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   backgroundColor: const Color.fromARGB(255, 60, 95, 235),
                   text: "동기화",
                   function: () => {
-                    _synchronize(context, secureStorage),
-                    showSyncDialog(context),
-                    widget.function,
+                    widget.function == null ? "" : widget.function!().then((value) {
+                      _showSyncDialog(context);
+                    }),
                   },
                 ),
                 _createIconByContainer(
@@ -278,10 +275,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
     );
   }
 
-  void showSyncDialog(BuildContext context) {
+  void _showSyncDialog(BuildContext context) {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => _initDialog(widget.currentLocation!, widget.currentTime!),
+      builder: (BuildContext context) => _initDialog(widget.currentLocation ?? "---", widget.currentTime!),
     );
   }
 
@@ -291,26 +288,4 @@ class _BottomNavBarState extends State<BottomNavBar> {
     }
   }
 
-  Future<void> _synchronize(BuildContext context, SecureStorage secureStorage) async {
-    // 이슈 정보 등록
-    // sendMessageTracking(context, secureStorage, Env.UUID_DEFAULT, "인비전테크놀로지 사무실").then((workInfo) {
-    //   Log.debug(" success === ${workInfo.success.toString()} ");
-    // });
-
-    // 금일 출근 퇴근 정보 요청
-    // sendMessageByWork(context, secureStorage).then((workInfo) {
-    //   Log.debug(" success === ${workInfo.success.toString()} ");
-    // });
-
-    // 일주일간 출근 퇴근 정보 요청
-    // sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-    //   Log.debug(" success === ${weekInfo.success.toString()} ");
-    // });
-
-    // 비콘 정보 요청 ( 동기화 )
-    // sendMessageByBeacon(context, secureStorage).then((configInfo) {
-    //   Log.debug(" success === ${configInfo.success.toString()} ");
-    //   Log.debug(configInfo.beaconInfoDatas[]);
-    // });
-  }
 }
