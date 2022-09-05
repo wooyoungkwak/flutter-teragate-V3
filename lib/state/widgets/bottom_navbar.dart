@@ -25,6 +25,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   void initState() {
     super.initState();
+    if (widget.function != null) {
+      Log.debug("잘받음 ${widget.function}");
+    } else {
+      Log.debug("못받음 ${widget.function}");
+    }
     secureStorage = SecureStorage();
   }
 
@@ -71,7 +76,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                       size: 12.0,
                       color: Colors.black,
                       weight: FontWeight.bold,
-                      isOverlfow: true,
+                      isOverlfow: false,
                     ),
                     const CustomText(
                       text: " 입니다.",
@@ -106,8 +111,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   icon: Icons.access_time_filled,
                   text: "출퇴근",
                   function: () => {
-                    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-                      Env.INIT_STATE_INFO = weekInfo;
+                    sendMessageByWork(context, secureStorage).then((workInfo) {
+                      Env.INIT_STATE_INFO = workInfo;
                       _passNextPage(context, '/week');
                     })
                   },
@@ -170,7 +175,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
           Radius.circular(10.0),
         ),
         child: InkWell(
-          onTap: function ?? () {},
+          onTap: function ??
+              () {
+                Log.debug("Callback 함수 미실행");
+              },
           borderRadius: const BorderRadius.all(
             Radius.circular(10.0),
           ),

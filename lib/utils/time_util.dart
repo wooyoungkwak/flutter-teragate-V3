@@ -104,6 +104,34 @@ String getWeekByKor() {
   return result;
 }
 
+String getWeekByOneKor() {
+  String result = "";
+  switch (getWeek()) {
+    case 'Mon':
+      result = "월";
+      break;
+    case 'Tue':
+      result = "화";
+      break;
+    case 'Wed':
+      result = "수";
+      break;
+    case 'Thu':
+      result = "목";
+      break;
+    case 'Fri':
+      result = "금";
+      break;
+    case 'Sat':
+      result = "토";
+      break;
+    case 'Sun':
+      result = "일";
+      break;
+  }
+  return result;
+}
+
 DateTime getToDateTime(String date) {
   return DateTime.parse(date);
 }

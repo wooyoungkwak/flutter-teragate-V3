@@ -17,12 +17,6 @@ class CustomBusinessCard extends StatelessWidget {
     WorkInfo workInfo = Env.INIT_STATE_INFO;
     bool workbool = false;
     String worktime = "${workInfo.targetAttendTime} ~ ${workInfo.targetLeaveTime}";
-    // DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
-    // DateTime attime =  dateFormat.parse("2019-07-19 8:40:23");
-    // DateTime LeaveTime =  dateFormat.parse("2019-07-19 8:40:23");
-    // getDateToString(workInfo.targetAttendTime,"kk:mm");
-    // if( < getPickerTime(getNow()) < =workInfo.targetLeaveTime ){
-    // } 시간 사이에 값 받아올려다가 라이브러리 찾을려함.. 번거로움
     workbool = true;
     String profilePicture = Env.WORK_PHOTO_PATH!;
 

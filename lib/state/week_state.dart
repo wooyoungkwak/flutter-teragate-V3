@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:date_format/date_format.dart';
+import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _WeekState extends State<Week> {
   late StreamSubscription beaconStreamSubscription;
   late StreamSubscription weekStreamSubscription;
 
-  // late BeaconInfoData beaconInfoData;
+  late BeaconInfoData beaconInfoData;
 
   late SecureStorage secureStorage;
 
@@ -159,7 +160,7 @@ class _WeekState extends State<Week> {
                             )
                           ],
                         )),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: _createContainerwhite(CustomBusinessCard()))),
+                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard()))),
                   ],
                 ),
               ),
@@ -181,12 +182,7 @@ class _WeekState extends State<Week> {
     super.dispose();
   }
 
-  Container _createContainer(Widget widget) {
-    return Container(
-        margin: const EdgeInsets.only(top: 10), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xff3C5FEB), borderRadius: BorderRadius.circular(6)), child: widget);
-  }
-
-  Container _createContainerwhite(Widget widget) {
+  Container createContainerwhite(Widget widget) {
     return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: widget);
   }
 
@@ -285,12 +281,6 @@ class _WeekState extends State<Week> {
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
       List<WorkInfo> worklist = weekInfo!.workInfos;
       Log.debug(" success === ${weekInfo.success.toString()} ");
-      // String? isweekend; // 주말 여부
-      // String? isholiday; // 휴일 여부
-      // String? targetAttendTime; // 출근 해야 되는 시간 (예> 09:00)
-      // String? targetLeaveTime; // 퇴근 해야 되는 시간 (예> 18:00)
-      // String? attendtime; // 출근 시간
-      // String? leavetime; // 퇴근 시간
       workTime.clear;
       setState(() {
         for (int i = 0; i < worklist.length; i++) {
@@ -329,7 +319,7 @@ class _WeekState extends State<Week> {
         workoutOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 조기퇴근 false
         today = [false, false, false, false, false, false, false]; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
 
-        String daynow = getWeekByKor();
+        String daynow = getWeekByOneKor();
         for (int i = 0; i < week.length; i++) {
           if (daynow == week[i]) {
             today[i] = true;
@@ -347,15 +337,15 @@ class _WeekState extends State<Week> {
   }
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
-    // this.beaconInfoData = beaconInfoData;
-    // setState(() {
-    //   if (this.beaconInfoData == null) {
-    //     currentLocation = "---";
-    //   } else {
-    //     currentLocation = beaconInfoData.place;
-    //     currentTimeHHMM = getPickerTime(getNow());
-    //   }
-    // });
+    this.beaconInfoData = beaconInfoData;
+    setState(() {
+      if (Env.CURRENT_PLACE.isEmpty) {
+        currentLocation = "---";
+      } else {
+        currentLocation = Env.CURRENT_PLACE;
+        currentTimeHHMM = getPickerTime(getNow());
+      }
+    });
   }
 
   void sendToBroadcast(WorkInfo workInfo) {

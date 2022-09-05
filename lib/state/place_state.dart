@@ -38,7 +38,6 @@ class _PlaceState extends State<Place> {
 
   @override
   void initState() {
-    Log.debug("init@########@#@#@#@#@");
     secureStorage = SecureStorage();
 
     eventStreamSubscription = widget.eventStreamController.stream.listen((event) {
@@ -218,16 +217,19 @@ class _PlaceState extends State<Place> {
         }));
   }
 
-  void setUI() async {
+  void setUI() {
+    Log.debug("###########잘작동하고있나요?##########");
     //  비콘 정보 요청 ( 동기화 )
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
       List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
       Log.debug(" placeInfo === ${configInfo.beaconInfoDatas.toString()} ");
       locationlist.clear();
       locationlistbool.clear();
+      Env.UUIDLIST.clear();
       setState(() {
         for (BeaconInfoData beaconInfoData in placeInfo) {
           secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+          Env.UUIDLIST.add(beaconInfoData.uuid);
           locationlist.add(beaconInfoData.place);
           locationlistbool.add(false);
         }
@@ -244,7 +246,22 @@ class _PlaceState extends State<Place> {
   }
 
   void initUI() async {
-    setUI(); // storege 이용해서 처리해야되는데 기억이 안나는데 우선...처리를
+    locationlist.clear();
+    locationlistbool.clear();
+    setState(() {
+      for (int i = 0; i < Env.UUIDLIST.length; i++) {
+        locationlist.add(Env.UUIDS[Env.UUIDLIST[i]]!);
+        locationlistbool.add(false);
+      }
+      String location = currentLocation;
+      for (int i = 0; i < locationlist.length; i++) {
+        if (location == locationlist[i]) {
+          locationlistbool[i] = true;
+        } else {
+          locationlistbool[i] = false;
+        }
+      }
+    });
   }
 
   void setBeaconUI(BeaconInfoData beaconInfoData) {
@@ -253,10 +270,10 @@ class _PlaceState extends State<Place> {
     this.beaconInfoData = beaconInfoData;
 
     setState(() {
-      if (this.beaconInfoData == null) {
+      if (Env.CURRENT_PLACE == null) {
         currentLocation = "---";
       } else {
-        currentLocation = beaconInfoData.place;
+        currentLocation = Env.CURRENT_PLACE;
         currentTimeHHMM = getPickerTime(getNow());
       }
     });

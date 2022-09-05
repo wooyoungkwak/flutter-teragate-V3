@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
@@ -233,7 +234,7 @@ class _ThemeState extends State<ThemeMain> {
 
     setState(() {
       currentTimeHHMM = getPickerTime(getNow());
-      currentLocation = beaconInfoData.place;
+      currentLocation = Env.CURRENT_PLACE;
     });
   }
 
