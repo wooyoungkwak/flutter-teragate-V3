@@ -206,7 +206,7 @@ class _PlaceState extends State<Place> {
                           size: 12,
                           weight: FontWeight.bold,
                           color: Colors.black,
-                          isOverlfow: true,
+                          isOverlfow: false,
                         )))
               ]));
         }));

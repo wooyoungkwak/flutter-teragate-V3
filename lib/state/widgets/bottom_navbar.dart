@@ -64,7 +64,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                       weight: FontWeight.w500,
                     ),
                     CustomText(
-                      text: widget.currentLocation ?? "---",
+                      text: _textIncision(widget.currentLocation == "" || widget.currentLocation == null ? "---" : widget.currentLocation!),
                       size: 10.0,
                       color: Colors.black,
                       weight: FontWeight.bold,
@@ -277,5 +277,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
     if (ModalRoute.of(context)!.settings.name != pushName) {
       Navigator.pushNamedAndRemoveUntil(context, pushName, (route) => false);
     }
+  }
+
+  String _textIncision(String text) {
+    if (text.length > 6) {
+      text = text.substring(0, 5) + "...";
+    }
+    return text;
   }
 }
