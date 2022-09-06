@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
           sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
             Env.INIT_STATE_WEEK_INFO = weekInfo;
             Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-          } );
+          });
         });
       } else {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
@@ -151,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Env.WORK_KR_NAME = (await secureStorage.read(Env.KEY_KR_NAME)) ?? "";
     Env.WORK_POSITION_NAME = (await secureStorage.read(Env.KEY_POSITION_NAME)) ?? "";
     Env.WORK_COMPANY_NAME = (await secureStorage.read(Env.KEY_COMPANY_NAME)) ?? "";
-
+    Env.BACKGROUND_PATH = await secureStorage.read(Env.KEY_BACKGROUND_PATH) ?? "theme3.png";
     SharedStorage.readList(Env.KEY_SHARE_UUID).then((uuids) {
       for (String uuid in uuids!) {
         _setUUID(uuid);

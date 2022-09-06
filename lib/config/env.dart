@@ -56,6 +56,8 @@ class Env {
 
   static const String KEY_SHARE_UUID = "share_uuid";
 
+  static const String KEY_BACKGROUND_PATH = 'background_path';
+
   static const String MSG_NOT_TOKEN = "로그인 후 사용 해주세요.";
   static const String MSG_LOGIN_FAIL = "ID 또는 Passwoard 를 확인하세요.";
   static const String MSG_SUCCESS = "등록이 완료 되었습니다.";
@@ -95,4 +97,5 @@ class Env {
   static StreamSubscription? BEACON_STREAM_SUBSCRIPTION;
   static Function? EVENT_FUNCTION;
   static Function? BEACON_FUNCTION;
+  static String? BACKGROUND_PATH;
 }

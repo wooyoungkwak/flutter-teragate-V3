@@ -183,6 +183,7 @@ class _LoginState extends State<Login> {
                                 secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
                                 secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
                                 _initForBeacon();
+                                _setBackgroundPath();
 
                                 sendMessageByWork(context, secureStorage).then((workInfo) {
                                   Env.INIT_STATE_WORK_INFO = workInfo;
@@ -330,5 +331,9 @@ class _LoginState extends State<Login> {
   // 비콘 종료
   Future<void> _stopForBeacon() async {
     stopBeacon();
+  }
+
+  void _setBackgroundPath() async {
+    Env.BACKGROUND_PATH = await secureStorage.read(Env.KEY_BACKGROUND_PATH) ?? "theme2.png";
   }
 }

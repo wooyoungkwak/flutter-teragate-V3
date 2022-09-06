@@ -31,6 +31,7 @@ class _HomeState extends State<Home> {
 
   SecureStorage? secureStorage;
 
+  String backgroundPath = "";
   String currentHour = "";
   String currentMinute = "";
   String currentDay = "";
@@ -83,6 +84,7 @@ class _HomeState extends State<Home> {
     currentLocation = Env.INIT_STATE_WORK_INFO.placeWorkName ?? "-";
     isAttendTimeOut = setInfoMap["isAttendTimeOut"];
     isLeave = setInfoMap["isLeaveTime"];
+    backgroundPath = Env.BACKGROUND_PATH ?? "background1.png";
   }
 
   @override
@@ -105,9 +107,9 @@ class _HomeState extends State<Home> {
       child: Container(
         // 배경화면
         padding: EdgeInsets.only(top: statusBarHeight),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.png"),
+            image: AssetImage("assets/$backgroundPath"),
             fit: BoxFit.cover,
           ),
         ),
