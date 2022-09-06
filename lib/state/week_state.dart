@@ -188,9 +188,7 @@ class _WeekState extends State<Week> {
         padding: const EdgeInsets.only(bottom: 10),
         itemCount: week.length,
         itemBuilder: (BuildContext context, int index) {
-          return Expanded(
-            child: initContainerByWork(index),
-          );
+          return initContainerByWork(index);
         });
   }
 
