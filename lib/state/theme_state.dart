@@ -12,6 +12,7 @@ import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 class ThemeMain extends StatefulWidget {
@@ -69,6 +70,7 @@ class _ThemeState extends State<ThemeMain> {
   @override
   void initState() {
     super.initState();
+    workInfo = Env.INIT_STATE_WORK_INFO;
     secureStorage = SecureStorage();
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
@@ -104,7 +106,8 @@ class _ThemeState extends State<ThemeMain> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                            showAlertDialog(context);
+                            // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                           },
                           borderRadius: const BorderRadius.all(
                             Radius.circular(6.0),
@@ -214,7 +217,11 @@ class _ThemeState extends State<ThemeMain> {
                           ),
                         ),
                       ),
-                      Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard(workInfo)))),
+                      Expanded(
+                          flex: 2,
+                          child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: createContainerwhite(CustomBusinessCard(Env.WORK_COMPANY_NAME, Env.WORK_KR_NAME, Env.WORK_POSITION_NAME, Env.WORK_PHOTO_PATH, workInfo)))),
                     ],
                   ),
                 ),

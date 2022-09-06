@@ -149,7 +149,8 @@ Future<void> selectNotificationType(FlutterLocalNotificationsPlugin flutterLocal
   }
 }
 
-Future<void> _showNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle, AndroidNotificationDetails androidNotificationDetails, IOSNotificationDetails iOSNotificationDetails) async {
+Future<void> _showNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle, AndroidNotificationDetails androidNotificationDetails,
+    IOSNotificationDetails iOSNotificationDetails) async {
   int id = 0;
   var notificationDetails = NotificationDetails(android: androidNotificationDetails, iOS: iOSNotificationDetails);
   flutterLocalNotificationsPlugin.show(id, tag, subtitle, notificationDetails, payload: 'item x');
@@ -157,29 +158,72 @@ Future<void> _showNotification(FlutterLocalNotificationsPlugin flutterLocalNotif
 
 // 진동, 소리 둘다 켜져있을때
 Future<void> showNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME, playSound: true, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME,
+      playSound: true, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: true);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
 
 //진동만 켜져있을때
 Future<void> _showNotificationWithNoSound(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME, playSound: false, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME,
+      playSound: false, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: false);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
 
 //소리만 켜져있을때
 Future<void> showNotificationWithNoVibration(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME, playSound: true, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME,
+      playSound: true, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: true);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
 
 //진동, 소리 모두 꺼져있을때
 Future<void> showNotificationWithNoOptions(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails =
-      AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID_NO_ALARM, Env.NOTIFICATION_CHANNEL_NAME_NO_ALARM, playSound: false, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID_NO_ALARM, Env.NOTIFICATION_CHANNEL_NAME_NO_ALARM,
+      playSound: false, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: false);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
+}
+
+//로그아웃 다이얼로그
+void showAlertDialog(BuildContext context) {
+  showDialog<String>(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: const Text('알림'),
+      content: const Text('로그인 페이지로 이동하시겠습니까?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Cancel'),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () => {
+            Navigator.pop(context, 'OK'),
+            logout(context),
+          },
+          child: const Text('확인'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> logout(BuildContext context) async {
+  SecureStorage? secureStorage;
+  secureStorage = SecureStorage();
+
+  secureStorage.read(Env.KEY_ID_CHECK).then((value) {
+    if (value == null && value == "false") {
+      secureStorage!.write(Env.LOGIN_ID, "");
+    }
+  });
+  secureStorage.write(Env.LOGIN_PW, "");
+  secureStorage.write(Env.LOGIN_STATE, "false");
+  secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
+  secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
+  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 }

@@ -22,11 +22,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   void initState() {
     super.initState();
-    if (widget.function != null) {
-      Log.debug("잘받음 ${widget.function}");
-    } else {
-      Log.debug("못받음 ${widget.function}");
-    }
     secureStorage = SecureStorage();
   }
 
@@ -70,16 +65,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     ),
                     CustomText(
                       text: widget.currentLocation ?? "---",
-                      size: 12.0,
-                      color: Colors.black,
-                      weight: FontWeight.bold,
-                      isOverlfow: false,
-                    ),
-                    const CustomText(
-                      text: " 입니다.",
                       size: 10.0,
                       color: Colors.black,
-                      weight: FontWeight.w500,
+                      weight: FontWeight.bold,
+                      isOverlfow: true,
                     ),
                   ],
                 ),
@@ -120,9 +109,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   backgroundColor: const Color.fromARGB(255, 60, 95, 235),
                   text: "동기화",
                   function: () => {
-                    widget.function == null ? "" : widget.function!().then((value) {
-                      _showSyncDialog(context);
-                    }),
+                    widget.function == null
+                        ? ""
+                        : widget.function!(null).then((value) {
+                            _showSyncDialog(context);
+                          }),
                   },
                 ),
                 _createIconByContainer(
@@ -287,5 +278,4 @@ class _BottomNavBarState extends State<BottomNavBar> {
       Navigator.pushNamedAndRemoveUntil(context, pushName, (route) => false);
     }
   }
-
 }

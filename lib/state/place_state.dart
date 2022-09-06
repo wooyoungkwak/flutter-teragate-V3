@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
@@ -10,6 +11,7 @@ import 'dart:convert';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
+import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
@@ -29,12 +31,13 @@ class _PlaceState extends State<Place> {
   BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
   late SecureStorage secureStorage;
   WorkInfo? workInfo;
-  
+
   @override
   void initState() {
     secureStorage = SecureStorage();
     _initUUIDList();
 
+    workInfo = Env.INIT_STATE_WORK_INFO;
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
     super.initState();
@@ -65,7 +68,8 @@ class _PlaceState extends State<Place> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                          showAlertDialog(context);
+                          // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -130,7 +134,11 @@ class _PlaceState extends State<Place> {
                                 )),
                           ],
                         ))),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard(workInfo)))),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: createContainerwhite(CustomBusinessCard(Env.WORK_COMPANY_NAME, Env.WORK_KR_NAME, Env.WORK_POSITION_NAME, Env.WORK_PHOTO_PATH, workInfo)))),
                   ],
                 ),
               ),
@@ -152,7 +160,7 @@ class _PlaceState extends State<Place> {
   WillPopScope _createWillPopScope(Widget widget) {
     return WillPopScope(
         onWillPop: () {
-          Navigator.pop(context);
+          MoveToBackground.moveTaskToBack();
           return Future(() => false);
         },
         child: widget);
@@ -181,43 +189,47 @@ class _PlaceState extends State<Place> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: const Color(0xffF5F5F5), borderRadius: BorderRadius.circular(8)),
               child: Stack(alignment: Alignment.topLeft, children: [
-                beaconInfoData.place == ""
+                Env.CURRENT_PLACE == ""
                     ? Container()
-                    : (beaconInfoData.place != list[index]
-                        ? Container()
-                        : const Icon(
+                    : (Env.CURRENT_PLACE == list[index]
+                        ? const Icon(
                             Icons.location_on_rounded,
                             color: Colors.red,
                             size: 10,
-                          )),
+                          )
+                        : Container()),
                 Center(
                     child: Align(
                         alignment: Alignment.center,
                         child: CustomText(
                           text: list[index],
-                          size: 16,
+                          size: 12,
                           weight: FontWeight.bold,
                           color: Colors.black,
+                          isOverlfow: true,
                         )))
               ]));
         }));
   }
 
-  void _setUI() {
+  void _setUI(WorkInfo workInfo) {
     setState(() {
-
+      this.workInfo = workInfo;
     });
   }
 
-  Future<void> _synchonizationPlaceUI() async {
-    Log.debug("###########잘작동하고있나요?##########");
+  Future<void> _synchonizationPlaceUI(WorkInfo? workInfo) async {
     //  비콘 정보 요청 ( 동기화 )
+    List<String> SharedStorageuuid = [];
+
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
       List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
 
       for (BeaconInfoData beaconInfoData in placeInfo) {
         secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+        SharedStorageuuid.add(beaconInfoData.uuid);
       }
+      SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
 
       setState(() {
         placeList = Env.UUIDS.entries.map((e) => e.value).toList();
@@ -226,7 +238,10 @@ class _PlaceState extends State<Place> {
   }
 
   void _initUUIDList() async {
-    placeList = Env.UUIDS.entries.map((e) => e.value).toList();
+    setState(() {
+      placeList = Env.UUIDS.entries.map((e) => e.value).toList();
+      Log.debug("placeList.length = ${placeList.length.toString()}");
+    });
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
