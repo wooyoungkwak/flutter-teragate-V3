@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
+import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
@@ -223,29 +224,43 @@ class _PlaceState extends State<Place> {
     List<String> SharedStorageuuid = [];
 
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
-      List<BeaconInfoData> placeInfo = configInfo!.beaconInfoDatas;
+      if (configInfo!.success!) {
+        List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
 
-      for (BeaconInfoData beaconInfoData in placeInfo) {
-        secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
-        SharedStorageuuid.add(beaconInfoData.uuid);
+        for (BeaconInfoData beaconInfoData in placeInfo) {
+          secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+          SharedStorageuuid.add(beaconInfoData.uuid);
+        }
+        SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
+
+        setState(() {
+          placeList = Env.UUIDS.entries.map((e) => e.value).toList();
+        });
+        _showSyncDialog(context, location: Env.CURRENT_PLACE);
+      } else {
+        _showSyncDialog(context, warning: false);
       }
-      SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
-
-      setState(() {
-        placeList = Env.UUIDS.entries.map((e) => e.value).toList();
-      });
     });
   }
 
   void _initUUIDList() async {
     setState(() {
       placeList = Env.UUIDS.entries.map((e) => e.value).toList();
-      Log.debug("placeList.length = ${placeList.length.toString()}");
     });
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
     setState(() {});
+  }
+
+  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => SyncDialog(
+        currentLocation: location,
+        warning: warning,
+      ),
+    );
   }
 }

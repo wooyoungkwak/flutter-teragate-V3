@@ -13,6 +13,7 @@ import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:get/get.dart';
+import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
@@ -272,7 +273,6 @@ class _WeekState extends State<Week> {
   }
 
   Future<void> _synchonizationWeekUI(WeekInfo? weekInfo) async {
-    Log.debug("##############################동기화##################");
     int count = 0;
     workTime.clear;
 
@@ -285,8 +285,10 @@ class _WeekState extends State<Week> {
       for (int i = 0; i < week.length; i++) {
         workTime.add("----");
         workingtime = 0;
+        _showSyncDialog(context, warning: false);
       }
     } else {
+      _showSyncDialog(context, location: Env.CURRENT_PLACE);
       setState(() {
         for (int i = 0; i < worklist.length; i++) {
           Map<String, dynamic> Workstate = getWorkState(worklist[i]);
@@ -357,7 +359,6 @@ class _WeekState extends State<Week> {
   }
 
   void _setUI(WorkInfo workInfo) {
-    Log.debug("week page workinfo ==========================$workInfo");
     if (workInfo.success) {
       setState(() {
         this.workInfo = workInfo;
@@ -370,5 +371,15 @@ class _WeekState extends State<Week> {
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
     setState(() {});
+  }
+
+  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => SyncDialog(
+        currentLocation: location,
+        warning: warning,
+      ),
+    );
   }
 }
