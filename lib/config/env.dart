@@ -88,7 +88,8 @@ class Env {
   static DateTime INNER_TIME = DateTime.now();
 
   static Map<String, String> UUIDS = {};
-  static dynamic INIT_STATE_INFO;
+  static dynamic INIT_STATE_WORK_INFO;
+  static dynamic INIT_STATE_WEEK_INFO;
   static StreamSubscription? CONNECTIVITY_STREAM_SUBSCRIPTION;
   static StreamSubscription? EVENT_STREAM_SUBSCRIPTION;
   static StreamSubscription? BEACON_STREAM_SUBSCRIPTION;

@@ -112,8 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
         initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
         sendMessageByWork(context, secureStorage).then((workInfo) {
           _setEnv();
-          Env.INIT_STATE_INFO = workInfo;
-          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          Env.INIT_STATE_WORK_INFO = workInfo;
+
+          sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+            Env.INIT_STATE_WEEK_INFO = weekInfo;
+            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          } );
         });
       } else {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);

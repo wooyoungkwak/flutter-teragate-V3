@@ -7,6 +7,7 @@ import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
+import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
@@ -35,8 +36,6 @@ class _ThemeState extends State<ThemeMain> {
     secureStorage = SecureStorage();
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
-
-    _synchonizationThemeUI();
   }
 
   @override
@@ -214,9 +213,12 @@ class _ThemeState extends State<ThemeMain> {
   }
 
   void _synchonizationThemeUI() {
-    setState(() {
-      
+    sendMessageByWork(context, secureStorage).then((workInfo){
+      if (workInfo!.success) {
+        setState(() {});
+      }
     });
+    
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {

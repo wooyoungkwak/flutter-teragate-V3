@@ -53,6 +53,7 @@ class _LoginState extends State<Login> {
     _checkLogin();
 
     Env.BEACON_FUNCTION = null;
+    Env.EVENT_FUNCTION = null;
   }
 
   @override
@@ -184,8 +185,11 @@ class _LoginState extends State<Login> {
                                 _initForBeacon();
 
                                 sendMessageByWork(context, secureStorage).then((workInfo) {
-                                  Env.INIT_STATE_INFO = workInfo;
-                                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                                  Env.INIT_STATE_WORK_INFO = workInfo;
+                                  sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+                                    Env.INIT_STATE_WEEK_INFO = weekInfo;
+                                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                                  });
                                 });
                               } else {
                                 Log.debug("workIfon Error");

@@ -99,7 +99,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   text: "홈",
                   function: () => {
                     sendMessageByWork(context, secureStorage).then((workInfo) {
-                      Env.INIT_STATE_INFO = workInfo;
+                      Env.INIT_STATE_WORK_INFO = workInfo;
                       _passNextPage(context, '/home');
                     })
                   },
@@ -109,7 +109,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   text: "출퇴근",
                   function: () => {
                     sendMessageByWork(context, secureStorage).then((workInfo) {
-                      Env.INIT_STATE_INFO = workInfo;
+                      Env.INIT_STATE_WORK_INFO = workInfo;
                       _passNextPage(context, '/week');
                     })
                   },
@@ -130,7 +130,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     text: "테마",
                     function: () => {
                           sendMessageByWork(context, secureStorage).then((workInfo) {
-                            Env.INIT_STATE_INFO = workInfo;
+                            Env.INIT_STATE_WORK_INFO = workInfo;
                             _passNextPage(context, '/theme');
                           })
                         }),
@@ -139,7 +139,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     text: "등록",
                     function: () => {
                           sendMessageByWork(context, secureStorage).then((workInfo) {
-                            Env.INIT_STATE_INFO = workInfo;
+                            Env.INIT_STATE_WORK_INFO = workInfo;
                             _passNextPage(context, '/place');
                           })
                         }),

@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
     Env.EVENT_FUNCTION = _setDateTime;
     Env.BEACON_FUNCTION = setBeaconUI;
 
-    Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_INFO);
+    Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_WORK_INFO);
 
     currentHour = getDateToStringForHHInNow();
     currentMinute = getDateToStringForMMInNow();
@@ -77,10 +77,10 @@ class _HomeState extends State<Home> {
     profilePosition = Env.WORK_POSITION_NAME ?? "-";
     currentTimeHHMM = getDateToStringForHHMMInNow();
     workState = setInfoMap["state"];
-    workTime = Env.INIT_STATE_INFO.strAttendLeaveTime ?? "-";
-    getInTime = Env.INIT_STATE_INFO.attendtime ?? "-";
-    getOutTime = Env.INIT_STATE_INFO.leavetime ?? "-";
-    currentLocation = Env.INIT_STATE_INFO.placeWorkName ?? "-";
+    workTime = Env.INIT_STATE_WORK_INFO.strAttendLeaveTime ?? "-";
+    getInTime = Env.INIT_STATE_WORK_INFO.attendtime ?? "-";
+    getOutTime = Env.INIT_STATE_WORK_INFO.leavetime ?? "-";
+    currentLocation = Env.INIT_STATE_WORK_INFO.placeWorkName ?? "-";
     isAttendTimeOut = setInfoMap["isAttendTimeOut"];
     isLeave = setInfoMap["isLeaveTime"];
   }
