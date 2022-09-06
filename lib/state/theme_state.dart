@@ -14,6 +14,7 @@ import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
+import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 
 class ThemeMain extends StatefulWidget {
   final StreamController eventStreamController;
@@ -284,12 +285,23 @@ class _ThemeState extends State<ThemeMain> {
     });
   }
 
-  void _synchonizationThemeUI() {
+  void _synchonizationThemeUI(WorkInfo? workInfo) {
     sendMessageByWork(context, secureStorage).then((workInfo) {
       if (workInfo!.success) {
         setState(() {});
-      }
+        _showSyncDialog(context, location: Env.CURRENT_PLACE);
+      } else {}
     });
+  }
+
+  void _showSyncDialog(BuildContext context, {String? location, String? time, bool warning = true}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => SyncDialog(
+        currentLocation: location,
+        warning: warning,
+      ),
+    );
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
