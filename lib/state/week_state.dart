@@ -47,9 +47,8 @@ class _WeekState extends State<Week> {
     super.initState();
     secureStorage = SecureStorage();
     Env.EVENT_FUNCTION = _setUI;
+    Env.EVENT_WEEK_FUNCTION = _synchonizationWeekUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
-
-    _synchonizationWeekUI();
   }
 
   @override
@@ -255,7 +254,7 @@ class _WeekState extends State<Week> {
         child: widget);
   }
 
-  void _synchonizationWeekUI() {
+  void _synchonizationWeekUI(WeekInfo weekInfo) {
     int count = 0;
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
       List<WorkInfo> worklist = weekInfo!.workInfos;

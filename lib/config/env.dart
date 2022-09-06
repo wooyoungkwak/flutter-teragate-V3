@@ -96,6 +96,7 @@ class Env {
   static StreamSubscription? EVENT_STREAM_SUBSCRIPTION;
   static StreamSubscription? BEACON_STREAM_SUBSCRIPTION;
   static Function? EVENT_FUNCTION;
+  static Function? EVENT_WEEK_FUNCTION;
   static Function? BEACON_FUNCTION;
   static String? BACKGROUND_PATH;
 }

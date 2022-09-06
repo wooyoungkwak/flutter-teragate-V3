@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
     weekStreamController = StreamController<String>.broadcast();
     secureStorage = SecureStorage();
 
-    startBeaconTimer(null, _broadcastByEvent, secureStorage!).then((timer) => beaconTimer = timer);
+    startBeaconTimer(null, secureStorage!).then((timer) => beaconTimer = timer);
   }
 
   // This widget is the root of your application.
@@ -61,14 +61,6 @@ class MyApp extends StatelessWidget {
       },
       home: MyHomePage(beaconStreamController: beaconStreamController!),
     );
-  }
-
-  Future<void> _broadcastByEvent(String type, dynamic data) async {
-    if (type == Env.WORK_TYPE_TODAY) {
-      eventStreamController!.add(data.toString());
-    } else if (type == Env.WORK_TYPE_WEEK) {
-      weekStreamController!.add(data.toString());
-    }
   }
 }
 

@@ -50,7 +50,7 @@ void stopBeaconSubscription(StreamSubscription? streamSubscription) {
   if (streamSubscription != null) streamSubscription.cancel();
 }
 
-Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, SecureStorage secureStorage) async {
+Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorage) async {
   int count = 0;
 
   Timer? timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -96,13 +96,13 @@ Future<Timer> startBeaconTimer(BuildContext? context, Function? callback, Secure
     if (count == 60) {
       // 금일 출근 퇴근 정보 요청
       sendMessageByWork(context, secureStorage).then((workInfo) {
-        callback!(Env.WORK_TYPE_TODAY, workInfo);
+        Env.EVENT_FUNCTION == null ? "" : Env.EVENT_FUNCTION!(workInfo);
       });
 
       Future.delayed(const Duration(seconds: 2), () {
         // 일주일간 출근 퇴근 정보 요청
         sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-          callback!(Env.WORK_TYPE_WEEK, weekInfo);
+          Env.EVENT_WEEK_FUNCTION == null ? "" : Env.EVENT_WEEK_FUNCTION!(weekInfo);
         });
       });
       count = 0;
