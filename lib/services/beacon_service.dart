@@ -11,8 +11,7 @@ import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/models/beacon_model.dart';
 
 // 비콘 초기화
-Future<void> initBeacon(BuildContext context, StreamController beaconStreamController, SecureStorage secureStorage) async {
-
+Future<void> initBeacon(BuildContext context, StreamController beaconStreamController, SecureStorage secureStorage, dynamic? uuids) async {
   if (Platform.isAndroid) {
     await BeaconsPlugin.setDisclosureDialogMessage(title: "Need Location Permission", message: "This app collects location data to work with beacons.");
 
@@ -20,17 +19,16 @@ Future<void> initBeacon(BuildContext context, StreamController beaconStreamContr
       Log.log(" ********* Call Method: ${call.method}");
 
       if (call.method == 'scannerReady') {
-        await startBeacon();
+        await startBeacon(uuids);
       } else if (call.method == 'isPermissionDialogShown') {
         // showConfirmDialog(context, "알림", "Beacon 을 검색 할 수 없습니다. 권한을 확인 하세요.");
         Log.debug("Beacon 을 검색 할 수 없습니다. 권한을 확인 하세요.");
       }
     });
-    
   } else if (Platform.isIOS) {
     BeaconsPlugin.setDebugLevel(2);
     Future.delayed(const Duration(milliseconds: 3000), () async {
-      await startBeacon();
+      await startBeacon(uuids);
     }); //Send 'true' to run in background
 
     Future.delayed(const Duration(milliseconds: 3000), () async {
@@ -41,7 +39,7 @@ Future<void> initBeacon(BuildContext context, StreamController beaconStreamContr
   BeaconsPlugin.listenToBeacons(beaconStreamController);
 }
 
-// uuid 추출 
+// uuid 추출
 String getUUID(dynamic event) {
   Map<String, dynamic> userMap = jsonDecode(event);
   var iBeacon = BeaconData.fromJson(userMap);
@@ -49,8 +47,17 @@ String getUUID(dynamic event) {
 }
 
 // 비콘 설정
-Future<void> _setBeacon() async {
-  await BeaconsPlugin.addRegion("iBeacon", Env.UUID_DEFAULT);
+Future<void> _setBeacon(dynamic? uuids) async {
+  if (uuids == null) {
+    await BeaconsPlugin.addRegion("iBeacon", Env.UUID_DEFAULT);
+  } else {
+    int index = 1;
+    for (String uuid in uuids) {
+      await BeaconsPlugin.addRegion("iBeacon$index", uuid.toUpperCase());
+      index++;
+    }
+  }
+
   if (Platform.isAndroid) {
     BeaconsPlugin.addBeaconLayoutForAndroid("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24");
     BeaconsPlugin.addBeaconLayoutForAndroid("m:2-3=beac,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25");
@@ -60,8 +67,8 @@ Future<void> _setBeacon() async {
 }
 
 // 비콘 시작
-Future<void> startBeacon() async {
-  await _setBeacon();
+Future<void> startBeacon(dynamic? uuids) async {
+  await _setBeacon(uuids);
   await BeaconsPlugin.startMonitoring();
 }
 

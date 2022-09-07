@@ -335,7 +335,7 @@ class _LoginState extends State<Login> {
   // 비콘 시작
   Future<void> _initForBeacon() async {
     Env.BEACON_STREAM_SUBSCRIPTION = startBeaconSubscription(widget.beaconStreamController, secureStorage, Env.BEACON_FUNCTION);
-    initBeacon(context, widget.beaconStreamController, secureStorage);
+    initBeacon(context, widget.beaconStreamController, secureStorage, null);
   }
 
   // 비콘 종료

@@ -6,6 +6,7 @@ import 'package:teragate_v3/State/widgets/custom_text.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
+import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/theme_state.dart';
 import 'dart:convert';
@@ -225,6 +226,8 @@ class _PlaceState extends State<Place> {
     //  비콘 정보 요청 ( 동기화 )
     List<String> SharedStorageuuid = [];
     dialog.show(message: "로딩중...");
+    stopBeacon();
+
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
       if (configInfo!.success!) {
         List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
@@ -232,12 +235,16 @@ class _PlaceState extends State<Place> {
         for (BeaconInfoData beaconInfoData in placeInfo) {
           secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
           SharedStorageuuid.add(beaconInfoData.uuid);
+          placeList.add(beaconInfoData.place);
         }
         SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
 
-        setState(() {
-          placeList = _deduplication(Env.UUIDS.entries.map((e) => e.value).toList());
-        });
+        placeList = _deduplication(placeList);
+
+        setState(() {});
+
+        initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
+
         dialog.hide();
         // _showSyncDialog(context);
       } else {

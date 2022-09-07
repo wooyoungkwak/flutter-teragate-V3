@@ -4,10 +4,13 @@ import 'package:app_settings/app_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<bool> callPermissions() async {
-  if ( await getState() ) {
+  if (await getState()) {
     return true;
   }
-  AppSettings.openAppSettings();
+
+  if (Platform.isAndroid) {
+    AppSettings.openAppSettings();
+  }
   return false;
 }
 
