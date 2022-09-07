@@ -145,7 +145,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Env.WORK_COMPANY_NAME = (await secureStorage.read(Env.KEY_COMPANY_NAME)) ?? "";
     Env.BACKGROUND_PATH = await secureStorage.read(Env.KEY_BACKGROUND_PATH) ?? "theme3.png";
     SharedStorage.readList(Env.KEY_SHARE_UUID).then((uuids) {
-      for (String uuid in uuids!) {
+      uuids = uuids ?? [];
+      for (String uuid in uuids) {
         _setUUID(uuid);
       }
     });

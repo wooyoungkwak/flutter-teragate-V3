@@ -137,7 +137,7 @@ class WeekInfo {
   static WeekInfo fromJson(Map<String, dynamic> json) {
     List<WorkInfo> workInfos = [];
 
-    if (json == null) {
+    if (json == null || json["data"] == null) {
       return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos: workInfos);
     }
 
