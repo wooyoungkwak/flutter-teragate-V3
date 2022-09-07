@@ -236,7 +236,7 @@ class _PlaceState extends State<Place> {
         SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
 
         setState(() {
-          placeList = Env.UUIDS.entries.map((e) => e.value).toList();
+          placeList = _deduplication(Env.UUIDS.entries.map((e) => e.value).toList());
         });
         dialog.hide();
         // _showSyncDialog(context);
@@ -249,13 +249,19 @@ class _PlaceState extends State<Place> {
 
   void _initUUIDList() async {
     setState(() {
-      placeList = Env.UUIDS.entries.map((e) => e.value).toList();
+      placeList = _deduplication(Env.UUIDS.entries.map((e) => e.value).toList());
     });
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
     setState(() {});
+  }
+
+  List<String> _deduplication(List<String> list) {
+    var deduplicationlist = list.toSet();
+    list = deduplicationlist.toList();
+    return list;
   }
 
   void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
