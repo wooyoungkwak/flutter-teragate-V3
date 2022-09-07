@@ -53,7 +53,7 @@ class _WeekState extends State<Week> {
 
     workInfo = Env.INIT_STATE_WORK_INFO;
     Env.EVENT_FUNCTION = _setUI;
-    Env.EVENT_WEEK_FUNCTION = _synchonizationWeekUI;
+    Env.EVENT_WEEK_FUNCTION = _autosynchonizationWeekUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
 
     _initWeekUI();
@@ -316,6 +316,52 @@ class _WeekState extends State<Week> {
       });
     }
     await Future.delayed(Duration(seconds: 1));
+    dialog.hide();
+  }
+
+  Future<void> _autosynchonizationWeekUI(WeekInfo? weekInfo) async {
+    Log.log("자동 동기화 상태 옵니다");
+    int count = 0;
+    workTime.clear;
+    if (weekInfo == null) {
+      sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+        worklist = weekInfo!.workInfos;
+        Log.log("#########weekinfo true");
+      });
+      dialog.show(message: "로딩중...");
+    } else {
+      Log.log("#########weekinfo null");
+      // _showSyncDialog(context, location: Env.CURRENT_PLACE);
+      setState(() {
+        for (int i = 0; i < worklist.length; i++) {
+          Map<String, dynamic> Workstate = getWorkState(worklist[i]);
+          Log.debug(worklist[i].toString());
+
+          workTime.add((worklist[i].strAttendLeaveTime!));
+
+          weekinTime.add(worklist[i].attendtime ?? "");
+          weekoutTime.add(worklist[i].leavetime ?? "");
+          worklist[i].leavetime;
+          if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+            count++;
+          }
+          if (Workstate["isAttendTimeOut"]) {
+            workinOk[i] = false;
+          }
+        }
+        workingtime = (7 - count) * 8;
+
+        for (int i = 0; i < week.length; i++) {
+          if (weekinTime[i] == "" && weekoutTime[i] == "") {
+            today[i] = false;
+          } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+            today[i] = true;
+          } else {
+            today[i] = false;
+          }
+        }
+      });
+    }
     dialog.hide();
   }
 

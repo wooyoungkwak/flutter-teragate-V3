@@ -66,11 +66,11 @@ class CustomBusinessCard extends StatelessWidget {
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         CustomText(
           text: getDateToStringForYYYYMMDDHHMMKORInNow(),
-          size: 14,
+          size: 10,
           color: const Color(0xff3C5FEB),
           weight: FontWeight.w500,
         ),
-        CustomText(text: workInfo!.strAttendLeaveTime!, weight: FontWeight.w400, size: 12, color: Colors.black),
+        CustomText(text: workInfo!.strAttendLeaveTime!, weight: FontWeight.w400, size: 10, color: Colors.black),
       ])
     ]);
   }
