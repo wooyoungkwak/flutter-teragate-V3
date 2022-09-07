@@ -59,151 +59,160 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return _createWillPopScope(
-      Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Form(
-            child: Center(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  // Header
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 0.0,
-                      horizontal: 15.0,
+      Container(
+        // 배경화면
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/login_background.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Form(
+              child: Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    // Header
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 0.0,
+                        horizontal: 15.0,
+                      ),
+                      child: Text(
+                        "Groupware",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff3450FF), fontSize: 20.0),
+                      ),
                     ),
-                    child: Text(
-                      "Groupware",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff3450FF), fontSize: 20.0),
+                    // Logo
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 8.0,
+                        bottom: 30.0,
+                        left: 80.0,
+                        right: 80.0,
+                      ),
+                      child: Image.asset(
+                        'assets/workon_logo.png',
+                        fit: BoxFit.fitWidth,
+                      ),
                     ),
-                  ),
-                  // Logo
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 8.0,
-                      bottom: 30.0,
-                      left: 80.0,
-                      right: 80.0,
+                    // TextFeild ID, PW
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _createTextFormField(false, _loginIdContoroller, "아이디를 입력해 주세요", textFieldStyle, "Id"),
                     ),
-                    child: Image.asset(
-                      'assets/workon_logo.png',
-                      fit: BoxFit.fitWidth,
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _createTextFormField(true, _passwordContorller, " 패스워드를 입력해 주세요", textFieldStyle, "Password"),
                     ),
-                  ),
-                  // TextFeild ID, PW
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _createTextFormField(false, _loginIdContoroller, "아이디를 입력해 주세요", textFieldStyle, "Id"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _createTextFormField(true, _passwordContorller, " 패스워드를 입력해 주세요", textFieldStyle, "Password"),
-                  ),
-                  FutureBuilder(
-                      future: _setsaveid(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData == false) {
-                          return const CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  checkBoxValue = !checkBoxValue;
-                                });
-                                secureStorage.write(Env.KEY_ID_CHECK, checkBoxValue.toString());
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    height: 17.0,
-                                    width: 17.0,
-                                    alignment: Alignment.center,
-                                    color: boxColor,
-                                    margin: const EdgeInsets.only(right: 5),
-                                    child: Checkbox(
-                                      activeColor: boxColor,
-                                      checkColor: const Color(0xff141E33),
-                                      value: checkBoxValue,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          checkBoxValue = !checkBoxValue;
-                                        });
-                                        secureStorage.write(Env.KEY_ID_CHECK, checkBoxValue.toString());
-                                      },
-                                    ),
-                                  ),
-                                  Text(
-                                    "ID Check",
-                                    style: textStyle.copyWith(fontSize: 16, color: const Color(0xff141E33)),
-                                  ),
-                                  Transform.scale(
-                                    scale: 1.5,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-                      }),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
-                    child: Material(
-                      elevation: 5.0,
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: const Color(0xff3450FF),
-                      child: MaterialButton(
-                          height: 60.0,
-                          onPressed: () {
-                            login(
-                              _loginIdContoroller.text,
-                              _passwordContorller.text,
-                            ).then((loginInfo) {
-                              if (loginInfo.success!) {
-                                Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
-                                Env.WORK_KR_NAME = loginInfo.getKrName();
-                                Env.WORK_POSITION_NAME = loginInfo.getPositionName();
-                                Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
-
-                                secureStorage.write(Env.KEY_PHOTO_PATH, loginInfo.getPhotoPath());
-                                secureStorage.write(Env.KEY_KR_NAME, loginInfo.getKrName());
-                                secureStorage.write(Env.KEY_POSITION_NAME, loginInfo.getPositionName());
-                                secureStorage.write(Env.KEY_COMPANY_NAME, loginInfo.getCompanyName());
-
-                                secureStorage.write(Env.LOGIN_ID, _loginIdContoroller.text);
-                                secureStorage.write(Env.LOGIN_PW, _passwordContorller.text);
-                                secureStorage.write(Env.LOGIN_STATE, "true");
-                                secureStorage.write(Env.KEY_ACCESS_TOKEN, loginInfo.tokenInfo!.getAccessToken());
-                                secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
-                                secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
-                                _initForBeacon();
-                                _setBackgroundPath();
-
-                                sendMessageByWork(context, secureStorage).then((workInfo) {
-                                  Env.INIT_STATE_WORK_INFO = workInfo;
-                                  sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-                                    Env.INIT_STATE_WEEK_INFO = weekInfo;
-                                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                    FutureBuilder(
+                        future: _setsaveid(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData == false) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    checkBoxValue = !checkBoxValue;
                                   });
-                                });
-                              } else {
-                                Log.debug("workIfon Error");
-                              }
-                            });
-                          },
-                          child: const CustomText(
-                            text: "로그인",
-                            weight: FontWeight.w500,
-                          )),
-                    ),
-                  )
-                ],
+                                  secureStorage.write(Env.KEY_ID_CHECK, checkBoxValue.toString());
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      height: 17.0,
+                                      width: 17.0,
+                                      alignment: Alignment.center,
+                                      color: boxColor,
+                                      margin: const EdgeInsets.only(right: 5),
+                                      child: Checkbox(
+                                        activeColor: boxColor,
+                                        checkColor: const Color(0xff141E33),
+                                        value: checkBoxValue,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            checkBoxValue = !checkBoxValue;
+                                          });
+                                          secureStorage.write(Env.KEY_ID_CHECK, checkBoxValue.toString());
+                                        },
+                                      ),
+                                    ),
+                                    Text(
+                                      "ID Check",
+                                      style: textStyle.copyWith(fontSize: 16, color: const Color(0xff141E33)),
+                                    ),
+                                    Transform.scale(
+                                      scale: 1.5,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        }),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
+                      child: Material(
+                        elevation: 5.0,
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: const Color(0xff3450FF),
+                        child: MaterialButton(
+                            height: 60.0,
+                            onPressed: () {
+                              login(
+                                _loginIdContoroller.text,
+                                _passwordContorller.text,
+                              ).then((loginInfo) {
+                                if (loginInfo.success!) {
+                                  Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
+                                  Env.WORK_KR_NAME = loginInfo.getKrName();
+                                  Env.WORK_POSITION_NAME = loginInfo.getPositionName();
+                                  Env.WORK_COMPANY_NAME = loginInfo.getCompanyName();
+
+                                  secureStorage.write(Env.KEY_PHOTO_PATH, loginInfo.getPhotoPath());
+                                  secureStorage.write(Env.KEY_KR_NAME, loginInfo.getKrName());
+                                  secureStorage.write(Env.KEY_POSITION_NAME, loginInfo.getPositionName());
+                                  secureStorage.write(Env.KEY_COMPANY_NAME, loginInfo.getCompanyName());
+
+                                  secureStorage.write(Env.LOGIN_ID, _loginIdContoroller.text);
+                                  secureStorage.write(Env.LOGIN_PW, _passwordContorller.text);
+                                  secureStorage.write(Env.LOGIN_STATE, "true");
+                                  secureStorage.write(Env.KEY_ACCESS_TOKEN, loginInfo.tokenInfo!.getAccessToken());
+                                  secureStorage.write(Env.KEY_REFRESH_TOKEN, loginInfo.tokenInfo!.getRefreshToken());
+                                  secureStorage.write(Env.KEY_USER_ID, loginInfo.data!["userId"].toString());
+                                  _initForBeacon();
+                                  _setBackgroundPath();
+
+                                  sendMessageByWork(context, secureStorage).then((workInfo) {
+                                    Env.INIT_STATE_WORK_INFO = workInfo;
+                                    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+                                      Env.INIT_STATE_WEEK_INFO = weekInfo;
+                                      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                                    });
+                                  });
+                                } else {
+                                  Log.debug("workIfon Error");
+                                }
+                              });
+                            },
+                            child: const CustomText(
+                              text: "로그인",
+                              weight: FontWeight.w500,
+                            )),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
