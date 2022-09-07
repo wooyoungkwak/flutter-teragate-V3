@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _initForBeacon() async {
-    Env.BEACON_STREAM_SUBSCRIPTION = startBeaconSubscription(widget.beaconStreamController, secureStorage, Env.BEACON_FUNCTION);
+    Env.BEACON_STREAM_SUBSCRIPTION = startBeaconSubscription(widget.beaconStreamController, secureStorage);
     initBeacon(context, widget.beaconStreamController, secureStorage, null);
   }
 
