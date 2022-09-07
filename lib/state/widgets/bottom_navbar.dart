@@ -30,7 +30,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     var paddingSize = (MediaQuery.of(context).size.width - 211) / 2;
     return ConstrainedBox(
       constraints: const BoxConstraints(
-        maxHeight: 140.0,
+        maxHeight: 138.0,
       ),
       child: Column(
         children: [
