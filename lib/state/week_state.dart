@@ -277,144 +277,103 @@ class _WeekState extends State<Week> {
   Future<void> _synchonizationWeekUI(WeekInfo? weekInfo) async {
     Log.log("동기화 상태 옵니다");
     dialog.show(message: "로딩중...");
-    int count = 0;
     workTime.clear;
-    if (weekInfo == null) {
-      sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-        worklist = weekInfo!.workInfos;
-      });
-    } else {
-      // _showSyncDialog(context, location: Env.CURRENT_PLACE);
-      setState(() {
-        for (int i = 0; i < worklist.length; i++) {
-          Map<String, dynamic> Workstate = getWorkState(worklist[i]);
-          Log.debug(worklist[i].toString());
-
-          workTime.add((worklist[i].strAttendLeaveTime!));
-
-          weekinTime.add(worklist[i].attendtime ?? "");
-          weekoutTime.add(worklist[i].leavetime ?? "");
-          worklist[i].leavetime;
-          if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-            count++;
-          }
-          if (Workstate["isAttendTimeOut"]) {
-            workinOk[i] = false;
-          }
-        }
-        workingtime = (7 - count) * 8;
-
-        for (int i = 0; i < week.length; i++) {
-          if (weekinTime[i] == "" && weekoutTime[i] == "") {
-            today[i] = false;
-          } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-            today[i] = true;
-          } else {
-            today[i] = false;
-          }
-        }
-      });
-    }
+    _settingUIvalue(weekInfo);
     await Future.delayed(Duration(seconds: 1));
     dialog.hide();
   }
 
   Future<void> _autosynchonizationWeekUI(WeekInfo? weekInfo) async {
     Log.log("자동 동기화 상태 옵니다");
-    int count = 0;
+
     workTime.clear;
-    if (weekInfo == null) {
-      sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-        worklist = weekInfo!.workInfos;
-        Log.log("#########weekinfo true");
-      });
-      dialog.show(message: "로딩중...");
-    } else {
-      Log.log("#########weekinfo null");
-      // _showSyncDialog(context, location: Env.CURRENT_PLACE);
-      setState(() {
-        for (int i = 0; i < worklist.length; i++) {
-          Map<String, dynamic> Workstate = getWorkState(worklist[i]);
-          Log.debug(worklist[i].toString());
-
-          workTime.add((worklist[i].strAttendLeaveTime!));
-
-          weekinTime.add(worklist[i].attendtime ?? "");
-          weekoutTime.add(worklist[i].leavetime ?? "");
-          worklist[i].leavetime;
-          if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-            count++;
-          }
-          if (Workstate["isAttendTimeOut"]) {
-            workinOk[i] = false;
-          }
-        }
-        workingtime = (7 - count) * 8;
-
-        for (int i = 0; i < week.length; i++) {
-          if (weekinTime[i] == "" && weekoutTime[i] == "") {
-            today[i] = false;
-          } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-            today[i] = true;
-          } else {
-            today[i] = false;
-          }
-        }
-      });
-    }
-    dialog.hide();
+    _settingUIvalue(weekInfo);
   }
 
   void _initWeekUI() async {
-    int count = 0;
     WeekInfo list = Env.INIT_STATE_WEEK_INFO;
-    List<WorkInfo> worklist = list.workInfos;
     workTime.clear;
-    if (Env.INIT_STATE_WEEK_INFO == null) {
-      for (int i = 0; i < week.length; i++) {
-        workTime.add("----");
-        workingtime = 0;
-      }
-    } else {
-      for (int i = 0; i < worklist.length; i++) {
-        Log.debug(worklist[i].toString());
+    _settingUIvalue(list);
+    // if (Env.INIT_STATE_WEEK_INFO == null) {
+    //   for (int i = 0; i < week.length; i++) {
+    //     workTime.add("----");
+    //     workingtime = 0;
+    //   }
+    // } else {
+    //   int count = 0;
+    //   for (int i = 0; i < worklist.length; i++) {
+    //     Log.debug(worklist[i].toString());
 
-        workTime.add((worklist[i].strAttendLeaveTime!));
-        weekinTime.add(worklist[i].attendtime ?? "");
-        weekoutTime.add(worklist[i].leavetime ?? "");
+    //     workTime.add((worklist[i].strAttendLeaveTime!));
+    //     weekinTime.add(worklist[i].attendtime ?? "");
+    //     weekoutTime.add(worklist[i].leavetime ?? "");
 
-        if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-          count++;
-        }
-      }
-      workingtime = (7 - count) * 8;
-    }
+    //     if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+    //       count++;
+    //     }
+    //   }
+    //   workingtime = (7 - count) * 8;
+    // }
 
-    for (int i = 0; i < week.length; i++) {
-      if (weekinTime[i] == "" && weekoutTime[i] == "") {
-        today[i] = false;
-      } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-        today[i] = true;
-      } else {
-        today[i] = false;
-      }
-    }
-    setState(() {});
+    // for (int i = 0; i < week.length; i++) {
+    //   if (weekinTime[i] == "" && weekoutTime[i] == "") {
+    //     today[i] = false;
+    //   } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+    //     today[i] = true;
+    //   } else {
+    //     today[i] = false;
+    //   }
+    // }
   }
 
   void _setUI(WorkInfo workInfo) {
-    if (workInfo.success) {
-      setState(() {
-        this.workInfo = workInfo;
-      });
-    } else {
-      workInfo = WorkInfo(1, "---", "", "", "", "", "", "", "--:--", "--:--", "--------", "", "", "", "", success: false, message: "");
-    }
+    setState(() {
+      this.workInfo = workInfo;
+    });
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
     setState(() {});
+  }
+
+  void _settingUIvalue(WeekInfo? weekInfo) {
+    if (weekInfo == null) {
+      for (int i = 0; i < week.length; i++) {
+        workTime.add("----");
+        workingtime = 0;
+      }
+    } else {
+      worklist = weekInfo.workInfos;
+      int count = 0;
+      for (int i = 0; i < worklist.length; i++) {
+        Map<String, dynamic> Workstate = getWorkState(worklist[i]);
+        Log.debug(worklist[i].toString());
+
+        workTime.add((worklist[i].strAttendLeaveTime!));
+
+        weekinTime.add(worklist[i].attendtime ?? "");
+        weekoutTime.add(worklist[i].leavetime ?? "");
+        worklist[i].leavetime;
+        if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+          count++;
+        }
+        if (Workstate["isAttendTimeOut"]) {
+          workinOk[i] = false;
+        }
+      }
+      workingtime = (7 - count) * 8;
+
+      for (int i = 0; i < week.length; i++) {
+        if (weekinTime[i] == "" && weekoutTime[i] == "") {
+          today[i] = false;
+        } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+          today[i] = true;
+        } else {
+          today[i] = false;
+        }
+      }
+    }
   }
 
   void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {

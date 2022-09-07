@@ -220,45 +220,42 @@ class _ThemeState extends State<ThemeMain> {
                                   ),
                                 ],
                               ),
-                              Expanded(
-                                flex: 45,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    // initRowByiconText("테마 사용", _isCheckedBackground),
-                                    Row(
-                                      children: [
-                                        Checkbox(
-                                            activeColor: Color(0xffF5F5F5),
-                                            checkColor: Colors.black,
-                                            value: _isCheckedBackground,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                _isCheckedBackground = value!;
-                                              });
-                                            }),
-                                        CustomText(
-                                          text: "테마 사용",
-                                          size: 14,
-                                          weight: FontWeight.w400,
-                                          color: Colors.black,
-                                        ),
-                                      ],
-                                    ),
-                                    AnimatedOpacity(
-                                      opacity: _isCheckedBackground ? 1.0 : 0.0,
-                                      duration: const Duration(milliseconds: 500),
-                                      child: Visibility(
-                                        maintainAnimation: true,
-                                        maintainState: true,
-                                        visible: _isCheckedBackground,
-                                        child: Row(
-                                          children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
-                                        ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  // initRowByiconText("테마 사용", _isCheckedBackground),
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                          activeColor: Color(0xffF5F5F5),
+                                          checkColor: Colors.black,
+                                          value: _isCheckedBackground,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _isCheckedBackground = value!;
+                                            });
+                                          }),
+                                      CustomText(
+                                        text: "테마 사용",
+                                        size: 14,
+                                        weight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                  AnimatedOpacity(
+                                    opacity: _isCheckedBackground ? 1.0 : 0.0,
+                                    duration: const Duration(milliseconds: 500),
+                                    child: Visibility(
+                                      maintainAnimation: true,
+                                      maintainState: true,
+                                      visible: _isCheckedBackground,
+                                      child: Row(
+                                        children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
