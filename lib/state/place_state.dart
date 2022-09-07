@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:move_to_background/move_to_background.dart';
+import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
@@ -28,7 +29,7 @@ class Place extends StatefulWidget {
 
 class _PlaceState extends State<Place> {
   List<String> placeList = [""];
-
+  late SimpleFontelicoProgressDialog dialog;
   BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
   late SecureStorage secureStorage;
   WorkInfo? workInfo;
@@ -47,6 +48,7 @@ class _PlaceState extends State<Place> {
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
     return _createWillPopScope(Container(
       padding: EdgeInsets.only(top: statusBarHeight),
       decoration: const BoxDecoration(color: Color(0xffF5F5F5)),
@@ -222,7 +224,7 @@ class _PlaceState extends State<Place> {
   Future<void> _synchonizationPlaceUI(WorkInfo? workInfo) async {
     //  비콘 정보 요청 ( 동기화 )
     List<String> SharedStorageuuid = [];
-
+    dialog.show(message: "로딩중...");
     sendMessageByBeacon(context, secureStorage).then((configInfo) {
       if (configInfo!.success!) {
         List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
@@ -236,9 +238,11 @@ class _PlaceState extends State<Place> {
         setState(() {
           placeList = Env.UUIDS.entries.map((e) => e.value).toList();
         });
-        _showSyncDialog(context, location: Env.CURRENT_PLACE);
+        dialog.hide();
+        // _showSyncDialog(context);
       } else {
-        _showSyncDialog(context, warning: false);
+        dialog.hide();
+        // _showSyncDialog(context, warning: false);
       }
     });
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:date_format/date_format.dart';
 import 'package:move_to_background/move_to_background.dart';
+import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
@@ -30,6 +31,7 @@ class Week extends StatefulWidget {
 }
 
 class _WeekState extends State<Week> {
+  late SimpleFontelicoProgressDialog dialog;
   late SecureStorage secureStorage;
   BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
   int workingtime = 32;
@@ -59,10 +61,10 @@ class _WeekState extends State<Week> {
 
   @override
   Widget build(BuildContext context) {
+    dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
     final statusBarHeight = MediaQuery.of(context).padding.top;
     // final controller = Get.put(Controller());
     // controller.increment();
-
     return _createWillPopScope(Container(
       padding: EdgeInsets.only(top: statusBarHeight),
       decoration: const BoxDecoration(color: Color(0xffF5F5F5)),
@@ -273,22 +275,16 @@ class _WeekState extends State<Week> {
   }
 
   Future<void> _synchonizationWeekUI(WeekInfo? weekInfo) async {
+    Log.log("동기화 상태 옵니다");
+    dialog.show(message: "로딩중...");
     int count = 0;
     workTime.clear;
-
     if (weekInfo == null) {
       sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
         worklist = weekInfo!.workInfos;
       });
-    }
-    if (worklist == null) {
-      for (int i = 0; i < week.length; i++) {
-        workTime.add("----");
-        workingtime = 0;
-        _showSyncDialog(context, warning: false);
-      }
     } else {
-      _showSyncDialog(context, location: Env.CURRENT_PLACE);
+      // _showSyncDialog(context, location: Env.CURRENT_PLACE);
       setState(() {
         for (int i = 0; i < worklist.length; i++) {
           Map<String, dynamic> Workstate = getWorkState(worklist[i]);
@@ -319,6 +315,8 @@ class _WeekState extends State<Week> {
         }
       });
     }
+    await Future.delayed(Duration(seconds: 1));
+    dialog.hide();
   }
 
   void _initWeekUI() async {

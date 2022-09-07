@@ -68,6 +68,7 @@ class _LoginState extends State<Login> {
           ),
         ),
         child: Scaffold(
+          backgroundColor: Colors.transparent,
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Form(

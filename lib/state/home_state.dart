@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/models/storage_model.dart';
@@ -26,6 +27,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // late StreamSubscription beaconStreamSubscription;
   // late StreamSubscription eventStreamSubscription;
+  late SimpleFontelicoProgressDialog dialog;
 
   late BeaconInfoData beaconInfoData;
 
@@ -79,6 +81,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
 
     return WillPopScope(
       onWillPop: () {
@@ -296,6 +299,7 @@ class _HomeState extends State<Home> {
             CustomText(
               padding: const EdgeInsets.all(5.0),
               text: time!,
+              size: 16.0,
               color: color == Colors.white ? Colors.black : Colors.white,
             ),
             if (currentTime != null)
@@ -455,6 +459,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _syncghoniztionHomeUI(WorkInfo? workInfo) async {
+    dialog.show(message: "로딩중...");
     await sendMessageByWork(context, secureStorage).then((workInfo) async {
       if (workInfo!.success) {
         Map<String, dynamic> setInfoMap = getWorkState(workInfo);
@@ -472,9 +477,10 @@ class _HomeState extends State<Home> {
           getInTime = workInfo.attendtime ?? "-";
           getOutTime = workInfo.leavetime ?? "-";
         });
+        dialog.hide();
         _showSyncDialog(context, location: Env.CURRENT_PLACE);
       } else {
-        Log.debug("시스템 동기화 실패 다이얼 로그");
+        dialog.hide();
         _showSyncDialog(context, warning: false);
       }
     });

@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:move_to_background/move_to_background.dart';
+import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
@@ -28,6 +29,7 @@ class ThemeMain extends StatefulWidget {
 }
 
 class _ThemeState extends State<ThemeMain> {
+  late SimpleFontelicoProgressDialog dialog;
   late bool _isCheckedTheme;
   late bool _isCheckedBackground;
   bool isImage = false;
@@ -84,6 +86,7 @@ class _ThemeState extends State<ThemeMain> {
 
   @override
   Widget build(BuildContext context) {
+    dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
     final statusBarHeight = MediaQuery.of(context).padding.top;
     return WillPopScope(
       onWillPop: () {
@@ -337,11 +340,16 @@ class _ThemeState extends State<ThemeMain> {
   }
 
   void _synchonizationThemeUI(WorkInfo? workInfo) {
+    dialog.show(message: "로딩중...");
     sendMessageByWork(context, secureStorage).then((workInfo) {
       if (workInfo!.success) {
         setState(() {});
-        _showSyncDialog(context, location: Env.CURRENT_PLACE);
-      } else {}
+        dialog.hide();
+        //_showSyncDialog(context, location: Env.CURRENT_PLACE);
+      } else {
+        dialog.hide();
+        // _showSyncDialog(context, warning: false);
+      }
     });
   }
 
