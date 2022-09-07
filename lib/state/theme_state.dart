@@ -159,23 +159,26 @@ class _ThemeState extends State<ThemeMain> {
                         child: createContainer(
                           Column(
                             children: [
-                              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                CustomText(
-                                  text: "테마 배경 사용",
-                                  size: 16,
-                                  color: Colors.black,
-                                ),
-                                Switch(
-                                    value: true, // 항상 켜짐(기능은 비활성화)
-                                    activeColor: Colors.white,
-                                    activeTrackColor: const Color(0xff26C145),
-                                    inactiveTrackColor: const Color(0xff444653),
-                                    onChanged: (value) {
-                                      // setState(() {
-                                      //   visibleTheme = value;
-                                      // });
-                                    })
-                              ]),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CustomText(
+                                    text: "테마 배경 사용",
+                                    size: 16,
+                                    color: Colors.black,
+                                  ),
+                                  Switch(
+                                      value: false, // 항상 켜짐(기능은 비활성화)
+                                      // activeColor: Colors.white,
+                                      // activeTrackColor: const Color(0xff26C145),
+                                      // inactiveTrackColor: const Color(0xff444653),
+                                      onChanged: (value) {
+                                        // setState(() {
+                                        //   visibleTheme = value;
+                                        // });
+                                      })
+                                ],
+                              ),
                               const Expanded(flex: 7, child: SizedBox()),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -317,7 +320,6 @@ class _ThemeState extends State<ThemeMain> {
       decoration: list[index]["value"] ? BoxDecoration(border: Border.all(color: Color(0xff26C145), width: 5)) : null,
       child: GestureDetector(
           onTap: () {
-            Log.debug("제스터 실행!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             setState(() {
               _initListReset();
               list[index]["value"] = true;
@@ -380,11 +382,13 @@ class _ThemeState extends State<ThemeMain> {
     for (var el in backgrounListItems) {
       if (Env.BACKGROUND_PATH?.replaceAll(".png", "") == el["image"]) {
         el["value"] = true;
+        _isCheckedBackground = false;
       }
     }
     for (var el in themeListItmes) {
       if (Env.BACKGROUND_PATH?.replaceAll(".png", "") == el["image"]) {
         el["value"] = true;
+        _isCheckedTheme = false;
       }
     }
   }
