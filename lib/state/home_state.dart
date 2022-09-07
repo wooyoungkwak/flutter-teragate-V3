@@ -7,10 +7,10 @@ import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
-
 import 'package:teragate_v3/services/server_service.dart';
 
 class Home extends StatefulWidget {
@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
 
   late BeaconInfoData beaconInfoData;
 
-  SecureStorage? secureStorage;
+  late SecureStorage secureStorage;
 
   String backgroundPath = "";
   String currentHour = "";
@@ -64,27 +64,9 @@ class _HomeState extends State<Home> {
     // });
     // beaconStreamSubscription = startBeaconSubscription(widget.beaconStreamController, secureStorage!, setBeaconUI);
 
-    Env.EVENT_FUNCTION = _setDateTime;
+    Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = setBeaconUI;
-
-    Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_WORK_INFO);
-
-    currentHour = getDateToStringForHHInNow();
-    currentMinute = getDateToStringForMMInNow();
-    currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
-    company = Env.WORK_COMPANY_NAME ?? "-";
-    profilePicture = Env.WORK_PHOTO_PATH ?? "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg";
-    profileName = Env.WORK_KR_NAME ?? "-";
-    profilePosition = Env.WORK_POSITION_NAME ?? "-";
-    currentTimeHHMM = getDateToStringForHHMMInNow();
-    workState = setInfoMap["state"];
-    workTime = Env.INIT_STATE_WORK_INFO.strAttendLeaveTime ?? "-";
-    getInTime = Env.INIT_STATE_WORK_INFO.attendtime ?? "-";
-    getOutTime = Env.INIT_STATE_WORK_INFO.leavetime ?? "-";
-    currentLocation = Env.INIT_STATE_WORK_INFO.placeWorkName ?? "-";
-    isAttendTimeOut = setInfoMap["isAttendTimeOut"];
-    isLeave = setInfoMap["isLeaveTime"];
-    backgroundPath = Env.BACKGROUND_PATH ?? "background1.png";
+    _initUI();
   }
 
   @override
@@ -273,8 +255,9 @@ class _HomeState extends State<Home> {
           ),
           // Bottom Navigation Bar
           bottomNavigationBar: BottomNavBar(
-            currentLocation: currentLocation,
-            currentTime: currentTimeHHMM,
+            currentLocation: Env.CURRENT_PLACE,
+            currentTime: getPickerTime(getNow()),
+            function: _syncghoniztionHomeUI,
           ),
         ),
       ),
@@ -401,26 +384,51 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void setUI({required WorkInfo workInfo}) {
-    if (workInfo.success) {
-      // setState(() {
+  void _initUI() {
+    Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_WORK_INFO);
 
-      // });
-    } else {
+    setState(() {
+      // 시간
+      currentHour = getDateToStringForHHInNow();
+      currentMinute = getDateToStringForMMInNow();
+      currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+      currentTimeHHMM = getDateToStringForHHMMInNow();
+      // 프로필
+      company = Env.WORK_COMPANY_NAME ?? "-";
+      profilePicture = Env.WORK_PHOTO_PATH ?? "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg";
+      profileName = Env.WORK_KR_NAME ?? "---";
+      profilePosition = Env.WORK_POSITION_NAME ?? "-";
+      // 상태
+      workState = setInfoMap["state"];
+      isAttendTimeOut = setInfoMap["isAttendTimeOut"];
+      isLeave = setInfoMap["isLeaveTime"];
+      workTime = Env.INIT_STATE_WORK_INFO.strAttendLeaveTime ?? "-";
+      getInTime = Env.INIT_STATE_WORK_INFO.attendtime ?? "-";
+      getOutTime = Env.INIT_STATE_WORK_INFO.leavetime ?? "-";
+      // 현재위치
+      currentLocation = Env.INIT_STATE_WORK_INFO.placeWorkName ?? "-";
+      // 배경화면
+      backgroundPath = Env.BACKGROUND_PATH ?? "background1.png";
+    });
+  }
+
+  void _setUI(WorkInfo workInfo) {
+    if (workInfo.success) {
+      Map<String, dynamic> setInfoMap = getWorkState(workInfo);
       setState(() {
-        currentHour = "01";
-        currentMinute = "52";
-        currentDay = "6월 21일 화요일";
-        company = "주식회사 테라비전";
-        profilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7X1a5uXND5eV1xt1ihm1RqafYqZ2_iFAWeg&usqp=CAU';
-        profileName = "홍길동";
-        profilePosition = "과장";
-        currentTimeHHMM = "19:55";
-        workState = "업무중";
-        workTime = "08:30~18:00";
-        getInTime = "08:12";
-        getOutTime = "18:00";
-        currentLocation = "";
+        // 시간
+        currentHour = getDateToStringForHHInNow();
+        currentMinute = getDateToStringForMMInNow();
+        currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+        currentTimeHHMM = getDateToStringForHHMMInNow();
+        // 상태
+        workState = setInfoMap["state"];
+        isAttendTimeOut = setInfoMap["isAttendTimeOut"];
+        isLeave = setInfoMap["isLeaveTime"];
+        workTime = workInfo.strAttendLeaveTime ?? "-";
+        getInTime = workInfo.attendtime ?? "-";
+        getOutTime = workInfo.leavetime ?? "-";
+        currentLocation = workInfo.placeWorkName ?? "-";
       });
     }
 
@@ -434,24 +442,51 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _logout(BuildContext context) async {
-    secureStorage!.read(Env.KEY_ID_CHECK).then((value) {
+    secureStorage.read(Env.KEY_ID_CHECK).then((value) {
       if (value == null && value == "false") {
-        secureStorage!.write(Env.LOGIN_ID, "");
+        secureStorage.write(Env.LOGIN_ID, "");
       }
     });
-    secureStorage!.write(Env.LOGIN_PW, "");
-    secureStorage!.write(Env.LOGIN_STATE, "false");
-    secureStorage!.write(Env.KEY_ACCESS_TOKEN, "");
-    secureStorage!.write(Env.KEY_REFRESH_TOKEN, "");
+    secureStorage.write(Env.LOGIN_PW, "");
+    secureStorage.write(Env.LOGIN_STATE, "false");
+    secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
+    secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
-  _setDateTime() {
-    setState(() {
-      currentHour = getDateToStringForHHInNow();
-      currentMinute = getDateToStringForMMInNow();
-      currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
-      currentTimeHHMM = getDateToStringForHHMMInNow();
+  Future<void> _syncghoniztionHomeUI(WorkInfo? workInfo) async {
+    await sendMessageByWork(context, secureStorage).then((workInfo) async {
+      if (workInfo!.success) {
+        Map<String, dynamic> setInfoMap = getWorkState(workInfo);
+        setState(() {
+          // 시간
+          currentHour = getDateToStringForHHInNow();
+          currentMinute = getDateToStringForMMInNow();
+          currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+          currentTimeHHMM = getDateToStringForHHMMInNow();
+          // 상태
+          workState = setInfoMap["state"];
+          isAttendTimeOut = setInfoMap["isAttendTimeOut"];
+          isLeave = setInfoMap["isLeaveTime"];
+          workTime = workInfo.strAttendLeaveTime ?? "-";
+          getInTime = workInfo.attendtime ?? "-";
+          getOutTime = workInfo.leavetime ?? "-";
+        });
+        _showSyncDialog(context, location: Env.CURRENT_PLACE);
+      } else {
+        Log.debug("시스템 동기화 실패 다이얼 로그");
+        _showSyncDialog(context, warning: false);
+      }
     });
+  }
+
+  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => SyncDialog(
+        currentLocation: location,
+        warning: warning,
+      ),
+    );
   }
 }

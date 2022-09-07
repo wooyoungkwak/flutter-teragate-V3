@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:date_format/date_format.dart';
+import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
@@ -12,6 +13,8 @@ import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:get/get.dart';
+import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
+import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
@@ -29,26 +32,29 @@ class Week extends StatefulWidget {
 class _WeekState extends State<Week> {
   late SecureStorage secureStorage;
   BeaconInfoData beaconInfoData = BeaconInfoData(uuid: "", place: "");
-
   int workingtime = 32;
-  List<String> week = [];
+  List<String> week = ["일", "월", "화", "수", "목", "금", "토"];
+  List<WorkInfo> worklist = [];
   List<String> workTime = [];
-
   List<String> weekinTime = [];
   List<String> weekoutTime = [];
-  List<bool> workinOk = []; // 정상 출근 true/ 지각 false
-  List<bool> workoutOk = []; // 정상 출근 true/ 조기퇴근 false
-  List<bool> today = []; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
+  List<bool> workinOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 지각 false
+  List<bool> workoutOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 조기퇴근 false
+  List<bool> today = [false, false, false, false, false, false, false]; // 출근만 찍힌 요일 true/ 출퇴근 모두 찍힌 요일 false .
 
   WorkInfo? workInfo;
-  
+
   @override
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
+
+    workInfo = Env.INIT_STATE_WORK_INFO;
     Env.EVENT_FUNCTION = _setUI;
     Env.EVENT_WEEK_FUNCTION = _synchonizationWeekUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
+
+    _initWeekUI();
   }
 
   @override
@@ -79,7 +85,8 @@ class _WeekState extends State<Week> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                          showAlertDialog(context);
+                          // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -149,7 +156,11 @@ class _WeekState extends State<Week> {
                             )
                           ],
                         )),
-                    Expanded(flex: 2, child: Container(padding: const EdgeInsets.all(8), child: createContainerwhite(CustomBusinessCard(workInfo)))),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: createContainerwhite(CustomBusinessCard(Env.WORK_COMPANY_NAME, Env.WORK_KR_NAME, Env.WORK_POSITION_NAME, Env.WORK_PHOTO_PATH, workInfo)))),
                   ],
                 ),
               ),
@@ -178,9 +189,7 @@ class _WeekState extends State<Week> {
         padding: const EdgeInsets.only(bottom: 10),
         itemCount: week.length,
         itemBuilder: (BuildContext context, int index) {
-          return Expanded(
-            child: initContainerByWork(index),
-          );
+          return initContainerByWork(index);
         });
   }
 
@@ -198,7 +207,11 @@ class _WeekState extends State<Week> {
             CustomText(text: "·", size: 40, color: color),
             // Icon(Icons.keyboard_double_arrow_right_rounded),
             const SizedBox(width: 5),
-            Container(margin: const EdgeInsets.all(2), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)), child: CustomText(text: week, size: 13)),
+            Container(
+                margin: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
+                child: CustomText(text: week, size: 13)),
             const SizedBox(width: 10),
             CustomText(text: workTime, size: 13, color: Colors.black),
           ],
@@ -215,11 +228,11 @@ class _WeekState extends State<Week> {
       workColor = const Color(0xffFF3823);
     }
 
-    if (workOk == true) {
-      workColor = const Color(0xff7C8298);
-    }
+    // 이슈에 관한 색
+    // if (workOk == false) {
+    //   workColor = const Color(0xff7C8298);
+    // }
 
-    Color workissueColor = Colors.pink; //이슈의 색(지각,조기퇴근 등)
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.all(10),
@@ -233,12 +246,17 @@ class _WeekState extends State<Week> {
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          initContainerByweektext(weekoutTime[i] != "" && weekinTime[i] != "" ? Color(0xff3C5FEB) : Color(0xff77787B), week[i], workTime[i], today[i]),
+          initContainerByweektext(weekinTime[i] == "" ? Color(0xff77787B) : Color(0xff3C5FEB), week[i], workTime[i], today[i]),
+          //initContainerByweektext(Color(0xff3C5FEB), week[i], workTime[i], today[i]),
           SizedBox(
             child: Row(
               children: [
-                weekinTime[i] != "" ? initOpacityByworktime(weekinTime[i], workinOk[i], true) : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
-                weekoutTime[i] != "" ? initOpacityByworktime(weekoutTime[i], workoutOk[i], false) : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
+                weekinTime[i] != ""
+                    ? initOpacityByworktime(weekinTime[i], workinOk[i], true)
+                    : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
+                weekoutTime[i] != ""
+                    ? initOpacityByworktime(weekoutTime[i], workoutOk[i], false)
+                    : Visibility(maintainSize: true, maintainAnimation: true, maintainState: true, visible: false, child: initOpacityByworktime(weekinTime[i], workinOk[i], true)),
               ],
             ),
           ),
@@ -248,20 +266,32 @@ class _WeekState extends State<Week> {
   WillPopScope _createWillPopScope(Widget widget) {
     return WillPopScope(
         onWillPop: () {
-          Navigator.pop(context);
+          MoveToBackground.moveTaskToBack();
           return Future(() => false);
         },
         child: widget);
   }
 
-  void _synchonizationWeekUI(WeekInfo weekInfo) {
+  Future<void> _synchonizationWeekUI(WeekInfo? weekInfo) async {
     int count = 0;
-    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-      List<WorkInfo> worklist = weekInfo!.workInfos;
-      // Log.debug(" success === ${weekInfo.success.toString()} ");
-      workTime.clear;
+    workTime.clear;
+
+    if (weekInfo == null) {
+      sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+        worklist = weekInfo!.workInfos;
+      });
+    }
+    if (worklist == null) {
+      for (int i = 0; i < week.length; i++) {
+        workTime.add("----");
+        workingtime = 0;
+        _showSyncDialog(context, warning: false);
+      }
+    } else {
+      _showSyncDialog(context, location: Env.CURRENT_PLACE);
       setState(() {
         for (int i = 0; i < worklist.length; i++) {
+          Map<String, dynamic> Workstate = getWorkState(worklist[i]);
           Log.debug(worklist[i].toString());
 
           workTime.add((worklist[i].strAttendLeaveTime!));
@@ -272,56 +302,84 @@ class _WeekState extends State<Week> {
           if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
             count++;
           }
-          // if (worklist[i].isweekend == "Y") {
-          //   workTime[i] = "주말";
-          //   workoutTime[i] = "";
-          // } else if (worklist[i].isholiday == "Y") {
-          //   workTime[i] = "휴일";
-          //   workoutTime[i] = "";
-          // }
+          if (Workstate["isAttendTimeOut"]) {
+            workinOk[i] = false;
+          }
         }
-
-        week = [
-          "일",
-          "월",
-          "화",
-          "수",
-          "목",
-          "금",
-          "토",
-        ];
         workingtime = (7 - count) * 8;
-        //반차에 대한 시간 계산은 나중에...처리
-        //지각에 대하 계산은 나중에...처리
-        workinOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 지각 false
-        workoutOk = [true, true, true, true, true, true, true]; // 정상 출근 true/ 조기퇴근 false
-        today = [false, false, false, false, false, false, false]; // 오늘날짜 색 변경 변수 이름이 떠오르지않음...
 
-        String daynow = getWeekByOneKor();
         for (int i = 0; i < week.length; i++) {
-          if (daynow == week[i]) {
+          if (weekinTime[i] == "" && weekoutTime[i] == "") {
+            today[i] = false;
+          } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
             today[i] = true;
+          } else {
+            today[i] = false;
           }
         }
       });
-    });
-    // if (beaconInfoData == null) {
-    //   setState(() {
-    //     currentLocation = "---";
-    //     currentTimeHHMM = getPickerTime(getNow());
-    //   });
-    // } else
-    //   setBeaconUI(beaconInfoData);
+    }
+  }
+
+  void _initWeekUI() async {
+    int count = 0;
+    WeekInfo list = Env.INIT_STATE_WEEK_INFO;
+    List<WorkInfo> worklist = list.workInfos;
+    workTime.clear;
+    if (Env.INIT_STATE_WEEK_INFO == null) {
+      for (int i = 0; i < week.length; i++) {
+        workTime.add("----");
+        workingtime = 0;
+      }
+    } else {
+      for (int i = 0; i < worklist.length; i++) {
+        Log.debug(worklist[i].toString());
+
+        workTime.add((worklist[i].strAttendLeaveTime!));
+        weekinTime.add(worklist[i].attendtime ?? "");
+        weekoutTime.add(worklist[i].leavetime ?? "");
+
+        if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+          count++;
+        }
+      }
+      workingtime = (7 - count) * 8;
+    }
+
+    for (int i = 0; i < week.length; i++) {
+      if (weekinTime[i] == "" && weekoutTime[i] == "") {
+        today[i] = false;
+      } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+        today[i] = true;
+      } else {
+        today[i] = false;
+      }
+    }
+    setState(() {});
   }
 
   void _setUI(WorkInfo workInfo) {
-    this.workInfo = workInfo;
-    setState(() { });
+    if (workInfo.success) {
+      setState(() {
+        this.workInfo = workInfo;
+      });
+    } else {
+      workInfo = WorkInfo(1, "---", "", "", "", "", "", "", "--:--", "--:--", "--------", "", "", "", "", success: false, message: "");
+    }
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
     this.beaconInfoData = beaconInfoData;
-    setState(() { });
+    setState(() {});
   }
 
+  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => SyncDialog(
+        currentLocation: location,
+        warning: warning,
+      ),
+    );
+  }
 }

@@ -35,6 +35,10 @@ String getDateToStringForYYYYMMDDKORInNow() {
   return getDateToString(getNow(), "yyyy년 MM월 dd일");
 }
 
+String getDateToStringForYYYYMMDDHHMMKORInNow() {
+  return getDateToString(getNow(), "yyyy년 MM월 dd일 kk:mm");
+}
+
 String getDateToStringForMMDDKORInNow() {
   return getDateToString(getNow(), "MM월 dd일");
 }

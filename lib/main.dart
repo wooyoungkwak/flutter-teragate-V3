@@ -100,10 +100,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _checkLogin().then((state) {
       Log.debug("Login State : ${state}");
       if (state != null && state == "true") {
+        _setEnv();
         _initForBeacon();
         initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
         sendMessageByWork(context, secureStorage).then((workInfo) {
-          _setEnv();
           Env.INIT_STATE_WORK_INFO = workInfo;
 
           sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
