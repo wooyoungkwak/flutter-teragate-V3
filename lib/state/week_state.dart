@@ -161,7 +161,7 @@ class _WeekState extends State<Week> {
                     Expanded(
                         flex: 2,
                         child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.only(top: 8),
                             child: createContainerwhite(CustomBusinessCard(Env.WORK_COMPANY_NAME, Env.WORK_KR_NAME, Env.WORK_POSITION_NAME, Env.WORK_PHOTO_PATH, workInfo)))),
                   ],
                 ),
@@ -291,9 +291,9 @@ class _WeekState extends State<Week> {
   }
 
   void _initWeekUI() async {
-    WeekInfo list = Env.INIT_STATE_WEEK_INFO;
+    WeekInfo weekInfo = Env.INIT_STATE_WEEK_INFO;
     workTime.clear;
-    _settingUIvalue(list);
+    _settingUIvalue(weekInfo);
     // if (Env.INIT_STATE_WEEK_INFO == null) {
     //   for (int i = 0; i < week.length; i++) {
     //     workTime.add("----");
@@ -374,15 +374,5 @@ class _WeekState extends State<Week> {
         }
       }
     }
-  }
-
-  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => SyncDialog(
-        currentLocation: location,
-        warning: warning,
-      ),
-    );
   }
 }

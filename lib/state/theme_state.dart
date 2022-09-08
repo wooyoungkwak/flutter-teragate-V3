@@ -79,8 +79,8 @@ class _ThemeState extends State<ThemeMain> {
     secureStorage = SecureStorage();
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
-    _isCheckedBackground = Env.CHECKED_BACKGOURND;
-    _isCheckedTheme = Env.CHECKED_THEME;
+    _isCheckedBackground = true;
+    _isCheckedTheme = true;
     _checkSelectedBackground();
   }
 
@@ -135,7 +135,6 @@ class _ThemeState extends State<ThemeMain> {
                   padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      // 헤더
                       Expanded(
                         flex: 1,
                         child: Column(
@@ -158,7 +157,6 @@ class _ThemeState extends State<ThemeMain> {
                           ],
                         ),
                       ),
-                      // 테마 변경
                       Expanded(
                         flex: 7,
                         child: createContainer(
@@ -173,10 +171,10 @@ class _ThemeState extends State<ThemeMain> {
                                     color: Colors.black,
                                   ),
                                   Switch(
-                                      value: true, // 항상 켜짐(기능은 비활성화)
-                                      activeColor: Colors.white,
-                                      activeTrackColor: const Color(0xff26C145),
-                                      inactiveTrackColor: const Color(0xff444653),
+                                      value: false, // 항상 켜짐(기능은 비활성화)
+                                      // activeColor: Colors.white,
+                                      // activeTrackColor: const Color(0xff26C145),
+                                      // inactiveTrackColor: const Color(0xff444653),
                                       onChanged: (value) {
                                         // setState(() {
                                         //   visibleTheme = value;
@@ -184,99 +182,89 @@ class _ThemeState extends State<ThemeMain> {
                                       })
                                 ],
                               ),
-                              Expanded(
-                                child: ListView(
-                                  padding: EdgeInsets.all(0.0),
-                                  shrinkWrap: true,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        // initRowByiconText("배경색 사용", _isCheckedTheme),
-                                        Row(
-                                          children: [
-                                            Checkbox(
-                                                activeColor: Color(0xffF5F5F5),
-                                                checkColor: Colors.black,
-                                                value: _isCheckedBackground,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _isCheckedBackground = value!;
-                                                  });
-                                                  Env.CHECKED_BACKGOURND = value!;
-                                                }),
-                                            CustomText(
-                                              text: "배경색 사용",
-                                              size: 14,
-                                              weight: FontWeight.w400,
-                                              color: Colors.black,
-                                            ),
-                                          ],
-                                        ),
-                                        AnimatedOpacity(
-                                          opacity: _isCheckedBackground ? 1.0 : 0.0,
-                                          duration: const Duration(milliseconds: 500),
-                                          child: Visibility(
-                                            maintainAnimation: true,
-                                            maintainState: true,
-                                            visible: _isCheckedBackground,
-                                            child: Row(
-                                              children: List.generate(backgrounListItems.length, (index) => initContainerByImageBox(list: backgrounListItems, index: index)),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                              const Expanded(flex: 7, child: SizedBox()),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  // initRowByiconText("배경색 사용", _isCheckedTheme),
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                          activeColor: Color(0xffF5F5F5),
+                                          checkColor: Colors.black,
+                                          value: _isCheckedTheme,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _isCheckedTheme = value!;
+                                            });
+                                          }),
+                                      CustomText(
+                                        text: "배경색 사용",
+                                        size: 14,
+                                        weight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                  AnimatedOpacity(
+                                    opacity: _isCheckedTheme ? 1.0 : 0.0,
+                                    duration: const Duration(milliseconds: 500),
+                                    child: Visibility(
+                                      maintainAnimation: true,
+                                      maintainState: true,
+                                      visible: _isCheckedTheme,
+                                      child: Row(
+                                        children: List.generate(backgrounListItems.length, (index) => initContainerByImageBox(list: backgrounListItems, index: index)),
+                                      ),
                                     ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        // initRowByiconText("테마 사용", _isCheckedBackground),
-                                        Row(
-                                          children: [
-                                            Checkbox(
-                                                activeColor: Color(0xffF5F5F5),
-                                                checkColor: Colors.black,
-                                                value: _isCheckedTheme,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _isCheckedTheme = value!;
-                                                  });
-                                                  Env.CHECKED_THEME = value!;
-                                                }),
-                                            CustomText(
-                                              text: "테마 사용",
-                                              size: 14,
-                                              weight: FontWeight.w400,
-                                              color: Colors.black,
-                                            ),
-                                          ],
-                                        ),
-                                        AnimatedOpacity(
-                                          opacity: _isCheckedTheme ? 1.0 : 0.0,
-                                          duration: const Duration(milliseconds: 500),
-                                          child: Visibility(
-                                            maintainAnimation: true,
-                                            maintainState: true,
-                                            visible: _isCheckedTheme,
-                                            child: Row(
-                                              children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  // initRowByiconText("테마 사용", _isCheckedBackground),
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                          activeColor: Color(0xffF5F5F5),
+                                          checkColor: Colors.black,
+                                          value: _isCheckedBackground,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _isCheckedBackground = value!;
+                                            });
+                                          }),
+                                      CustomText(
+                                        text: "테마 사용",
+                                        size: 14,
+                                        weight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                    ],
+                                  ),
+                                  AnimatedOpacity(
+                                    opacity: _isCheckedBackground ? 1.0 : 0.0,
+                                    duration: const Duration(milliseconds: 500),
+                                    child: Visibility(
+                                      maintainAnimation: true,
+                                      maintainState: true,
+                                      visible: _isCheckedBackground,
+                                      child: Row(
+                                        children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
+                                      ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                      // 프로필
                       Expanded(
                           flex: 2,
                           child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.only(top: 8),
                               child: createContainerwhite(CustomBusinessCard(Env.WORK_COMPANY_NAME, Env.WORK_KR_NAME, Env.WORK_POSITION_NAME, Env.WORK_PHOTO_PATH, workInfo)))),
                     ],
                   ),
@@ -354,22 +342,10 @@ class _ThemeState extends State<ThemeMain> {
       if (workInfo!.success) {
         setState(() {});
         dialog.hide();
-        //_showSyncDialog(context, location: Env.CURRENT_PLACE);
       } else {
         dialog.hide();
-        // _showSyncDialog(context, warning: false);
       }
     });
-  }
-
-  void _showSyncDialog(BuildContext context, {String? location, String? time, bool warning = true}) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => SyncDialog(
-        currentLocation: location,
-        warning: warning,
-      ),
-    );
   }
 
   void _setBeaconUI(BeaconInfoData beaconInfoData) {
@@ -399,17 +375,13 @@ class _ThemeState extends State<ThemeMain> {
     for (var el in backgrounListItems) {
       if (Env.BACKGROUND_PATH?.replaceAll(".png", "") == el["image"]) {
         el["value"] = true;
-        setState(() {
-          _isCheckedBackground = true;
-        });
+        _isCheckedBackground = false;
       }
     }
     for (var el in themeListItmes) {
       if (Env.BACKGROUND_PATH?.replaceAll(".png", "") == el["image"]) {
         el["value"] = true;
-        setState(() {
-          _isCheckedTheme = true;
-        });
+        _isCheckedTheme = false;
       }
     }
   }

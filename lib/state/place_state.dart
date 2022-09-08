@@ -141,7 +141,7 @@ class _PlaceState extends State<Place> {
                     Expanded(
                         flex: 2,
                         child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.only(top: 8),
                             child: createContainerwhite(CustomBusinessCard(Env.WORK_COMPANY_NAME, Env.WORK_KR_NAME, Env.WORK_POSITION_NAME, Env.WORK_PHOTO_PATH, workInfo)))),
                   ],
                 ),
@@ -246,10 +246,8 @@ class _PlaceState extends State<Place> {
         initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
 
         dialog.hide();
-        // _showSyncDialog(context);
       } else {
         dialog.hide();
-        // _showSyncDialog(context, warning: false);
       }
     });
   }
@@ -269,15 +267,5 @@ class _PlaceState extends State<Place> {
     var deduplicationlist = list.toSet();
     list = deduplicationlist.toList();
     return list;
-  }
-
-  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => SyncDialog(
-        currentLocation: location,
-        warning: warning,
-      ),
-    );
   }
 }

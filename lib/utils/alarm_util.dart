@@ -25,107 +25,6 @@ void showSnackBar(BuildContext context, String text) {
   ));
 }
 
-void _showDialog(BuildContext context, String title, text, var actions) {
-  TextStyle textStyle = const TextStyle(fontWeight: FontWeight.w700, fontFamily: 'suit', color: Colors.white, fontSize: 20);
-
-  contentBox(context, title, text, actions) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            color: const Color(0xff27282E),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(8),
-                color: const Color(0xff444653),
-                child: const ImageIcon(
-                  AssetImage("assets/logout_black_24dp.png"),
-                  color: Colors.white,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: Text(
-                  title,
-                  style: textStyle.copyWith(fontSize: 20),
-                ),
-              ),
-              Text(
-                text,
-                style: textStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w400, color: const Color(0xff9093A5)),
-                textAlign: TextAlign.center,
-              ),
-              Container(
-                  margin: const EdgeInsets.only(bottom: 15, top: 20),
-                  alignment: Alignment.bottomRight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SizedBox(
-                          height: 40,
-                          width: 100,
-                          child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
-                              ))),
-                      SizedBox(
-                          height: 40,
-                          width: 100,
-                          child: ElevatedButton(
-                              onPressed: () {
-                                actions();
-                              },
-                              child: Text(
-                                "OK",
-                                style: textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
-                              ))),
-                    ],
-                  )),
-            ],
-          ),
-        ), // bottom part
-      ],
-    );
-  }
-
-  showDialog(
-      context: context,
-      barrierDismissible: false, // 바깥 영역 터치시 닫을지 여부
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: const Color(0xff27282E),
-          child: contentBox(context, title, text, actions),
-        );
-      });
-}
-
-void showConfirmDialog(BuildContext context, String title, String text) async {
-  _showDialog(
-    context,
-    title,
-    text,
-    <Widget>[Text(text)],
-  );
-}
-
-void showOkCancelDialog(BuildContext context, String title, String text, Function okCallback) {
-  _showDialog(context, title, text, okCallback);
-}
-
 //노티알람 종류 선택, iOS같은 경우에는 사운드랑 진동이 하나로 묶여있다...
 Future<void> selectNotificationType(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
   late SecureStorage strage = SecureStorage();
@@ -149,8 +48,7 @@ Future<void> selectNotificationType(FlutterLocalNotificationsPlugin flutterLocal
   }
 }
 
-Future<void> _showNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle, AndroidNotificationDetails androidNotificationDetails,
-    IOSNotificationDetails iOSNotificationDetails) async {
+Future<void> _showNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle, AndroidNotificationDetails androidNotificationDetails, IOSNotificationDetails iOSNotificationDetails) async {
   int id = 0;
   var notificationDetails = NotificationDetails(android: androidNotificationDetails, iOS: iOSNotificationDetails);
   flutterLocalNotificationsPlugin.show(id, tag, subtitle, notificationDetails, payload: 'item x');
@@ -158,32 +56,29 @@ Future<void> _showNotification(FlutterLocalNotificationsPlugin flutterLocalNotif
 
 // 진동, 소리 둘다 켜져있을때
 Future<void> showNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME,
-      playSound: true, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME, playSound: true, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: true);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
 
 //진동만 켜져있을때
 Future<void> _showNotificationWithNoSound(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME,
-      playSound: false, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME, playSound: false, enableVibration: true, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: false);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
 
 //소리만 켜져있을때
 Future<void> showNotificationWithNoVibration(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME,
-      playSound: true, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID, Env.NOTIFICATION_CHANNEL_NAME, playSound: true, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: true);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
 
 //진동, 소리 모두 꺼져있을때
 Future<void> showNotificationWithNoOptions(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String tag, String subtitle) async {
-  const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID_NO_ALARM, Env.NOTIFICATION_CHANNEL_NAME_NO_ALARM,
-      playSound: false, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
+  const AndroidNotificationDetails androidNotificationDetails =
+      AndroidNotificationDetails(Env.NOTIFICATION_CHANNEL_ID_NO_ALARM, Env.NOTIFICATION_CHANNEL_NAME_NO_ALARM, playSound: false, enableVibration: false, enableLights: false, ongoing: true, importance: Importance.high, priority: Priority.high);
   const IOSNotificationDetails iOSNotificationDetails = IOSNotificationDetails(presentSound: false);
   _showNotification(flutterLocalNotificationsPlugin, tag, subtitle, androidNotificationDetails, iOSNotificationDetails);
 }
@@ -201,9 +96,21 @@ void showAlertDialog(BuildContext context) {
           child: const Text('취소'),
         ),
         TextButton(
-          onPressed: () => {
-            Navigator.pop(context, 'OK'),
-            logout(context),
+          onPressed: () {
+            Navigator.pop(context, 'OK');
+            SecureStorage? secureStorage;
+            secureStorage = SecureStorage();
+
+            secureStorage.read(Env.KEY_ID_CHECK).then((value) {
+              if (value == null && value == "false") {
+                secureStorage!.write(Env.LOGIN_ID, "");
+              }
+            });
+            secureStorage.write(Env.LOGIN_PW, "");
+            secureStorage.write(Env.LOGIN_STATE, "false");
+            secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
+            secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
+            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
           },
           child: const Text('확인'),
         ),
@@ -212,18 +119,14 @@ void showAlertDialog(BuildContext context) {
   );
 }
 
-Future<void> logout(BuildContext context) async {
-  SecureStorage? secureStorage;
-  secureStorage = SecureStorage();
-
-  secureStorage.read(Env.KEY_ID_CHECK).then((value) {
-    if (value == null && value == "false") {
-      secureStorage!.write(Env.LOGIN_ID, "");
-    }
-  });
-  secureStorage.write(Env.LOGIN_PW, "");
-  secureStorage.write(Env.LOGIN_STATE, "false");
-  secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
-  secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
-  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+void showSyncDialog(BuildContext context, {required Widget widget}) {
+  showDialog<String>(
+    context: context,
+    builder: (BuildContext context) {
+      Future.delayed(Duration(seconds: 2), (){
+        Navigator.pop(context);
+      });
+      return widget;
+    } 
+  );
 }

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
-import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 class CustomBusinessCard extends StatelessWidget {
@@ -70,7 +67,7 @@ class CustomBusinessCard extends StatelessWidget {
           color: const Color(0xff3C5FEB),
           weight: FontWeight.w500,
         ),
-        CustomText(text: workInfo!.strAttendLeaveTime!, weight: FontWeight.w400, size: 10, color: Colors.black),
+        CustomText(text: workInfo == null ? "" : ( workInfo!.strAttendLeaveTime ?? "") , weight: FontWeight.w400, size: 10, color: Colors.black),
       ])
     ]);
   }

@@ -285,10 +285,6 @@ Future<WorkInfo?> sendMessageByWork(BuildContext? context, SecureStorage secureS
   }
 
   WorkInfo workInfo = await _processWorkByToday(secureStorage, acccessToken, refreshToken, 0);
-  if (workInfo.message == Env.MSG_FAIL_REGISTER) {
-    // ignore: use_build_context_synchronously
-    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
-  }
   return workInfo;
 }
 
@@ -306,10 +302,6 @@ Future<WeekInfo?> sendMessageByWeekWork(BuildContext? context, SecureStorage sec
   }
 
   WeekInfo weekInfo = await _processWorkByWeek(secureStorage, acccessToken, refreshToken, 0);
-  if (weekInfo.message == Env.MSG_FAIL_REGISTER) {
-    // ignore: use_build_context_synchronously
-    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
-  }
   return weekInfo;
 }
 
@@ -328,10 +320,6 @@ Future<ConfigInfo?> sendMessageByBeacon(BuildContext? context, SecureStorage sec
   }
 
   ConfigInfo configInfo = await _processBeaconInfos(secureStorage, acccessToken, refreshToken, userId!, 0);
-  if (configInfo.message == Env.MSG_FAIL_REGISTER) {
-    // ignore: use_build_context_synchronously
-    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_BEACON) : "";
-  }
   return configInfo;
 }
 
@@ -350,10 +338,5 @@ Future<WorkInfo?> sendMessageTracking(BuildContext? context, SecureStorage secur
   }
 
   WorkInfo workInfo = await _processTracking(secureStorage, acccessToken, refreshToken, userId!, Env.DEVICE_IP, uuid, place, 0);
-
-  if (workInfo.message == Env.MSG_FAIL_REGISTER) {
-    // ignore: use_build_context_synchronously
-    context != null ? showConfirmDialog(context, "알림", Env.MSG_FAIL_REGISTER) : "";
-  }
   return workInfo;
 }

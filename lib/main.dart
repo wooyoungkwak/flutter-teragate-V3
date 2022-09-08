@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:move_to_background/move_to_background.dart';
@@ -112,6 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         });
       } else {
+        if (Platform.isIOS) {
+          _initForBeacon();
+          Future.delayed(const Duration(seconds: 5), () {
+            stopBeacon();
+          });
+        }
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     });

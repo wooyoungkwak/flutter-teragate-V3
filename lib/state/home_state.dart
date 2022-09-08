@@ -10,6 +10,7 @@ import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/models/result_model.dart';
+import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 import 'package:teragate_v3/services/server_service.dart';
@@ -112,7 +113,6 @@ class _HomeState extends State<Home> {
                       child: InkWell(
                         onTap: () {
                           showAlertDialog(context);
-                          // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -356,28 +356,28 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void showAlertDialog(BuildContext context) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('알림'),
-        content: const Text('로그인 페이지로 이동하시겠습니까?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => {
-              Navigator.pop(context, 'OK'),
-              _logout(context),
-            },
-            child: const Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
+  // void showAlertDialog(BuildContext context) {
+  //   showDialog<String>(
+  //     context: context,
+  //     builder: (BuildContext context) => AlertDialog(
+  //       title: const Text('알림'),
+  //       content: const Text('로그인 페이지로 이동하시겠습니까?'),
+  //       actions: <Widget>[
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, 'Cancel'),
+  //           child: const Text('취소'),
+  //         ),
+  //         TextButton(
+  //           onPressed: () => {
+  //             Navigator.pop(context, 'OK'),
+  //             _logout(context),
+  //           },
+  //           child: const Text('확인'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _initUI() {
     Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_WORK_INFO);
@@ -461,21 +461,19 @@ class _HomeState extends State<Home> {
           getOutTime = workInfo.leavetime ?? "-";
         });
         dialog.hide();
-        _showSyncDialog(context, location: Env.CURRENT_PLACE);
+        showSyncDialog(context,
+            widget: SyncDialog(
+              currentLocation: Env.CURRENT_PLACE,
+              warning: true,
+            ));
       } else {
         dialog.hide();
-        _showSyncDialog(context, warning: false);
+        showSyncDialog(context,
+            widget: SyncDialog(
+              currentLocation: null,
+              warning: false,
+            ));
       }
     });
-  }
-
-  void _showSyncDialog(BuildContext context, {String? location, bool warning = true}) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => SyncDialog(
-        currentLocation: location,
-        warning: warning,
-      ),
-    );
   }
 }
