@@ -88,6 +88,8 @@ class Env {
   static String OLD_PLACE = "";
   static int CHANGE_COUNT = 1;
   static DateTime INNER_TIME = DateTime.now();
+  static bool CHECKED_BACKGOURND = true;
+  static bool CHECKED_THEME = true;
 
   static Map<String, String> UUIDS = {};
   static dynamic INIT_STATE_WORK_INFO;
