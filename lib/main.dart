@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/network_service.dart';
-import 'package:teragate_v3/services/permission_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/home_state.dart';
 import 'package:teragate_v3/state/login_state.dart';

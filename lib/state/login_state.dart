@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/services/background_service.dart';
@@ -10,9 +7,7 @@ import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/network_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
-import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/services/beacon_service.dart';
-import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/services/permission_service.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 
@@ -47,7 +42,7 @@ class _LoginState extends State<Login> {
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
-
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     callPermissions();
     initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
     _checkLogin();

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
@@ -71,6 +72,7 @@ class _ThemeState extends State<ThemeMain> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     workInfo = Env.INIT_STATE_WORK_INFO;
     secureStorage = SecureStorage();
     Env.EVENT_FUNCTION = _setUI;

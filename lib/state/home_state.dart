@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:teragate_v3/models/storage_model.dart';
-import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
@@ -55,7 +54,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
-
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     profilePicture = Env.WORK_PHOTO_PATH ?? "assets/workon_logo.png";
 
     Env.EVENT_FUNCTION = _setUI;
@@ -391,19 +390,6 @@ class _HomeState extends State<Home> {
         currentLocation = workInfo.placeWorkName ?? "-";
       });
     }
-  }
-
-  Future<void> _logout(BuildContext context) async {
-    secureStorage.read(Env.KEY_ID_CHECK).then((value) {
-      if (value == null && value == "false") {
-        secureStorage.write(Env.LOGIN_ID, "");
-      }
-    });
-    secureStorage.write(Env.LOGIN_PW, "");
-    secureStorage.write(Env.LOGIN_STATE, "false");
-    secureStorage.write(Env.KEY_ACCESS_TOKEN, "");
-    secureStorage.write(Env.KEY_REFRESH_TOKEN, "");
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
   Future<void> _syncghoniztionHomeUI(WorkInfo? workInfo) async {

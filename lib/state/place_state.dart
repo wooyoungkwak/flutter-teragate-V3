@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
@@ -8,14 +9,10 @@ import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
-import 'package:teragate_v3/state/theme_state.dart';
-import 'dart:convert';
-import 'package:teragate_v3/services/background_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
 import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
-import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 class Place extends StatefulWidget {
@@ -39,7 +36,7 @@ class _PlaceState extends State<Place> {
   void initState() {
     secureStorage = SecureStorage();
     _initUUIDList();
-
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     workInfo = Env.INIT_STATE_WORK_INFO;
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
@@ -113,7 +110,7 @@ class _PlaceState extends State<Place> {
                         flex: 7,
                         child: createContainer(Column(
                           children: [
-                            Expanded(flex: 5, child: placeList == null ? SizedBox() : initGridView(placeList)),
+                            Expanded(flex: 5, child: placeList == null ? const SizedBox() : initGridView(placeList)),
                             Expanded(
                                 flex: 1,
                                 child: Column(

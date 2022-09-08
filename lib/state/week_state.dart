@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
@@ -44,6 +45,7 @@ class _WeekState extends State<Week> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     secureStorage = SecureStorage();
 
     workInfo = Env.INIT_STATE_WORK_INFO;
@@ -189,7 +191,7 @@ class _WeekState extends State<Week> {
 
   Container initContainerByweektext(Color color, String week, String workTime, bool today) {
     if (today == true) {
-      color = Color(0xff25A45F);
+      color = const Color(0xff25A45F);
     }
     return Container(
         margin: const EdgeInsets.only(left: 15),
@@ -235,7 +237,7 @@ class _WeekState extends State<Week> {
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          initContainerByweektext(weekinTime[i] == "" ? Color(0xff77787B) : Color(0xff3C5FEB), week[i], workTime[i], today[i]),
+          initContainerByweektext(weekinTime[i] == "" ? const Color(0xff77787B) : const Color(0xff3C5FEB), week[i], workTime[i], today[i]),
           SizedBox(
             child: Row(
               children: [
@@ -306,40 +308,42 @@ class _WeekState extends State<Week> {
     workTime.clear;
     weekoutTime.clear;
     weekoutTime.clear;
-    if (weekInfo == null || weekInfo.success == false) {
-      for (int i = 0; i < week.length; i++) {
-        workTime.add("----");
-        weekinTime.add("----");
-        weekoutTime.add("----");
-        workingtime = 0;
-      }
-    } else {
-      worklist = weekInfo.workInfos;
-      int count = 0;
-      for (int i = 0; i < worklist.length; i++) {
-        Map<String, dynamic> Workstate = getWorkState(worklist[i]);
-        workTime.add((worklist[i].strAttendLeaveTime!));
-        weekinTime.add(worklist[i].attendtime ?? "");
-        weekoutTime.add(worklist[i].leavetime ?? "");
-        worklist[i].leavetime;
-        if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-          count++;
+    setState(() {
+      if (weekInfo == null || weekInfo.success == false) {
+        for (int i = 0; i < week.length; i++) {
+          workTime.add("----");
+          weekinTime.add("----");
+          weekoutTime.add("----");
+          workingtime = 0;
         }
-        if (Workstate["isAttendTimeOut"]) {
-          workinOk[i] = false;
+      } else {
+        worklist = weekInfo.workInfos;
+        int count = 0;
+        for (int i = 0; i < worklist.length; i++) {
+          Map<String, dynamic> Workstate = getWorkState(worklist[i]);
+          workTime.add((worklist[i].strAttendLeaveTime!));
+          weekinTime.add(worklist[i].attendtime ?? "");
+          weekoutTime.add(worklist[i].leavetime ?? "");
+          worklist[i].leavetime;
+          if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+            count++;
+          }
+          if (Workstate["isAttendTimeOut"]) {
+            workinOk[i] = false;
+          }
         }
-      }
-      workingtime = (7 - count) * 8;
+        workingtime = (7 - count) * 8;
 
-      for (int i = 0; i < week.length; i++) {
-        if (weekinTime[i] == "" && weekoutTime[i] == "") {
-          today[i] = false;
-        } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-          today[i] = true;
-        } else {
-          today[i] = false;
+        for (int i = 0; i < week.length; i++) {
+          if (weekinTime[i] == "" && weekoutTime[i] == "") {
+            today[i] = false;
+          } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+            today[i] = true;
+          } else {
+            today[i] = false;
+          }
         }
       }
-    }
+    });
   }
 }

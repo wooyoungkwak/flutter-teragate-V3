@@ -3,10 +3,8 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:beacons_plugin/beacons_plugin.dart';
 import 'package:flutter/material.dart';
-
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/storage_model.dart';
-import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/models/beacon_model.dart';
 
