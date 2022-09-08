@@ -50,12 +50,11 @@ Future<WorkInfo> _getWokrInfoByToday(String accessToken) async {
   }
 }
 
-// 일주일간 정보 
+// 일주일간 정보
 Future<WeekInfo> _getWokrInfoByWeek(String accessToken) async {
-  
   int diff = 0;
 
-   switch (getWeek()) {
+  switch (getWeek()) {
     case 'Mon':
       diff = 1;
       break;
@@ -83,7 +82,7 @@ Future<WeekInfo> _getWokrInfoByWeek(String accessToken) async {
   DateTime substracted = now.subtract(Duration(days: diff));
   DateTime added = substracted.add(const Duration(days: 6));
 
-  String strStDt= getDateToStringForYYMMDD(substracted);
+  String strStDt = getDateToStringForYYMMDD(substracted);
   String strEndDt = getDateToStringForYYMMDD(added);
 
   var data = {"strStDt": strStDt, "strEndDt": strEndDt};
@@ -91,7 +90,7 @@ Future<WeekInfo> _getWokrInfoByWeek(String accessToken) async {
   final response = await http.get(url, headers: {"Content-Type": "application/json", "Authorization": accessToken});
 
   if (response.statusCode == 200) {
-      return WeekInfo.fromJson(json.decode(response.body));
+    return WeekInfo.fromJson(json.decode(response.body));
   } else {
     throw Exception(response.body);
   }
@@ -140,13 +139,11 @@ Future<TokenInfo> _getTokenByRefreshToken(String refreshToken) async {
   }
 }
 
-// 업무 동기화 처리 
+// 업무 동기화 처리
 Future<WorkInfo> _processWorkByToday(SecureStorage secureStorage, String accessToken, String refreshToken, int repeat) async {
-
-  WorkInfo workInfo = await _getWokrInfoByToday(accessToken);
-  TokenInfo tokenInfo;
-
   try {
+    WorkInfo workInfo = await _getWokrInfoByToday(accessToken);
+    TokenInfo tokenInfo;
     if (workInfo.success) {
       tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
     } else {
@@ -176,11 +173,9 @@ Future<WorkInfo> _processWorkByToday(SecureStorage secureStorage, String accessT
 }
 
 Future<WeekInfo> _processWorkByWeek(SecureStorage secureStorage, String accessToken, String refreshToken, int repeat) async {
-
-  WeekInfo weekInfo = await _getWokrInfoByWeek(accessToken);
-  TokenInfo tokenInfo;
-
   try {
+    WeekInfo weekInfo = await _getWokrInfoByWeek(accessToken);
+    TokenInfo tokenInfo;
     if (weekInfo.success) {
       tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
     } else {
@@ -197,7 +192,7 @@ Future<WeekInfo> _processWorkByWeek(SecureStorage secureStorage, String accessTo
           if (repeat < 2) {
             return await _processWorkByWeek(secureStorage, tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), repeat);
           } else {
-            return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos:[]);
+            return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos: []);
           }
         }
       }
@@ -205,16 +200,15 @@ Future<WeekInfo> _processWorkByWeek(SecureStorage secureStorage, String accessTo
     return weekInfo;
   } catch (err) {
     Log.log(" processTracking Exception : ${err.toString()}");
-    return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos:[]);
+    return WeekInfo(false, Env.MSG_FAIL_REGISTER, workInfos: []);
   }
 }
 
 // 비콘 정보 동기화 처리
 Future<ConfigInfo> _processBeaconInfos(SecureStorage secureStorage, String accessToken, String refreshToken, String userId, int repeat) async {
-  ConfigInfo configInfo = await _getBeaconInfos(accessToken, userId);
-  TokenInfo tokenInfo;
-
   try {
+    ConfigInfo configInfo = await _getBeaconInfos(accessToken, userId);
+    TokenInfo tokenInfo;
     if (configInfo.success!) {
       tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
     } else {
@@ -245,10 +239,9 @@ Future<ConfigInfo> _processBeaconInfos(SecureStorage secureStorage, String acces
 
 // 실시간 추적 처리
 Future<WorkInfo> _processTracking(SecureStorage secureStorage, String accessToken, String refreshToken, String userId, String ip, String uuid, String place, int repeat) async {
-  WorkInfo workInfo = await _tracking(accessToken, userId, ip, uuid, place);
-  TokenInfo tokenInfo;
-
   try {
+    WorkInfo workInfo = await _tracking(accessToken, userId, ip, uuid, place);
+    TokenInfo tokenInfo;
     if (workInfo.success) {
       tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
       workInfo.message = Env.MSG_SUCCESS;
@@ -305,11 +298,11 @@ Future<WeekInfo?> sendMessageByWeekWork(BuildContext? context, SecureStorage sec
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
 
   if (acccessToken == null) {
-    return WeekInfo(false, Env.MSG_NOT_TOKEN,  workInfos: []);
+    return WeekInfo(false, Env.MSG_NOT_TOKEN, workInfos: []);
   }
 
   if (refreshToken == null) {
-    return WeekInfo(false, Env.MSG_NOT_TOKEN,  workInfos: []);
+    return WeekInfo(false, Env.MSG_NOT_TOKEN, workInfos: []);
   }
 
   WeekInfo weekInfo = await _processWorkByWeek(secureStorage, acccessToken, refreshToken, 0);
