@@ -67,7 +67,7 @@ class CustomBusinessCard extends StatelessWidget {
           color: const Color(0xff3C5FEB),
           weight: FontWeight.w500,
         ),
-        CustomText(text: workInfo == null ? "" : ( workInfo!.strAttendLeaveTime ?? "") , weight: FontWeight.w400, size: 10, color: Colors.black),
+        CustomText(text: workInfo == null ? "" : (workInfo!.strAttendLeaveTime ?? ""), weight: FontWeight.w400, size: 10, color: Colors.black),
       ])
     ]);
   }
@@ -78,9 +78,9 @@ class CustomBusinessCard extends StatelessWidget {
   }
 
   Image _errorImage() {
-    return Image.network(
-      "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg",
-      fit: BoxFit.cover,
+    return Image.asset(
+      "assets/workon_logo.png",
+      fit: BoxFit.scaleDown,
       width: 48,
       height: 48,
     );

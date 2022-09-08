@@ -56,7 +56,7 @@ class _HomeState extends State<Home> {
     super.initState();
     secureStorage = SecureStorage();
 
-    profilePicture = Env.WORK_PHOTO_PATH ?? "";
+    profilePicture = Env.WORK_PHOTO_PATH ?? "assets/workon_logo.png";
 
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = setBeaconUI;
@@ -65,8 +65,6 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
-    // beaconStreamSubscription.cancel();
-    // eventStreamSubscription.cancel();
     super.dispose();
   }
 
@@ -77,7 +75,6 @@ class _HomeState extends State<Home> {
 
     return WillPopScope(
       onWillPop: () {
-        // Navigator.pop(context);
         MoveToBackground.moveTaskToBack();
         return Future(() => false);
       },
@@ -258,15 +255,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // WillPopScope _createWillPopScope(Widget widget) {
-  //   return WillPopScope(
-  //       onWillPop: () {
-  //         MoveToBackground.moveTaskToBack();
-  //         return Future(() => false);
-  //       },
-  //       child: widget);
-  // }
-
   Card _createWorkCard({
     Color color = Colors.white,
     String? title,
@@ -309,9 +297,9 @@ class _HomeState extends State<Home> {
 
   Image _errorImage() {
     Log.debug(" errorImage ... ");
-    return Image.network(
-      "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg",
-      fit: BoxFit.cover,
+    return Image.asset(
+      "assets/workon_logo.png",
+      fit: BoxFit.scaleDown,
       width: 48,
       height: 48,
     );
@@ -356,29 +344,6 @@ class _HomeState extends State<Home> {
     });
   }
 
-  // void showAlertDialog(BuildContext context) {
-  //   showDialog<String>(
-  //     context: context,
-  //     builder: (BuildContext context) => AlertDialog(
-  //       title: const Text('알림'),
-  //       content: const Text('로그인 페이지로 이동하시겠습니까?'),
-  //       actions: <Widget>[
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context, 'Cancel'),
-  //           child: const Text('취소'),
-  //         ),
-  //         TextButton(
-  //           onPressed: () => {
-  //             Navigator.pop(context, 'OK'),
-  //             _logout(context),
-  //           },
-  //           child: const Text('확인'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   void _initUI() {
     Map<String, dynamic> setInfoMap = getWorkState(Env.INIT_STATE_WORK_INFO);
 
@@ -390,7 +355,7 @@ class _HomeState extends State<Home> {
       currentTimeHHMM = getDateToStringForHHMMInNow();
       // 프로필
       company = Env.WORK_COMPANY_NAME ?? "-";
-      profilePicture = Env.WORK_PHOTO_PATH ?? "https://st4.depositphotos.com/1012074/20946/v/450/depositphotos_209469984-stock-illustration-flat-isolated-vector-illustration-icon.jpg";
+      profilePicture = Env.WORK_PHOTO_PATH ?? "assets/workon_logo.png";
       profileName = Env.WORK_KR_NAME ?? "---";
       profilePosition = Env.WORK_POSITION_NAME ?? "-";
       // 상태

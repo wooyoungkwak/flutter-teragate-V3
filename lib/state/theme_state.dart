@@ -10,6 +10,7 @@ import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
+import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
@@ -321,8 +322,16 @@ class _ThemeState extends State<ThemeMain> {
       if (workInfo!.success) {
         setState(() {});
         dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: true,
+            ));
       } else {
         dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: false,
+            ));
       }
     });
   }
@@ -354,13 +363,13 @@ class _ThemeState extends State<ThemeMain> {
     for (var el in backgrounListItems) {
       if (Env.BACKGROUND_PATH?.replaceAll(".png", "") == el["image"]) {
         el["value"] = true;
-        _isCheckedBackground = false;
+        _isCheckedBackground = true;
       }
     }
     for (var el in themeListItmes) {
       if (Env.BACKGROUND_PATH?.replaceAll(".png", "") == el["image"]) {
         el["value"] = true;
-        _isCheckedTheme = false;
+        _isCheckedTheme = true;
       }
     }
   }

@@ -228,7 +228,7 @@ class _PlaceState extends State<Place> {
     dialog.show(message: "로딩중...");
     stopBeacon();
 
-    sendMessageByBeacon(context, secureStorage).then((configInfo) {
+    sendMessageByBeacon(context, secureStorage).then((configInfo) async {
       if (configInfo!.success!) {
         List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
 
@@ -246,8 +246,16 @@ class _PlaceState extends State<Place> {
         initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
 
         dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: true,
+            ));
       } else {
         dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: false,
+            ));
       }
     });
   }

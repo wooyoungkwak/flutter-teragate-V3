@@ -1,19 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:date_format/date_format.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/storage_model.dart';
-import 'package:teragate_v3/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:teragate_v3/services/server_service.dart';
-import 'package:teragate_v3/state/place_state.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_businesscard.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
-import 'package:get/get.dart';
 import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
@@ -63,8 +58,7 @@ class _WeekState extends State<Week> {
   Widget build(BuildContext context) {
     dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    // final controller = Get.put(Controller());
-    // controller.increment();
+
     return _createWillPopScope(Container(
       padding: EdgeInsets.only(top: statusBarHeight),
       decoration: const BoxDecoration(color: Color(0xffF5F5F5)),
@@ -78,7 +72,6 @@ class _WeekState extends State<Week> {
                     height: 40.0,
                     width: 40.0,
                     margin: const EdgeInsets.only(top: 20.0, right: 20.0),
-                    // padding: const EdgeInsets.all(1.0),
                     decoration: const BoxDecoration(),
                     child: Material(
                       color: Colors.white,
@@ -88,7 +81,6 @@ class _WeekState extends State<Week> {
                       child: InkWell(
                         onTap: () {
                           showAlertDialog(context);
-                          // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -195,7 +187,6 @@ class _WeekState extends State<Week> {
         });
   }
 
-  // 아이콘 ,요일, 출퇴근 시간 text
   Container initContainerByweektext(Color color, String week, String workTime, bool today) {
     if (today == true) {
       color = Color(0xff25A45F);
@@ -205,9 +196,7 @@ class _WeekState extends State<Week> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            //나중에 상태에 따른 아이콘 색 변경 추가
             CustomText(text: "·", size: 40, color: color),
-            // Icon(Icons.keyboard_double_arrow_right_rounded),
             const SizedBox(width: 5),
             Container(
                 margin: const EdgeInsets.all(2),
@@ -222,14 +211,12 @@ class _WeekState extends State<Week> {
 
   Container initOpacityByworktime(String workTime, bool workOk, bool workinoutCheck) {
     Color workColor;
-    //workOk 정상적인 출 퇴근 true : false 지각,조기퇴근 등
-    //workinoutCheck 들어온 값이 출근인지 퇴근인지 [true:출근 false:퇴근 색이 다름]
+
     if (workinoutCheck) {
       workColor = const Color(0xff25A45F);
     } else {
       workColor = const Color(0xffFF3823);
     }
-
     // 이슈에 관한 색
     // if (workOk == false) {
     //   workColor = const Color(0xff7C8298);
@@ -249,7 +236,6 @@ class _WeekState extends State<Week> {
         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           initContainerByweektext(weekinTime[i] == "" ? Color(0xff77787B) : Color(0xff3C5FEB), week[i], workTime[i], today[i]),
-          //initContainerByweektext(Color(0xff3C5FEB), week[i], workTime[i], today[i]),
           SizedBox(
             child: Row(
               children: [
@@ -275,55 +261,34 @@ class _WeekState extends State<Week> {
   }
 
   Future<void> _synchonizationWeekUI(WeekInfo? weekInfo) async {
-    Log.log("동기화 상태 옵니다");
     dialog.show(message: "로딩중...");
-    workTime.clear;
-    _settingUIvalue(weekInfo);
-    await Future.delayed(Duration(seconds: 1));
-    dialog.hide();
+
+    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+      _settingUIvalue(weekInfo);
+      Log.log("weekInfo!.success:::: ${weekInfo!.success}");
+      if (weekInfo.success) {
+        dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: true,
+            ));
+      } else {
+        dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: false,
+            ));
+      }
+    });
   }
 
   Future<void> _autosynchonizationWeekUI(WeekInfo? weekInfo) async {
-    Log.log("자동 동기화 상태 옵니다");
-
-    workTime.clear;
     _settingUIvalue(weekInfo);
   }
 
   void _initWeekUI() async {
     WeekInfo weekInfo = Env.INIT_STATE_WEEK_INFO;
-    workTime.clear;
     _settingUIvalue(weekInfo);
-    // if (Env.INIT_STATE_WEEK_INFO == null) {
-    //   for (int i = 0; i < week.length; i++) {
-    //     workTime.add("----");
-    //     workingtime = 0;
-    //   }
-    // } else {
-    //   int count = 0;
-    //   for (int i = 0; i < worklist.length; i++) {
-    //     Log.debug(worklist[i].toString());
-
-    //     workTime.add((worklist[i].strAttendLeaveTime!));
-    //     weekinTime.add(worklist[i].attendtime ?? "");
-    //     weekoutTime.add(worklist[i].leavetime ?? "");
-
-    //     if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-    //       count++;
-    //     }
-    //   }
-    //   workingtime = (7 - count) * 8;
-    // }
-
-    // for (int i = 0; i < week.length; i++) {
-    //   if (weekinTime[i] == "" && weekoutTime[i] == "") {
-    //     today[i] = false;
-    //   } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-    //     today[i] = true;
-    //   } else {
-    //     today[i] = false;
-    //   }
-    // }
   }
 
   void _setUI(WorkInfo workInfo) {
@@ -338,9 +303,14 @@ class _WeekState extends State<Week> {
   }
 
   void _settingUIvalue(WeekInfo? weekInfo) {
-    if (weekInfo == null) {
+    workTime.clear;
+    weekoutTime.clear;
+    weekoutTime.clear;
+    if (weekInfo == null || weekInfo.success == false) {
       for (int i = 0; i < week.length; i++) {
         workTime.add("----");
+        weekinTime.add("----");
+        weekoutTime.add("----");
         workingtime = 0;
       }
     } else {
@@ -348,10 +318,7 @@ class _WeekState extends State<Week> {
       int count = 0;
       for (int i = 0; i < worklist.length; i++) {
         Map<String, dynamic> Workstate = getWorkState(worklist[i]);
-        Log.debug(worklist[i].toString());
-
         workTime.add((worklist[i].strAttendLeaveTime!));
-
         weekinTime.add(worklist[i].attendtime ?? "");
         weekoutTime.add(worklist[i].leavetime ?? "");
         worklist[i].leavetime;
