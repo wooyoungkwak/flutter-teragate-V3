@@ -100,6 +100,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorag
       Future.delayed(const Duration(seconds: 2), () {
         // 일주일간 출근 퇴근 정보 요청
         sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+          Env.INIT_STATE_WEEK_INFO = weekInfo;
           Env.EVENT_WEEK_FUNCTION == null ? "" : Env.EVENT_WEEK_FUNCTION!(weekInfo);
         });
       });

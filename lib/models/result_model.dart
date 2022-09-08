@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:teragate_v3/config/env.dart';
-import 'package:teragate_v3/utils/log_util.dart';
 
 LoginInfo resultInfoFromJson(String str) => LoginInfo.fromJson(json.decode(str));
 
@@ -60,21 +59,22 @@ class WorkInfo {
   String? placeWorkName; //
   String? solardate; // 일자
 
-  WorkInfo(this.userId, this.krName, this.isweekend, this.isholiday, this.attendtime, this.leavetime, this.attIpIn, this.attIpOut, this.targetAttendTime, this.targetLeaveTime, this.strAttendLeaveTime, this.noAttendCheckYn, this.placeWork, this.placeWorkName, this.solardate,
+  WorkInfo(this.userId, this.krName, this.isweekend, this.isholiday, this.attendtime, this.leavetime, this.attIpIn, this.attIpOut, this.targetAttendTime, this.targetLeaveTime, this.strAttendLeaveTime,
+      this.noAttendCheckYn, this.placeWork, this.placeWorkName, this.solardate,
       {required this.success, required this.message});
 
   static WorkInfo fromJsonByWeek(bool success, String message, Map<String, dynamic> json) {
-    return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
-        json["placeWorkName"], json["solardate"],
+    return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"],
+        json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"], json["placeWorkName"], json["solardate"],
         success: success, message: message);
   }
 
   static WorkInfo fromJsonByTracking(Map<String, dynamic> json) {
     if (json == null) {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
-    } 
+    }
 
-    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: json["success"], message: (json["message"] ?? "") );
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: json["success"], message: (json["message"] ?? ""));
   }
 
   static WorkInfo fromJson(Map<String, dynamic> json) {
@@ -84,8 +84,8 @@ class WorkInfo {
 
     WorkInfo? workInfo;
     for (var data in json["data"]) {
-      workInfo = WorkInfo(data["userId"], data["krName"], data["isweekend"], data["isholiday"], data["attendtime"], data["leavetime"], data["attIpIn"], data["attIpOut"], data["targetAttendTime"], data["targetLeaveTime"], data["strAttendLeaveTime"], data["noAttendCheckYn"], data["placeWork"],
-          data["placeWorkName"], data["solardate"],
+      workInfo = WorkInfo(data["userId"], data["krName"], data["isweekend"], data["isholiday"], data["attendtime"], data["leavetime"], data["attIpIn"], data["attIpOut"], data["targetAttendTime"],
+          data["targetLeaveTime"], data["strAttendLeaveTime"], data["noAttendCheckYn"], data["placeWork"], data["placeWorkName"], data["solardate"],
           success: json["success"], message: (json["message"] ?? ""));
     }
 
@@ -97,8 +97,8 @@ class WorkInfo {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
     }
 
-    return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"], json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"],
-        json["placeWorkName"], json["solardate"],
+    return WorkInfo(json["userId"], json["krName"], json["isweekend"], json["isholiday"], json["attendtime"], json["leavetime"], json["attIpIn"], json["attIpOut"], json["targetAttendTime"],
+        json["targetLeaveTime"], json["strAttendLeaveTime"], json["noAttendCheckYn"], json["placeWork"], json["placeWorkName"], json["solardate"],
         success: json["success"], message: (json["message"] ?? ""));
   }
 

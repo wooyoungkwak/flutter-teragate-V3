@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:teragate_v3/models/result_model.dart';
-import 'package:teragate_v3/utils/log_util.dart';
 
 String getDateToString(DateTime datetime, String formatStr) {
   DateFormat dateFormat = DateFormat(formatStr);

@@ -267,8 +267,9 @@ class _WeekState extends State<Week> {
 
     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
       _settingUIvalue(weekInfo);
-      Log.log("weekInfo!.success:::: ${weekInfo!.success}");
-      if (weekInfo.success) {
+
+      if (weekInfo!.success) {
+        Env.INIT_STATE_WEEK_INFO = weekInfo;
         dialog.hide();
         showSyncDialog(context,
             widget: SyncDialog(
@@ -305,45 +306,46 @@ class _WeekState extends State<Week> {
   }
 
   void _settingUIvalue(WeekInfo? weekInfo) {
-    workTime.clear;
-    weekoutTime.clear;
-    weekoutTime.clear;
-    setState(() {
-      if (weekInfo == null || weekInfo.success == false) {
-        for (int i = 0; i < week.length; i++) {
-          workTime.add("----");
-          weekinTime.add("----");
-          weekoutTime.add("----");
-          workingtime = 0;
-        }
-      } else {
-        worklist = weekInfo.workInfos;
-        int count = 0;
-        for (int i = 0; i < worklist.length; i++) {
-          Map<String, dynamic> Workstate = getWorkState(worklist[i]);
-          workTime.add((worklist[i].strAttendLeaveTime!));
-          weekinTime.add(worklist[i].attendtime ?? "");
-          weekoutTime.add(worklist[i].leavetime ?? "");
-          worklist[i].leavetime;
-          if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-            count++;
-          }
-          if (Workstate["isAttendTimeOut"]) {
-            workinOk[i] = false;
-          }
-        }
-        workingtime = (7 - count) * 8;
+    workTime.clear();
+    weekinTime.clear();
+    weekoutTime.clear();
 
-        for (int i = 0; i < week.length; i++) {
-          if (weekinTime[i] == "" && weekoutTime[i] == "") {
-            today[i] = false;
-          } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-            today[i] = true;
-          } else {
-            today[i] = false;
-          }
+    if (weekInfo == null || weekInfo.success == false) {
+      for (int i = 0; i < week.length; i++) {
+        workTime.add("----");
+        weekinTime.add("----");
+        weekoutTime.add("----");
+        workingtime = 0;
+      }
+    } else {
+      worklist = weekInfo.workInfos;
+      int count = 0;
+      for (int i = 0; i < worklist.length; i++) {
+        Map<String, dynamic> Workstate = getWorkState(worklist[i]);
+        workTime.add((worklist[i].strAttendLeaveTime!));
+        weekinTime.add(worklist[i].attendtime ?? "");
+        weekoutTime.add(worklist[i].leavetime ?? "");
+        worklist[i].leavetime;
+        if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+          count++;
+        }
+
+        if (Workstate["isAttendTimeOut"]) {
+          workinOk[i] = false;
         }
       }
-    });
+      workingtime = (7 - count) * 8;
+
+      for (int i = 0; i < week.length; i++) {
+        if (weekinTime[i] == "" && weekoutTime[i] == "") {
+          today[i] = false;
+        } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+          today[i] = true;
+        } else {
+          today[i] = false;
+        }
+      }
+    }
+    setState(() {});
   }
 }
