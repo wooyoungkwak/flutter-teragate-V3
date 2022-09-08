@@ -39,7 +39,7 @@ class SyncDialog extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _createSyncInfomationbyRow("위치", currentLocation!),
+                    currentLocation == null ? SizedBox() : (currentLocation == "" ? SizedBox() : _createSyncInfomationbyRow("위치", currentLocation!)),
                     _createSyncInfomationbyRow("시간", getPickerTime(getNow())),
                   ],
                 ),
