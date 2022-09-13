@@ -93,20 +93,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   icon: Icons.home,
                   text: "홈",
                   function: () => {
-                    sendMessageByWork(context, secureStorage).then((workInfo) {
-                      Env.INIT_STATE_WORK_INFO = workInfo;
-                      _passNextPage(context, '/home');
-                    })
+                    _passNextPage(context, '/home')
+                    // sendMessageByWork(context, secureStorage).then((workInfo) {
+                    //   Env.INIT_STATE_WORK_INFO = workInfo;
+                    // })
                   },
                 ),
                 _createIconByContainer(
                   icon: Icons.access_time_filled,
                   text: "출퇴근",
                   function: () => {
-                    sendMessageByWork(context, secureStorage).then((workInfo) {
-                      Env.INIT_STATE_WORK_INFO = workInfo;
-                      _passNextPage(context, '/week');
-                    })
+                    _passNextPage(context, '/week')
+                    // sendMessageByWork(context, secureStorage).then((workInfo) {
+                    //   Env.INIT_STATE_WORK_INFO = workInfo;
+                    // })
                   },
                 ),
                 _createIconByContainer(
@@ -120,19 +120,19 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     icon: Icons.camera,
                     text: "테마",
                     function: () => {
-                          sendMessageByWork(context, secureStorage).then((workInfo) {
-                            Env.INIT_STATE_WORK_INFO = workInfo;
-                            _passNextPage(context, '/theme');
-                          })
+                          _passNextPage(context, '/theme'),
+                          // sendMessageByWork(context, secureStorage).then((workInfo) {
+                          //   Env.INIT_STATE_WORK_INFO = workInfo;
+                          // })
                         }),
                 _createIconByContainer(
                     icon: Icons.place_rounded,
                     text: "등록",
                     function: () => {
-                          sendMessageByWork(context, secureStorage).then((workInfo) {
-                            Env.INIT_STATE_WORK_INFO = workInfo;
-                            _passNextPage(context, '/place');
-                          })
+                          _passNextPage(context, '/place'),
+                          // sendMessageByWork(context, secureStorage).then((workInfo) {
+                          //   Env.INIT_STATE_WORK_INFO = workInfo;
+                          // })
                         }),
               ],
             ),
@@ -193,7 +193,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   void _passNextPage(BuildContext context, String pushName) {
     if (ModalRoute.of(context)!.settings.name != pushName) {
-      Navigator.pushNamedAndRemoveUntil(context, pushName, (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, pushName, (route) {
+        sendMessageByWork(context, secureStorage).then((workInfo) {
+          Env.INIT_STATE_WORK_INFO = workInfo;
+        });
+        return false;
+      });
     }
   }
 

@@ -21,7 +21,7 @@ class SyncDialog extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(18.0),
               child: warning
-                  ? _createIconByContainer(icon: Icons.replay_outlined, backgroundColor: const Color.fromARGB(255, 60, 95, 235))
+                  ? _createIconByContainer(icon: Icons.replay_outlined, color: Colors.white, backgroundColor: const Color.fromARGB(255, 60, 95, 235))
                   : _createIconByContainer(icon: Icons.error, color: Colors.white, backgroundColor: const Color(0xffFF3823)),
             ),
             if (!warning) const SizedBox(height: 40.0),
