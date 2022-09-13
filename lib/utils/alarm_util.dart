@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -124,12 +126,18 @@ void showAlertDialog(BuildContext context) {
 }
 
 void showSyncDialog(BuildContext context, {required Widget widget}) {
+  Timer? timer;
+
   showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pop(context);
+        timer = Timer(const Duration(seconds: 2), () {
+          Navigator.of(context).pop();
         });
         return widget;
-      });
+      }).then((value) {
+    if (timer != null && timer!.isActive) {
+      timer!.cancel();
+    }
+  });
 }
