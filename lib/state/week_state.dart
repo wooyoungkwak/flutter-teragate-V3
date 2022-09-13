@@ -12,7 +12,6 @@ import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
-import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 class Week extends StatefulWidget {
@@ -219,10 +218,9 @@ class _WeekState extends State<Week> {
     } else {
       workColor = const Color(0xffFF3823);
     }
-    // 이슈에 관한 색
-    // if (workOk == false) {
-    //   workColor = const Color(0xff7C8298);
-    // }
+    if (workOk == false) {
+      workColor = const Color(0xff7C8298);
+    }
 
     return Container(
       margin: const EdgeInsets.all(8),
@@ -306,46 +304,49 @@ class _WeekState extends State<Week> {
   }
 
   void _settingUIvalue(WeekInfo? weekInfo) {
-    workTime.clear();
-    weekinTime.clear();
-    weekoutTime.clear();
+    if (this.mounted) {
+      setState(() {
+        workTime.clear();
+        weekinTime.clear();
+        weekoutTime.clear();
 
-    if (weekInfo == null || weekInfo.success == false) {
-      for (int i = 0; i < week.length; i++) {
-        workTime.add("----");
-        weekinTime.add("----");
-        weekoutTime.add("----");
-        workingtime = 0;
-      }
-    } else {
-      worklist = weekInfo.workInfos;
-      int count = 0;
-      for (int i = 0; i < worklist.length; i++) {
-        Map<String, dynamic> Workstate = getWorkState(worklist[i]);
-        workTime.add((worklist[i].strAttendLeaveTime!));
-        weekinTime.add(worklist[i].attendtime ?? "");
-        weekoutTime.add(worklist[i].leavetime ?? "");
-        worklist[i].leavetime;
-        if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
-          count++;
-        }
-
-        if (Workstate["isAttendTimeOut"]) {
-          workinOk[i] = false;
-        }
-      }
-      workingtime = (7 - count) * 8;
-
-      for (int i = 0; i < week.length; i++) {
-        if (weekinTime[i] == "" && weekoutTime[i] == "") {
-          today[i] = false;
-        } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
-          today[i] = true;
+        if (weekInfo == null || weekInfo.success == false) {
+          for (int i = 0; i < week.length; i++) {
+            workTime.add("----");
+            weekinTime.add("----");
+            weekoutTime.add("----");
+            workingtime = 0;
+          }
         } else {
-          today[i] = false;
+          worklist = weekInfo.workInfos;
+          int count = 0;
+          for (int i = 0; i < worklist.length; i++) {
+            Map<String, dynamic> Workstate = getWorkState(worklist[i]);
+            workTime.add((worklist[i].strAttendLeaveTime!));
+            weekinTime.add(worklist[i].attendtime ?? "");
+            weekoutTime.add(worklist[i].leavetime ?? "");
+            worklist[i].leavetime;
+            if (worklist[i].isweekend == "Y" || worklist[i].isholiday == "Y") {
+              count++;
+            }
+
+            if (Workstate["isAttendTimeOut"]) {
+              workinOk[i] = false;
+            }
+          }
+          workingtime = (7 - count) * 8;
+
+          for (int i = 0; i < week.length; i++) {
+            if (weekinTime[i] == "" && weekoutTime[i] == "") {
+              today[i] = false;
+            } else if (weekinTime[i] != "" && weekoutTime[i] == "") {
+              today[i] = true;
+            } else {
+              today[i] = false;
+            }
+          }
         }
-      }
+      });
     }
-    setState(() {});
   }
 }
