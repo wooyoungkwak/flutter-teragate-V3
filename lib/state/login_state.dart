@@ -9,6 +9,7 @@ import 'package:teragate_v3/services/server_service.dart';
 import 'package:teragate_v3/state/widgets/custom_text.dart';
 import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/permission_service.dart';
+import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 
 class Login extends StatefulWidget {
@@ -198,6 +199,7 @@ class _LoginState extends State<Login> {
                                   });
                                 } else {
                                   Log.debug("workIfon Error");
+                                  showSnackBar(context, loginInfo.message!);
                                 }
                               });
                             },
