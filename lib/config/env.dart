@@ -90,6 +90,7 @@ class Env {
   static DateTime INNER_TIME = DateTime.now();
   static bool CHECKED_BACKGOURND = true;
   static bool CHECKED_THEME = true;
+  static int CURRENT_PAGE_INDEX = 0;
 
   static Map<String, String> UUIDS = {};
   static dynamic INIT_STATE_WORK_INFO;

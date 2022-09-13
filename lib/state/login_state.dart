@@ -171,6 +171,7 @@ class _LoginState extends State<Login> {
                                 _passwordContorller.text,
                               ).then((loginInfo) {
                                 if (loginInfo.success!) {
+                                  Env.CURRENT_PAGE_INDEX = 0;
                                   Env.WORK_PHOTO_PATH = loginInfo.getPhotoPath();
                                   Env.WORK_KR_NAME = loginInfo.getKrName();
                                   Env.WORK_POSITION_NAME = loginInfo.getPositionName();

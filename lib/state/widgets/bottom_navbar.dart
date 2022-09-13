@@ -18,11 +18,44 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   late SecureStorage secureStorage;
+  List navigatorItem = [
+    {
+      "selected": false,
+      "icon": Icons.home,
+      "text": "홈",
+      "path": '/home',
+    },
+    {
+      "selected": false,
+      "icon": Icons.access_time_filled,
+      "text": "출퇴근",
+      "path": '/week',
+    },
+    {
+      "selected": true,
+      "icon": Icons.refresh,
+      "text": "동기화",
+      "path": "",
+    },
+    {
+      "selected": false,
+      "icon": Icons.camera,
+      "text": "테마",
+      "path": '/theme',
+    },
+    {
+      "selected": false,
+      "icon": Icons.place_rounded,
+      "text": "등록",
+      "path": '/place',
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
+    navigatorItem[Env.CURRENT_PAGE_INDEX]["selected"] = true;
   }
 
   @override
@@ -88,53 +121,23 @@ class _BottomNavBarState extends State<BottomNavBar> {
             decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _createIconByContainer(
-                  icon: Icons.home,
-                  text: "홈",
+              children: List.generate(
+                navigatorItem.length,
+                (index) => _createIconByContainer(
+                  selectedIcon: navigatorItem[index]["selected"],
+                  icon: navigatorItem[index]["icon"],
+                  text: navigatorItem[index]["text"],
                   function: () => {
-                    _passNextPage(context, '/home')
-                    // sendMessageByWork(context, secureStorage).then((workInfo) {
-                    //   Env.INIT_STATE_WORK_INFO = workInfo;
-                    // })
+                    if (navigatorItem[index]["path"] == "")
+                      {widget.function == null ? "" : widget.function!(null)}
+                    else
+                      {
+                        Env.CURRENT_PAGE_INDEX = index,
+                        _passNextPage(context, navigatorItem[index]["path"]),
+                      }
                   },
                 ),
-                _createIconByContainer(
-                  icon: Icons.access_time_filled,
-                  text: "출퇴근",
-                  function: () => {
-                    _passNextPage(context, '/week')
-                    // sendMessageByWork(context, secureStorage).then((workInfo) {
-                    //   Env.INIT_STATE_WORK_INFO = workInfo;
-                    // })
-                  },
-                ),
-                _createIconByContainer(
-                  icon: Icons.refresh,
-                  color: Colors.white,
-                  backgroundColor: const Color.fromARGB(255, 60, 95, 235),
-                  text: "동기화",
-                  function: () => {widget.function == null ? "" : widget.function!(null)},
-                ),
-                _createIconByContainer(
-                    icon: Icons.camera,
-                    text: "테마",
-                    function: () => {
-                          _passNextPage(context, '/theme'),
-                          // sendMessageByWork(context, secureStorage).then((workInfo) {
-                          //   Env.INIT_STATE_WORK_INFO = workInfo;
-                          // })
-                        }),
-                _createIconByContainer(
-                    icon: Icons.place_rounded,
-                    text: "등록",
-                    function: () => {
-                          _passNextPage(context, '/place'),
-                          // sendMessageByWork(context, secureStorage).then((workInfo) {
-                          //   Env.INIT_STATE_WORK_INFO = workInfo;
-                          // })
-                        }),
-              ],
+              ),
             ),
           ),
         ],
@@ -143,14 +146,19 @@ class _BottomNavBarState extends State<BottomNavBar> {
   }
 
   Container _createIconByContainer({
+    bool selectedIcon = false,
     IconData? icon,
     Color color = const Color.fromARGB(255, 60, 95, 235),
     Color backgroundColor = Colors.white,
     String? text,
     VoidCallback? function,
   }) {
-    var iconColor = const Color.fromARGB(255, 60, 95, 235); // 전역 스타일 변수로 선언할것
-    color = backgroundColor != iconColor ? iconColor : Colors.white;
+    backgroundColor = icon == Icons.refresh
+        ? const Color.fromARGB(255, 60, 95, 235)
+        : selectedIcon
+            ? const Color.fromARGB(110, 60, 95, 235)
+            : Colors.white;
+    color = selectedIcon ? Colors.white : const Color.fromARGB(255, 60, 95, 235);
 
     return Container(
       height: 60.0,
@@ -208,4 +216,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
     }
     return text;
   }
+
+  // void selectedPage() {
+  //   if (_currentIndex == index) {
+  //     navigatorItem[_currentIndex]["selected"] = true;
+  //   }
+  // }
 }
