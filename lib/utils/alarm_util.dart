@@ -148,7 +148,7 @@ void showLocationDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) => AlertDialog(
       title: const Text('알림'),
-      content: const Text('앱에서 위처 켜기를 요청합니다.'),
+      content: const Text('앱에서 위치 켜기를 요청합니다.'),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.pop(context, 'Cancel'),

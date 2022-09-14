@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+
+import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
+
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/services/background_service.dart';
-import 'package:flutter/material.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/network_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
@@ -39,6 +44,8 @@ class _LoginState extends State<Login> {
 
   late SecureStorage secureStorage;
 
+  late SimpleFontelicoProgressDialog dialog;
+
   @override
   void initState() {
     super.initState();
@@ -49,7 +56,6 @@ class _LoginState extends State<Login> {
     _checkLogin();
     checkDeviceLocatioIsOn().then((value) {
       if (value) {
-        Log.debug("check ==========================================");
         showLocationDialog(context);
       }
     });
@@ -60,6 +66,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
+
     return _createWillPopScope(
       Container(
         // 배경화면
@@ -172,6 +180,7 @@ class _LoginState extends State<Login> {
                         child: MaterialButton(
                             height: 60.0,
                             onPressed: () {
+                              dialog.show(message: '로그인 중..');
                               login(
                                 _loginIdContoroller.text,
                                 _passwordContorller.text,
@@ -201,11 +210,13 @@ class _LoginState extends State<Login> {
                                     Env.INIT_STATE_WORK_INFO = workInfo;
                                     sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
                                       Env.INIT_STATE_WEEK_INFO = weekInfo;
+                                      dialog.hide();
                                       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                                     });
                                   });
                                 } else {
                                   Log.debug("workIfon Error");
+                                  dialog.hide();
                                   showSnackBar(context, loginInfo.message!);
                                 }
                               });

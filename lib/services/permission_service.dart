@@ -39,5 +39,8 @@ Future<bool> getState() async {
 }
 
 Future<bool> checkDeviceLocatioIsOn() async {
-  return await Permission.location.serviceStatus.isDisabled;
+  if (Platform.isAndroid) {
+    return await Permission.location.serviceStatus.isDisabled;
+  }
+  return false;
 }
