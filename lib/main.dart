@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
@@ -96,6 +98,10 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
+    if (Platform.isIOS) {
+      locationCheck();
+    }
+
     _checkLogin().then((state) {
       Log.debug("Login State : $state");
       if (state != null && state == "true") {
@@ -159,5 +165,37 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _setUUID(String uuid) async {
     Env.UUIDS[uuid] = (await secureStorage.read(uuid)) ?? "";
+  }
+
+  Future<void> locationCheck() async {
+    Location location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        Log.debug("위치 켜기 실패!!!!!");
+      } else {
+        Log.debug("위치 켜기 성공!!!!!");
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        Log.debug("위치 권한 실패!!!!!");
+        AppSettings.openAppSettings();
+      } else {
+        Log.debug("위치 권한 성공!!!!!");
+      }
+    }
+
+    locationData = await location.getLocation();
+    Log.debug("location Data ================= $locationData");
   }
 }

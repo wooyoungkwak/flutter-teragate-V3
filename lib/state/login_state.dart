@@ -33,8 +33,8 @@ class _LoginState extends State<Login> {
   StreamSubscription? connectivityStreamSubscription;
 
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _loginIdContoroller = TextEditingController(text: "raindrop891");
-  late TextEditingController _passwordContorller = TextEditingController(text: "raindrop891");
+  late TextEditingController _loginIdContoroller;
+  late TextEditingController _passwordContorller;
   bool checkBoxValue = false;
   Color boxColor = const Color(0xffEBEBF1);
   TextStyle textStyle = const TextStyle(fontWeight: FontWeight.w500, fontFamily: 'SpoqaHanSansNeo', color: Colors.white, fontSize: 16.0);
@@ -50,6 +50,13 @@ class _LoginState extends State<Login> {
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
+    if (Env.isDebug) {
+      _loginIdContoroller = TextEditingController(text: "raindrop891");
+      _passwordContorller = TextEditingController(text: "raindrop891");
+    } else {
+      _loginIdContoroller = TextEditingController(text: "");
+      _passwordContorller = TextEditingController(text: "");
+    }
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     callPermissions();
     initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);

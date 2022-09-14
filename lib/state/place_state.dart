@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:location/location.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
@@ -226,14 +229,16 @@ class _PlaceState extends State<Place> {
     //  비콘 정보 요청 ( 동기화 )
     List<String> SharedStorageuuid = [];
 
-    checkDeviceBluetoothIsOn().then((value) {
-      Log.debug("bluetooth ======================== $value");
-    });
-
     checkDeviceLocatioIsOn().then((value) {
       if (value) {
         showLocationDialog(context);
       } else {
+        if (Platform.isIOS) {
+          checkDeviceBluetoothIsOn().then((value) {
+            Log.debug("bluetooth ======================== $value");
+          });
+          locationCheck();
+        }
         dialog.show(message: "로딩중...");
         stopBeacon();
         sendMessageByBeacon(context, secureStorage).then((configInfo) async {
@@ -290,5 +295,37 @@ class _PlaceState extends State<Place> {
   Future<bool> checkDeviceBluetoothIsOn() async {
     FlutterBlue flutterBlue = FlutterBlue.instance;
     return await flutterBlue.isOn;
+  }
+
+  Future<void> locationCheck() async {
+    Location location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        Log.debug("위치 켜기 실패!!!!!");
+      } else {
+        Log.debug("위치 켜기 성공!!!!!");
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        Log.debug("위치 권한 실패!!!!!");
+        AppSettings.openAppSettings();
+      } else {
+        Log.debug("위치 권한 성공!!!!!");
+      }
+    }
+
+    locationData = await location.getLocation();
+    Log.debug("location Data ================= $locationData");
   }
 }
