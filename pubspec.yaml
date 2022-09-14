@@ -54,7 +54,8 @@ dependencies:
 
   #권한 설정
   permission_handler: ^10.0.0
-  app_settings: 4.1.8
+  app_settings: ^4.1.8
+  location: ^4.2.0
 
   #웹 제어
   network_info_plus: ^2.1.3
