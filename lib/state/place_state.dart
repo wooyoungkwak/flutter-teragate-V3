@@ -231,13 +231,18 @@ class _PlaceState extends State<Place> {
 
     checkDeviceLocatioIsOn().then((value) {
       if (value) {
-        showLocationDialog(context);
+        if (Platform.isAndroid) {
+          showLocationDialog(context);
+        }
+
+        if (Platform.isIOS) {
+          checkDeviceLocationIsOn();
+        }
       } else {
         if (Platform.isIOS) {
           checkDeviceBluetoothIsOn().then((value) {
             Log.debug("bluetooth ======================== $value");
           });
-          locationCheck();
         }
         dialog.show(message: "로딩중...");
         stopBeacon();
@@ -297,35 +302,14 @@ class _PlaceState extends State<Place> {
     return await flutterBlue.isOn;
   }
 
-  Future<void> locationCheck() async {
+  Future<void> checkDeviceLocationIsOn() async {
     Location location = Location();
 
     bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
 
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        Log.debug("위치 켜기 실패!!!!!");
-      } else {
-        Log.debug("위치 켜기 성공!!!!!");
-      }
+      await location.requestService();
     }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        Log.debug("위치 권한 실패!!!!!");
-        AppSettings.openAppSettings();
-      } else {
-        Log.debug("위치 권한 성공!!!!!");
-      }
-    }
-
-    locationData = await location.getLocation();
-    Log.debug("location Data ================= $locationData");
   }
 }

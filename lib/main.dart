@@ -169,33 +169,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> locationCheck() async {
     Location location = Location();
-
-    bool serviceEnabled;
     PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        Log.debug("위치 켜기 실패!!!!!");
-      } else {
-        Log.debug("위치 켜기 성공!!!!!");
-      }
-    }
 
     permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
+      if (permissionGranted == PermissionStatus.granted) {
         Log.debug("위치 권한 실패!!!!!");
         AppSettings.openAppSettings();
       } else {
         Log.debug("위치 권한 성공!!!!!");
       }
     }
-
-    locationData = await location.getLocation();
-    Log.debug("location Data ================= $locationData");
   }
 }
