@@ -47,6 +47,12 @@ class _LoginState extends State<Login> {
     callPermissions();
     initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
     _checkLogin();
+    checkDeviceLocatioIsOn().then((value) {
+      if (value) {
+        Log.debug("check ==========================================");
+        showLocationDialog(context);
+      }
+    });
 
     Env.BEACON_FUNCTION = null;
     Env.EVENT_FUNCTION = null;

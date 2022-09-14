@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -140,4 +141,27 @@ void showSyncDialog(BuildContext context, {required Widget widget}) {
       timer!.cancel();
     }
   });
+}
+
+void showLocationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: const Text('알림'),
+      content: const Text('앱에서 위처 켜기를 요청합니다.'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Cancel'),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, 'OK');
+            AppSettings.openLocationSettings();
+          },
+          child: const Text('확인'),
+        ),
+      ],
+    ),
+  );
 }

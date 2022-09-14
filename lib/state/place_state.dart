@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/State/widgets/custom_text.dart';
@@ -9,11 +10,13 @@ import 'package:teragate_v3/models/result_model.dart';
 import 'package:teragate_v3/models/storage_model.dart';
 import 'package:teragate_v3/services/beacon_service.dart';
 import 'package:teragate_v3/services/server_service.dart';
+import 'package:teragate_v3/services/permission_service.dart';
 import 'package:teragate_v3/state/widgets/bottom_navbar.dart';
 import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
 import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
+import 'package:teragate_v3/utils/log_util.dart';
 
 class Place extends StatefulWidget {
   final StreamController eventStreamController;
@@ -222,37 +225,47 @@ class _PlaceState extends State<Place> {
   Future<void> _synchonizationPlaceUI(WorkInfo? workInfo) async {
     //  비콘 정보 요청 ( 동기화 )
     List<String> SharedStorageuuid = [];
-    dialog.show(message: "로딩중...");
-    stopBeacon();
 
-    sendMessageByBeacon(context, secureStorage).then((configInfo) async {
-      if (configInfo!.success!) {
-        List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
+    checkDeviceBluetoothIsOn().then((value) {
+      Log.debug("bluetooth ======================== $value");
+    });
 
-        for (BeaconInfoData beaconInfoData in placeInfo) {
-          secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
-          SharedStorageuuid.add(beaconInfoData.uuid);
-          placeList.add(beaconInfoData.place);
-        }
-        SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
-
-        placeList = _deduplication(placeList);
-
-        setState(() {});
-
-        initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
-
-        dialog.hide();
-        showSyncDialog(context,
-            widget: SyncDialog(
-              warning: true,
-            ));
+    checkDeviceLocatioIsOn().then((value) {
+      if (value) {
+        showLocationDialog(context);
       } else {
-        dialog.hide();
-        showSyncDialog(context,
-            widget: SyncDialog(
-              warning: false,
-            ));
+        dialog.show(message: "로딩중...");
+        stopBeacon();
+        sendMessageByBeacon(context, secureStorage).then((configInfo) async {
+          if (configInfo!.success!) {
+            List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
+
+            for (BeaconInfoData beaconInfoData in placeInfo) {
+              secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+              SharedStorageuuid.add(beaconInfoData.uuid);
+              placeList.add(beaconInfoData.place);
+            }
+            SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
+
+            placeList = _deduplication(placeList);
+
+            setState(() {});
+
+            initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
+
+            dialog.hide();
+            showSyncDialog(context,
+                widget: SyncDialog(
+                  warning: true,
+                ));
+          } else {
+            dialog.hide();
+            showSyncDialog(context,
+                widget: SyncDialog(
+                  warning: false,
+                ));
+          }
+        });
       }
     });
   }
@@ -272,5 +285,10 @@ class _PlaceState extends State<Place> {
     var deduplicationlist = list.toSet();
     list = deduplicationlist.toList();
     return list;
+  }
+
+  Future<bool> checkDeviceBluetoothIsOn() async {
+    FlutterBlue flutterBlue = FlutterBlue.instance;
+    return await flutterBlue.isOn;
   }
 }

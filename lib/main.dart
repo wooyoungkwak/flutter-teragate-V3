@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     _checkLogin().then((state) {
-      Log.debug("Login State : ${state}");
+      Log.debug("Login State : $state");
       if (state != null && state == "true") {
         _setEnv();
         _initForBeacon();
