@@ -127,6 +127,7 @@ void showAlertDialog(BuildContext context) {
   );
 }
 
+// 동기화 다이얼로그
 void showSyncDialog(BuildContext context, {required Widget widget}) {
   Timer? timer;
 
@@ -144,6 +145,7 @@ void showSyncDialog(BuildContext context, {required Widget widget}) {
   });
 }
 
+// 위치 다이얼로그
 void showLocationDialog(BuildContext context) {
   showDialog(
     context: context,
@@ -159,6 +161,30 @@ void showLocationDialog(BuildContext context) {
           onPressed: () {
             Navigator.pop(context, 'OK');
             AppSettings.openLocationSettings();
+          },
+          child: const Text('확인'),
+        ),
+      ],
+    ),
+  );
+}
+
+// Bluetooth 다이얼로그 (나중에 다 통합 시킬것!!)
+void showBuletoothDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: const Text('알림'),
+      content: const Text('앱에서 Bluetooth 켜기를 요청합니다.'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Cancel'),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, 'OK');
+            AppSettings.openBluetoothSettings();
           },
           child: const Text('확인'),
         ),

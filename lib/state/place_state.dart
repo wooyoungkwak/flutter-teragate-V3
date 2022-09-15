@@ -231,7 +231,13 @@ class _PlaceState extends State<Place> {
         if (value) {
           showLocationDialog(context);
         } else {
-          _requestBeaconIfon();
+          _checkDeviceBluetoothIsOn().then((value) {
+            if (!value) {
+              showBuletoothDialog(context);
+            } else {
+              _requestBeaconIfon();
+            }
+          });
         }
       });
     }
