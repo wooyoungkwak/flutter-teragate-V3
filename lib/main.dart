@@ -95,30 +95,31 @@ class _MyHomePageState extends State<MyHomePage> {
         Env.EVENT_FUNCTION == null ? Log.debug(workInfo.success.toString()) : Env.EVENT_FUNCTION!(workInfo);
       }
     });
-
-    _checkLogin().then((state) {
-      Log.debug("Login State : $state");
-      if (state != null && state == "true") {
-        _setEnv();
-        _initForBeacon();
-        initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
-        sendMessageByWork(context, secureStorage).then((workInfo) {
-          Env.INIT_STATE_WORK_INFO = workInfo;
-
-          sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-            Env.INIT_STATE_WEEK_INFO = weekInfo;
-            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-          });
-        });
-      } else {
-        if (Platform.isIOS) {
+    SharedStorage.deleteAllIOS().then((value) {
+      _checkLogin().then((state) {
+        Log.debug("Login State : $state");
+        if (state != null && state == "true") {
+          _setEnv();
           _initForBeacon();
-          Future.delayed(const Duration(seconds: 5), () {
-            stopBeacon();
+          initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
+          sendMessageByWork(context, secureStorage).then((workInfo) {
+            Env.INIT_STATE_WORK_INFO = workInfo;
+
+            sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+              Env.INIT_STATE_WEEK_INFO = weekInfo;
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            });
           });
+        } else {
+          if (Platform.isIOS) {
+            _initForBeacon();
+            Future.delayed(const Duration(seconds: 5), () {
+              stopBeacon();
+            });
+          }
+          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
         }
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-      }
+      });
     });
   }
 

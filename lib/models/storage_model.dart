@@ -98,4 +98,13 @@ class SharedStorage {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.clear();
   }
+
+  static Future<void> deleteAllIOS() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getBool('first_run') ?? true) {
+      FlutterSecureStorage storage = const FlutterSecureStorage();
+      await storage.deleteAll();
+      sharedPreferences.setBool('first_run', false);
+    }
+  }
 }
