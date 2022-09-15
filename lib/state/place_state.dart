@@ -226,58 +226,31 @@ class _PlaceState extends State<Place> {
   }
 
   Future<void> _synchonizationPlaceUI(WorkInfo? workInfo) async {
-    //  비콘 정보 요청 ( 동기화 )
-    List<String> SharedStorageuuid = [];
-
-    checkDeviceLocatioIsOn().then((value) {
-      if (value) {
-        if (Platform.isAndroid) {
+    if (Platform.isAndroid) {
+      checkDeviceLocationIsOn().then((value) {
+        if (value) {
           showLocationDialog(context);
+        } else {
+          _requestBeaconIfon();
         }
+      });
+    }
 
-        if (Platform.isIOS) {
-          checkDeviceLocationIsOn();
-        }
-      } else {
-        if (Platform.isIOS) {
-          checkDeviceBluetoothIsOn().then((value) {
-            Log.debug("bluetooth ======================== $value");
+    if (Platform.isIOS) {
+      _checkIOSDeviceLocationIsOn().then((value) {
+        if (!value) {
+          showSnackBar(context, "앱에서 위치 켜기를 요청합니다.");
+        } else {
+          _checkDeviceBluetoothIsOn().then((value) {
+            if (!value) {
+              showSnackBar(context, "앱에서 블루투스 켜기를 요청합니다.");
+            } else {
+              _requestBeaconIfon();
+            }
           });
         }
-        dialog.show(message: "로딩중...");
-        stopBeacon();
-        sendMessageByBeacon(context, secureStorage).then((configInfo) async {
-          if (configInfo!.success!) {
-            List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
-
-            for (BeaconInfoData beaconInfoData in placeInfo) {
-              secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
-              SharedStorageuuid.add(beaconInfoData.uuid);
-              placeList.add(beaconInfoData.place);
-            }
-            SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
-
-            placeList = _deduplication(placeList);
-
-            setState(() {});
-
-            initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
-
-            dialog.hide();
-            showSyncDialog(context,
-                widget: SyncDialog(
-                  warning: true,
-                ));
-          } else {
-            dialog.hide();
-            showSyncDialog(context,
-                widget: SyncDialog(
-                  warning: false,
-                ));
-          }
-        });
-      }
-    });
+      });
+    }
   }
 
   void _initUUIDList() async {
@@ -297,19 +270,53 @@ class _PlaceState extends State<Place> {
     return list;
   }
 
-  Future<bool> checkDeviceBluetoothIsOn() async {
+  // 비콘 정보 요청
+  Future<void> _requestBeaconIfon() async {
+    //  비콘 정보 요청 ( 동기화 )
+    List<String> SharedStorageuuid = [];
+    dialog.show(message: "로딩중...");
+    stopBeacon();
+    sendMessageByBeacon(context, secureStorage).then((configInfo) async {
+      if (configInfo!.success!) {
+        List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
+
+        for (BeaconInfoData beaconInfoData in placeInfo) {
+          secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
+          SharedStorageuuid.add(beaconInfoData.uuid);
+          placeList.add(beaconInfoData.place);
+        }
+        SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
+
+        placeList = _deduplication(placeList);
+
+        setState(() {});
+
+        initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
+
+        dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: true,
+            ));
+      } else {
+        dialog.hide();
+        showSyncDialog(context,
+            widget: SyncDialog(
+              warning: false,
+            ));
+      }
+    });
+  }
+
+  // 블루투스 on/off 확인
+  Future<bool> _checkDeviceBluetoothIsOn() async {
     FlutterBlue flutterBlue = FlutterBlue.instance;
     return await flutterBlue.isOn;
   }
 
-  Future<void> checkDeviceLocationIsOn() async {
+  // 위치 on/off 확인
+  Future<bool> _checkIOSDeviceLocationIsOn() async {
     Location location = Location();
-
-    bool serviceEnabled;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      await location.requestService();
-    }
+    return await location.serviceEnabled();
   }
 }

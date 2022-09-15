@@ -65,14 +65,14 @@ class _LoginState extends State<Login> {
     _checkLogin();
 
     //Location Permission Android
-    checkDeviceLocatioIsOn().then((value) {
+    checkDeviceLocationIsOn().then((value) {
       if (value) {
         showLocationDialog(context);
       }
     });
 
     //Location Permission iOS
-    locationCheck().then((value) {
+    _checkPermissionLocation().then((value) {
       if (value) {
         showLocationDialog(context);
       }
@@ -380,7 +380,7 @@ class _LoginState extends State<Login> {
     Env.BACKGROUND_PATH = await secureStorage.read(Env.KEY_BACKGROUND_PATH) ?? "theme2.png";
   }
 
-  Future<bool> locationCheck() async {
+  Future<bool> _checkPermissionLocation() async {
     Location location = Location();
     PermissionStatus permissionGranted;
 
@@ -394,7 +394,7 @@ class _LoginState extends State<Login> {
   }
 
   void locationPermission(BuildContext context) async {
-    bool android = await checkDeviceLocatioIsOn();
-    bool ios = await locationCheck();
+    bool android = await checkDeviceLocationIsOn();
+    bool ios = await _checkPermissionLocation();
   }
 }
