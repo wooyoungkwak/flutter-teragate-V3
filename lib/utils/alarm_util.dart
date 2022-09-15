@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -27,6 +25,29 @@ void showSnackBar(BuildContext context, String text) {
     duration: const Duration(seconds: 2),
     backgroundColor: Colors.grey[400],
   ));
+}
+
+void showAlertDialog(BuildContext context, {String? text, dynamic action}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: const Text('알림'),
+      content: Text(text ?? ""),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Cancel'),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, 'OK');
+            action();
+          },
+          child: const Text('확인'),
+        ),
+      ],
+    ),
+  );
 }
 
 //노티알람 종류 선택, iOS같은 경우에는 사운드랑 진동이 하나로 묶여있다...
@@ -92,7 +113,7 @@ Future<void> showNotificationWithNoOptions(FlutterLocalNotificationsPlugin flutt
 }
 
 //로그아웃 다이얼로그
-void showAlertDialog(BuildContext context) {
+void showLogoutDialog(BuildContext context) {
   showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
@@ -143,52 +164,4 @@ void showSyncDialog(BuildContext context, {required Widget widget}) {
       timer!.cancel();
     }
   });
-}
-
-// 위치 다이얼로그
-void showLocationDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: const Text('알림'),
-      content: Platform.isIOS ? const Text('앱에서 위치 접근 허용을 요청합니다.') : const Text('앱에서 위치 켜기를 요청합니다.'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () => Navigator.pop(context, 'Cancel'),
-          child: const Text('취소'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context, 'OK');
-            AppSettings.openLocationSettings();
-          },
-          child: const Text('확인'),
-        ),
-      ],
-    ),
-  );
-}
-
-// Bluetooth 다이얼로그 (나중에 다 통합 시킬것!!)
-void showBuletoothDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: const Text('알림'),
-      content: const Text('앱에서 Bluetooth 켜기를 요청합니다.'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () => Navigator.pop(context, 'Cancel'),
-          child: const Text('취소'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context, 'OK');
-            AppSettings.openBluetoothSettings();
-          },
-          child: const Text('확인'),
-        ),
-      ],
-    ),
-  );
 }

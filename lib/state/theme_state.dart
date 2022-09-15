@@ -113,7 +113,7 @@ class _ThemeState extends State<ThemeMain> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            showAlertDialog(context);
+                            showLogoutDialog(context);
                             // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                           },
                           borderRadius: const BorderRadius.all(

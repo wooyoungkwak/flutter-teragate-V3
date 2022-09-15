@@ -19,7 +19,6 @@ import 'package:teragate_v3/state/widgets/coustom_Businesscard.dart';
 import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
-import 'package:teragate_v3/utils/log_util.dart';
 
 class Place extends StatefulWidget {
   final StreamController eventStreamController;
@@ -75,7 +74,7 @@ class _PlaceState extends State<Place> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          showAlertDialog(context);
+                          showLogoutDialog(context);
                           // Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                         },
                         borderRadius: const BorderRadius.all(
@@ -229,11 +228,11 @@ class _PlaceState extends State<Place> {
     if (Platform.isAndroid) {
       checkDeviceLocationIsOn().then((value) {
         if (value) {
-          showLocationDialog(context);
+          showAlertDialog(context, text: "앱에서 위치 켜기를 요청합니다.", action: AppSettings.openLocationSettings);
         } else {
           _checkDeviceBluetoothIsOn().then((value) {
             if (!value) {
-              showBuletoothDialog(context);
+              showAlertDialog(context, text: "앱에서 블루투스 켜기를 요청합니다.", action: AppSettings.openBluetoothSettings);
             } else {
               _requestBeaconIfon();
             }
@@ -249,7 +248,7 @@ class _PlaceState extends State<Place> {
         } else {
           _checkDeviceBluetoothIsOn().then((value) {
             if (!value) {
-              showSnackBar(context, "앱에서 블루투스 켜기를 요청합니다.");
+              showSnackBar(context, "앱에서 Bluetooth 켜기를 요청합니다.");
             } else {
               _requestBeaconIfon();
             }
@@ -279,7 +278,7 @@ class _PlaceState extends State<Place> {
   // 비콘 정보 요청
   Future<void> _requestBeaconIfon() async {
     //  비콘 정보 요청 ( 동기화 )
-    List<String> SharedStorageuuid = [];
+    List<String> sharedStorageuuid = [];
     dialog.show(message: "로딩중...");
     if (Platform.isIOS) {
       stopBeacon();
@@ -291,16 +290,16 @@ class _PlaceState extends State<Place> {
 
         for (BeaconInfoData beaconInfoData in placeInfo) {
           secureStorage.write(beaconInfoData.uuid, beaconInfoData.place);
-          SharedStorageuuid.add(beaconInfoData.uuid);
+          sharedStorageuuid.add(beaconInfoData.uuid);
           placeList.add(beaconInfoData.place);
         }
-        SharedStorage.write(Env.KEY_SHARE_UUID, SharedStorageuuid);
+        SharedStorage.write(Env.KEY_SHARE_UUID, sharedStorageuuid);
 
         placeList = _deduplication(placeList);
 
         setState(() {});
         if (Platform.isIOS) {
-          initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
+          initBeacon(context, widget.beaconStreamController, secureStorage, sharedStorageuuid);
         }
 
         dialog.hide();

@@ -81,7 +81,7 @@ class _WeekState extends State<Week> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          showAlertDialog(context);
+                          showLogoutDialog(context);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
@@ -321,7 +321,7 @@ class _WeekState extends State<Week> {
           worklist = weekInfo.workInfos;
           int count = 0;
           for (int i = 0; i < worklist.length; i++) {
-            Map<String, dynamic> Workstate = getWorkState(worklist[i]);
+            Map<String, dynamic> workstate = getWorkState(worklist[i]);
             workTime.add((worklist[i].strAttendLeaveTime!));
             weekinTime.add(worklist[i].attendtime ?? "");
             weekoutTime.add(worklist[i].leavetime ?? "");
@@ -330,7 +330,7 @@ class _WeekState extends State<Week> {
               count++;
             }
 
-            if (Workstate["isAttendTimeOut"]) {
+            if (workstate["isAttendTimeOut"]) {
               workinOk[i] = false;
             }
           }

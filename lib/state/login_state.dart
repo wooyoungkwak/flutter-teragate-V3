@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
@@ -33,7 +34,6 @@ class _LoginState extends State<Login> {
   // late StreamSubscription eventStreamSubscription;
   StreamSubscription? connectivityStreamSubscription;
 
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _loginIdContoroller;
   late TextEditingController _passwordContorller;
   bool checkBoxValue = false;
@@ -67,14 +67,14 @@ class _LoginState extends State<Login> {
     //Location Permission Android
     checkDeviceLocationIsOn().then((value) {
       if (value) {
-        showLocationDialog(context);
+        showAlertDialog(context, text: "앱에서 위치 켜기를 요청합니다.", action: AppSettings.openLocationSettings);
       }
     });
 
     //Location Permission iOS
     _checkPermissionLocation().then((value) {
       if (value) {
-        showLocationDialog(context);
+        showAlertDialog(context, text: "앱에서 위치 접근 허용을 요청합니다.", action: AppSettings.openLocationSettings);
       }
     });
 
@@ -263,8 +263,8 @@ class _LoginState extends State<Login> {
   }
 
   void _checkLogin() async {
-    String? LoginState = await secureStorage.read(Env.LOGIN_STATE);
-    if (LoginState == "true") {
+    String? loginState = await secureStorage.read(Env.LOGIN_STATE);
+    if (loginState == "true") {
       // move
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
@@ -391,10 +391,5 @@ class _LoginState extends State<Login> {
       }
     }
     return false;
-  }
-
-  void locationPermission(BuildContext context) async {
-    bool android = await checkDeviceLocationIsOn();
-    bool ios = await _checkPermissionLocation();
   }
 }

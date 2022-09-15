@@ -18,7 +18,7 @@ class Home extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
+  const Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -108,7 +108,7 @@ class _HomeState extends State<Home> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          showAlertDialog(context);
+                          showLogoutDialog(context);
                         },
                         borderRadius: const BorderRadius.all(
                           Radius.circular(6.0),
