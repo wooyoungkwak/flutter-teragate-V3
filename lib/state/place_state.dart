@@ -275,7 +275,10 @@ class _PlaceState extends State<Place> {
     //  비콘 정보 요청 ( 동기화 )
     List<String> SharedStorageuuid = [];
     dialog.show(message: "로딩중...");
-    stopBeacon();
+    if (Platform.isIOS) {
+      stopBeacon();
+    }
+
     sendMessageByBeacon(context, secureStorage).then((configInfo) async {
       if (configInfo!.success!) {
         List<BeaconInfoData> placeInfo = configInfo.beaconInfoDatas;
@@ -290,8 +293,9 @@ class _PlaceState extends State<Place> {
         placeList = _deduplication(placeList);
 
         setState(() {});
-
-        initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
+        if (Platform.isIOS) {
+          initBeacon(context, widget.beaconStreamController, secureStorage, SharedStorageuuid);
+        }
 
         dialog.hide();
         showSyncDialog(context,
