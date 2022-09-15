@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 
@@ -50,6 +51,7 @@ class _LoginState extends State<Login> {
   void initState() {
     super.initState();
     secureStorage = SecureStorage();
+
     if (Env.isDebug) {
       _loginIdContoroller = TextEditingController(text: "raindrop891");
       _passwordContorller = TextEditingController(text: "raindrop891");
@@ -61,7 +63,16 @@ class _LoginState extends State<Login> {
     callPermissions();
     initIp().then((value) => Env.CONNECTIVITY_STREAM_SUBSCRIPTION = value);
     _checkLogin();
+
+    //Location Permission Android
     checkDeviceLocatioIsOn().then((value) {
+      if (value) {
+        showLocationDialog(context);
+      }
+    });
+
+    //Location Permission iOS
+    locationCheck().then((value) {
       if (value) {
         showLocationDialog(context);
       }
@@ -367,5 +378,23 @@ class _LoginState extends State<Login> {
 
   void _setBackgroundPath() async {
     Env.BACKGROUND_PATH = await secureStorage.read(Env.KEY_BACKGROUND_PATH) ?? "theme2.png";
+  }
+
+  Future<bool> locationCheck() async {
+    Location location = Location();
+    PermissionStatus permissionGranted;
+
+    if (Platform.isIOS) {
+      permissionGranted = await location.hasPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void locationPermission(BuildContext context) async {
+    bool android = await checkDeviceLocatioIsOn();
+    bool ios = await locationCheck();
   }
 }

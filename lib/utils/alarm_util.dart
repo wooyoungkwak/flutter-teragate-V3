@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
@@ -148,7 +149,7 @@ void showLocationDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) => AlertDialog(
       title: const Text('알림'),
-      content: const Text('앱에서 위치 켜기를 요청합니다.'),
+      content: Platform.isIOS ? const Text('앱에서 위치 접근 허용을 요청합니다.') : const Text('앱에서 위치 켜기를 요청합니다.'),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.pop(context, 'Cancel'),
