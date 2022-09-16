@@ -152,7 +152,7 @@ Future<WorkInfo> _processWorkByToday(SecureStorage secureStorage, String accessT
         if (tokenInfo.isUpdated == true) {
           // Token 저장
           secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
-          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+          secureStorage.write(Env.KEY_REFRESH_TOKEN, tokenInfo.getRefreshToken());
 
           repeat++;
           if (repeat < 2) {
@@ -163,6 +163,7 @@ Future<WorkInfo> _processWorkByToday(SecureStorage secureStorage, String accessT
         }
       }
     }
+
     return workInfo;
   } catch (err) {
     Log.log(" processTracking Exception : ${err.toString()}");
@@ -184,7 +185,7 @@ Future<WeekInfo> _processWorkByWeek(SecureStorage secureStorage, String accessTo
         if (tokenInfo.isUpdated == true) {
           // Token 저장
           secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
-          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+          secureStorage.write(Env.KEY_REFRESH_TOKEN, tokenInfo.getRefreshToken());
 
           repeat++;
           if (repeat < 2) {
@@ -217,7 +218,7 @@ Future<ConfigInfo> _processBeaconInfos(SecureStorage secureStorage, String acces
         if (tokenInfo.isUpdated == true) {
           // Token 저장
           secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
-          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+          secureStorage.write(Env.KEY_REFRESH_TOKEN, tokenInfo.getRefreshToken());
 
           repeat++;
           if (repeat < 2) {
@@ -251,7 +252,7 @@ Future<WorkInfo> _processTracking(SecureStorage secureStorage, String accessToke
         if (tokenInfo.isUpdated == true) {
           // Token 저장
           secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
-          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+          secureStorage.write(Env.KEY_REFRESH_TOKEN, tokenInfo.getRefreshToken());
 
           repeat++;
           if (repeat < 2) {
