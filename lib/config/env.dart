@@ -20,6 +20,9 @@ class Env {
   static const String SERVER_GROUPWARE_TEST = "$SERVER_URL:8060/pageLnk/Home";
   static const String SERVER_GROUPWARE_REAL = "$SERVER_URL/signIn";
 
+  static const String SERVER_GET_IN_URL = '$SERVER_URL:3000/teragate/goToWork';
+  static const String SERVER_GET_OUT_URL = '$SERVER_URL:3000/teragate/leaveWork';
+
   static bool isDebug = true; // 배포시 false
 
   static const String SERVER_GROUPWARE_URL = SERVER_GROUPWARE_TEST;

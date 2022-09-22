@@ -120,6 +120,32 @@ Future<WorkInfo> _tracking(String accessToken, String userId, String ip, String 
   }
 }
 
+// 출근
+Future<WorkInfo> _getIn(String ip, String accessToken) async {
+  var data = {"attIpIn": ip};
+  var body = json.encode(data);
+  var response = await http.post(Uri.parse(Env.SERVER_GET_IN_URL), headers: {"Content-Type": "application/json", "Authorization": accessToken}, body: body);
+
+  if (response.statusCode == 200) {
+    return WorkInfo.fromJsonByTracking(json.decode(response.body));
+  } else {
+    throw Exception(response.body);
+  }
+}
+
+// 퇴근
+Future<WorkInfo> _getOut(String ip, String accessToken) async {
+  var data = {"attIpIn": ip};
+  var body = json.encode(data);
+  final response = await http.post(Uri.parse(Env.SERVER_GET_OUT_URL), headers: {"Content-Type": "application/json", "Authorization": accessToken}, body: body);
+
+  if (response.statusCode == 200) {
+    return WorkInfo.fromJsonByTracking(json.decode(response.body));
+  } else {
+    throw Exception(response.body);
+  }
+}
+
 // 토큰 재요청
 Future<TokenInfo> _getTokenByRefreshToken(String refreshToken) async {
   var data = {"refreshToken": refreshToken};
@@ -269,6 +295,74 @@ Future<WorkInfo> _processTracking(SecureStorage secureStorage, String accessToke
   }
 }
 
+// 출근 요청 처리
+Future<WorkInfo> _processGetIn(String accessToken, String refreshToken, String ip, SecureStorage secureStorage, int repeat) async {
+  TokenInfo tokenInfo;
+
+  try {
+    // 출근 처리 가 이미 된 경우
+    WorkInfo workInfo = await _getIn(ip, accessToken);
+
+    if (workInfo.success) {
+      // 정상 등록 된 경우
+      tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
+    } else {
+      if (workInfo.message == "expired") {
+        // 만료 인 경우 재 요청 경우
+        tokenInfo = await _getTokenByRefreshToken(refreshToken);
+        // Token 저장
+        secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
+        secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+
+        repeat++;
+        if (repeat < 2) {
+          return await _processGetIn(tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), ip, secureStorage, repeat);
+        } else {
+          return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_FAIL_REGISTER);
+        }
+      }
+    }
+    return workInfo;
+  } catch (err) {
+    Log.log(" processGetIn Exception : ${err.toString()}");
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_FAIL_REGISTER);
+  }
+}
+
+// 퇴근 요청 처리
+Future<WorkInfo> _processGetOut(String accessToken, String refreshToken, String ip, SecureStorage secureStorage, int repeat) async {
+  WorkInfo workInfo = await _getOut(ip, accessToken);
+  TokenInfo tokenInfo;
+
+  try {
+    if (workInfo.success) {
+      tokenInfo = TokenInfo(accessToken: accessToken, refreshToken: refreshToken, isUpdated: false);
+    } else {
+      if (workInfo.message == "expired") {
+        // 만료 인 경우 재 요청 경우
+        tokenInfo = await _getTokenByRefreshToken(refreshToken);
+
+        if (tokenInfo.isUpdated == true) {
+          // Token 저장
+          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
+          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+
+          repeat++;
+          if (repeat < 2) {
+            return await _processGetOut(tokenInfo.getAccessToken(), tokenInfo.getRefreshToken(), ip, secureStorage, repeat);
+          } else {
+            return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_FAIL_REGISTER);
+          }
+        }
+      }
+    }
+    return workInfo;
+  } catch (err) {
+    Log.log(" processGetOut Exception : ${err.toString()}");
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_FAIL_REGISTER);
+  }
+}
+
 // 업무 정보 동기화 메시지 전송 (type : Env.WORK_TYPE_TODAY or Env.WORK_TYPE_WEEK )
 Future<WorkInfo?> sendMessageByWork(BuildContext? context, SecureStorage secureStorage) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
@@ -336,5 +430,40 @@ Future<WorkInfo?> sendMessageTracking(BuildContext? context, SecureStorage secur
   }
 
   WorkInfo workInfo = await _processTracking(secureStorage, acccessToken, refreshToken, userId!, Env.DEVICE_IP, uuid, place, 0);
+  return workInfo;
+}
+
+
+// 출근 메시지 
+Future<WorkInfo?> sendMessageByGetIn(BuildContext? context, SecureStorage secureStorage) async {
+  String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
+  String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
+
+  if (acccessToken == null) {
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_NOT_TOKEN);
+  }
+
+  if (refreshToken == null) {
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_NOT_TOKEN);
+  }
+
+  WorkInfo workInfo = await _processGetIn(refreshToken, acccessToken, Env.DEVICE_IP, secureStorage, 0);
+  return workInfo;
+}
+
+// 퇴근 메시지 
+Future<WorkInfo?> sendMessageByGetOut(BuildContext? context, SecureStorage secureStorage) async {
+  String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
+  String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
+
+  if (acccessToken == null) {
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_NOT_TOKEN);
+  }
+
+  if (refreshToken == null) {
+    return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_NOT_TOKEN);
+  }
+
+  WorkInfo workInfo = await _processGetOut(refreshToken, acccessToken, Env.DEVICE_IP, secureStorage, 0);
   return workInfo;
 }
