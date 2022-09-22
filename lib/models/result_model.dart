@@ -78,8 +78,12 @@ class WorkInfo {
   }
 
   static WorkInfo fromJson(Map<String, dynamic> json) {
-    if (json == null || !json["success"]) {
+    if (json == null) {
       return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: "");
+    }
+
+    if (!json["success"]) {
+      return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: json["message"] ?? "");
     }
 
     WorkInfo? workInfo;
