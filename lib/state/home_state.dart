@@ -217,17 +217,19 @@ class _HomeState extends State<Home> {
                           ),
                           Expanded(
                               flex: 2,
-                              child: _createWorkCard(
+                              child: _createButtonByPadding(
                                 color: _setGetInColor(getInTime),
                                 title: "출근",
                                 time: getInTime,
+                                action: getIn,
                               )),
                           Expanded(
                               flex: 2,
-                              child: _createWorkCard(
+                              child: _createButtonByPadding(
                                 color: _setGetOutColor(getOutTime),
                                 title: "퇴근",
                                 time: getOutTime,
+                                action: getOut,
                               )),
                         ],
                       ),
@@ -289,6 +291,47 @@ class _HomeState extends State<Home> {
                 weight: FontWeight.w400,
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Padding _createButtonByPadding({
+    Color color = Colors.white,
+    String? title,
+    String? time,
+    var action,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Material(
+        color: color,
+        borderRadius: BorderRadius.circular(6),
+        child: InkWell(
+          onTap: () {
+            action();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CustomText(
+                  padding: const EdgeInsets.all(5.0),
+                  text: title!,
+                  size: 14.0,
+                  weight: FontWeight.w400,
+                  color: color == Colors.white ? Colors.black : Colors.white,
+                ),
+                CustomText(
+                  padding: const EdgeInsets.all(5.0),
+                  text: time!,
+                  size: 16.0,
+                  color: color == Colors.white ? Colors.black : Colors.white,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -425,6 +468,69 @@ class _HomeState extends State<Home> {
               warning: false,
             ));
       }
+    });
+  }
+
+  Future<void> getIn() async {
+    await sendMessageByGetIn(context, secureStorage).then((workInfo) {
+      Log.debug("workInfo $workInfo");
+      setState(() {
+        if (workInfo!.success) {
+          Map<String, dynamic> setInfoMap = getWorkState(workInfo);
+          setState(() {
+            // 시간
+            currentHour = getDateToStringForHHInNow();
+            currentMinute = getDateToStringForMMInNow();
+            currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+            currentTimeHHMM = getDateToStringForHHMMInNow();
+            // 상태
+            workState = setInfoMap["state"];
+            isAttendTimeOut = setInfoMap["isAttendTimeOut"];
+            isLeave = setInfoMap["isLeaveTime"];
+            workTime = workInfo.strAttendLeaveTime ?? "-";
+            getInTime = workInfo.attendtime ?? "-";
+            getOutTime = workInfo.leavetime ?? "-";
+          });
+          showSyncDialog(
+            context,
+            widget: SyncDialog(
+              text: "출근 하셨습니다.",
+            ),
+          );
+        } else {
+          showSyncDialog(
+            context,
+            widget: SyncDialog(
+              text: "이미 출근 하셨습니다.",
+            ),
+          );
+        }
+      });
+    });
+  }
+
+  Future<void> getOut() async {
+    await sendMessageByGetOut(context, secureStorage).then((workInfo) {
+      Log.debug("workInfo $workInfo");
+      setState(() {
+        if (workInfo!.success) {
+          Map<String, dynamic> setInfoMap = getWorkState(workInfo);
+          setState(() {});
+          showSyncDialog(
+            context,
+            widget: SyncDialog(
+              text: "퇴근 하셨습니다.",
+            ),
+          );
+        } else {
+          showSyncDialog(
+            context,
+            widget: SyncDialog(
+              text: "이미 퇴근 하셨습니다.",
+            ),
+          );
+        }
+      });
     });
   }
 }

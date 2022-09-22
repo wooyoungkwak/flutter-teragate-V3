@@ -4,9 +4,10 @@ import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 class SyncDialog extends StatelessWidget {
+  String? text;
   String? currentLocation;
   bool warning;
-  SyncDialog({this.currentLocation, this.warning = true, Key? key}) : super(key: key);
+  SyncDialog({this.text, this.currentLocation, this.warning = true, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +29,16 @@ class SyncDialog extends StatelessWidget {
             // Title
             CustomText(
               padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
-              text: warning ? "시스템을 동기화 하였습니다." : "시스템 동기화에 실패 하였습니다.",
+              text: text != null
+                  ? text!
+                  : warning
+                      ? "시스템을 동기화 하였습니다."
+                      : "시스템 동기화에 실패 하였습니다.",
               size: 20.0,
               color: Colors.black,
             ),
             // 위치, 시간
-            if (warning)
+            if (warning && text == null)
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Column(
@@ -45,7 +50,7 @@ class SyncDialog extends StatelessWidget {
                 ),
               ),
             // 메세지
-            if (warning)
+            if (warning && text == null)
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Column(

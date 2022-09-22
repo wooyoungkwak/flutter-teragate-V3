@@ -139,6 +139,7 @@ Future<WorkInfo> _getOut(String ip, String accessToken) async {
   var body = json.encode(data);
   final response = await http.post(Uri.parse(Env.SERVER_GET_OUT_URL), headers: {"Content-Type": "application/json", "Authorization": accessToken}, body: body);
 
+  Log.debug("_getOut ${response.body}");
   if (response.statusCode == 200) {
     return WorkInfo.fromJsonByTracking(json.decode(response.body));
   } else {
@@ -303,6 +304,7 @@ Future<WorkInfo> _processGetIn(String accessToken, String refreshToken, String i
   try {
     // 출근 처리 가 이미 된 경우
     WorkInfo workInfo = await _getIn(ip, accessToken);
+    Log.debug("_processGetIn $workInfo");
 
     if (workInfo.success) {
       // 정상 등록 된 경우
@@ -313,7 +315,7 @@ Future<WorkInfo> _processGetIn(String accessToken, String refreshToken, String i
         tokenInfo = await _getTokenByRefreshToken(refreshToken);
         // Token 저장
         secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
-        secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+        secureStorage.write(Env.KEY_REFRESH_TOKEN, tokenInfo.getRefreshToken());
 
         repeat++;
         if (repeat < 2) {
@@ -346,7 +348,7 @@ Future<WorkInfo> _processGetOut(String accessToken, String refreshToken, String 
         if (tokenInfo.isUpdated == true) {
           // Token 저장
           secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getAccessToken());
-          secureStorage.write(Env.KEY_ACCESS_TOKEN, tokenInfo.getRefreshToken());
+          secureStorage.write(Env.KEY_REFRESH_TOKEN, tokenInfo.getRefreshToken());
 
           repeat++;
           if (repeat < 2) {
@@ -434,8 +436,7 @@ Future<WorkInfo?> sendMessageTracking(BuildContext? context, SecureStorage secur
   return workInfo;
 }
 
-
-// 출근 메시지 
+// 출근 메시지
 Future<WorkInfo?> sendMessageByGetIn(BuildContext? context, SecureStorage secureStorage) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
@@ -448,11 +449,11 @@ Future<WorkInfo?> sendMessageByGetIn(BuildContext? context, SecureStorage secure
     return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_NOT_TOKEN);
   }
 
-  WorkInfo workInfo = await _processGetIn(refreshToken, acccessToken, Env.DEVICE_IP, secureStorage, 0);
+  WorkInfo workInfo = await _processGetIn(acccessToken, refreshToken, Env.DEVICE_IP, secureStorage, 0);
   return workInfo;
 }
 
-// 퇴근 메시지 
+// 퇴근 메시지
 Future<WorkInfo?> sendMessageByGetOut(BuildContext? context, SecureStorage secureStorage) async {
   String? acccessToken = await secureStorage.read(Env.KEY_ACCESS_TOKEN);
   String? refreshToken = await secureStorage.read(Env.KEY_REFRESH_TOKEN);
@@ -465,6 +466,6 @@ Future<WorkInfo?> sendMessageByGetOut(BuildContext? context, SecureStorage secur
     return WorkInfo(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, success: false, message: Env.MSG_NOT_TOKEN);
   }
 
-  WorkInfo workInfo = await _processGetOut(refreshToken, acccessToken, Env.DEVICE_IP, secureStorage, 0);
+  WorkInfo workInfo = await _processGetOut(acccessToken, refreshToken, Env.DEVICE_IP, secureStorage, 0);
   return workInfo;
 }
