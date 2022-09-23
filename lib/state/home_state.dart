@@ -439,21 +439,7 @@ class _HomeState extends State<Home> {
     dialog.show(message: "로딩중...");
     await sendMessageByWork(context, secureStorage).then((workInfo) async {
       if (workInfo!.success) {
-        Map<String, dynamic> setInfoMap = getWorkState(workInfo);
-        setState(() {
-          // 시간
-          currentHour = getDateToStringForHHInNow();
-          currentMinute = getDateToStringForMMInNow();
-          currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
-          currentTimeHHMM = getDateToStringForHHMMInNow();
-          // 상태
-          workState = setInfoMap["state"];
-          isAttendTimeOut = setInfoMap["isAttendTimeOut"];
-          isLeave = setInfoMap["isLeaveTime"];
-          workTime = workInfo.strAttendLeaveTime ?? "-";
-          getInTime = workInfo.attendtime ?? "-";
-          getOutTime = workInfo.leavetime ?? "-";
-        });
+        _resetState(workInfo);
         dialog.hide();
         showSyncDialog(context,
             widget: SyncDialog(
@@ -473,64 +459,64 @@ class _HomeState extends State<Home> {
 
   Future<void> getIn() async {
     await sendMessageByGetIn(context, secureStorage).then((workInfo) {
-      Log.debug("workInfo $workInfo");
-      setState(() {
-        if (workInfo!.success) {
-          Map<String, dynamic> setInfoMap = getWorkState(workInfo);
-          setState(() {
-            // 시간
-            currentHour = getDateToStringForHHInNow();
-            currentMinute = getDateToStringForMMInNow();
-            currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
-            currentTimeHHMM = getDateToStringForHHMMInNow();
-            // 상태
-            workState = setInfoMap["state"];
-            isAttendTimeOut = setInfoMap["isAttendTimeOut"];
-            isLeave = setInfoMap["isLeaveTime"];
-            workTime = workInfo.strAttendLeaveTime ?? "-";
-            getInTime = workInfo.attendtime ?? "-";
-            getOutTime = workInfo.leavetime ?? "-";
-          });
-          showSyncDialog(
-            context,
-            widget: SyncDialog(
-              text: "출근 하셨습니다.",
-            ),
-          );
-        } else {
-          showSyncDialog(
-            context,
-            widget: SyncDialog(
-              text: "이미 출근 하셨습니다.",
-            ),
-          );
-        }
-      });
+      if (workInfo!.success) {
+        showSyncDialog(
+          context,
+          widget: SyncDialog(
+            text: "출근이 완료되었습니다.",
+          ),
+        );
+      } else {
+        showSyncDialog(
+          context,
+          widget: SyncDialog(
+            text: "이미 출근을 하셨습니다.",
+          ),
+        );
+      }
+    });
+
+    await sendMessageByWork(context, secureStorage).then((workInfo) async {
+      if (workInfo!.success) {
+        _resetState(workInfo);
+      }
     });
   }
 
   Future<void> getOut() async {
     await sendMessageByGetOut(context, secureStorage).then((workInfo) {
-      Log.debug("workInfo $workInfo");
-      setState(() {
-        if (workInfo!.success) {
-          Map<String, dynamic> setInfoMap = getWorkState(workInfo);
-          setState(() {});
-          showSyncDialog(
-            context,
-            widget: SyncDialog(
-              text: "퇴근 하셨습니다.",
-            ),
-          );
-        } else {
-          showSyncDialog(
-            context,
-            widget: SyncDialog(
-              text: "이미 퇴근 하셨습니다.",
-            ),
-          );
-        }
-      });
+      if (workInfo!.success) {
+        showSyncDialog(
+          context,
+          widget: SyncDialog(
+            text: "퇴근이 완료되었습니다.",
+          ),
+        );
+      }
+    });
+
+    await sendMessageByWork(context, secureStorage).then((workInfo) async {
+      if (workInfo!.success) {
+        _resetState(workInfo);
+      }
+    });
+  }
+
+  void _resetState(WorkInfo workInfo) {
+    Map<String, dynamic> setInfoMap = getWorkState(workInfo);
+    setState(() {
+      // 시간
+      currentHour = getDateToStringForHHInNow();
+      currentMinute = getDateToStringForMMInNow();
+      currentDay = "${getDateToStringForMMDDKORInNow()} ${getWeekByKor()}";
+      currentTimeHHMM = getDateToStringForHHMMInNow();
+      // 상태
+      workState = setInfoMap["state"];
+      isAttendTimeOut = setInfoMap["isAttendTimeOut"];
+      isLeave = setInfoMap["isLeaveTime"];
+      workTime = workInfo.strAttendLeaveTime ?? "-";
+      getInTime = workInfo.attendtime ?? "-";
+      getOutTime = workInfo.leavetime ?? "-";
     });
   }
 }

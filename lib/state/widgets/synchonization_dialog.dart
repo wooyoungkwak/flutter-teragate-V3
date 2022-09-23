@@ -25,7 +25,7 @@ class SyncDialog extends StatelessWidget {
                   ? _createIconByContainer(icon: Icons.replay_outlined, color: Colors.white, backgroundColor: const Color.fromARGB(255, 60, 95, 235))
                   : _createIconByContainer(icon: Icons.error, color: Colors.white, backgroundColor: const Color(0xffFF3823)),
             ),
-            if (!warning) const SizedBox(height: 40.0),
+            if (!warning || text != null) const SizedBox(height: 40.0),
             // Title
             CustomText(
               padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
