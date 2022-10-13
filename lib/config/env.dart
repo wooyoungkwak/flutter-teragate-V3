@@ -39,6 +39,7 @@ class Env {
   static String? WORK_POSITION_NAME;
   static String? WORK_PHOTO_PATH;
   static String? WORK_COMPANY_NAME;
+  static String? LOCATION_STATE = "out_work";
   static const String LOGIN_STATE = "LOGIN_STATE";
 
   static const String KEY_USER_ID = "USER_ID"; // Login 후에 서버로부터 부여 받은 사용자 ID 값
@@ -58,8 +59,8 @@ class Env {
   static const String KEY_COMPANY_NAME = "companyName";
 
   static const String KEY_SHARE_UUID = "share_uuid";
-
   static const String KEY_BACKGROUND_PATH = 'background_path';
+  static const String KEY_LOCATION_STATE = "location_state";
 
   static const String MSG_NOT_TOKEN = "로그인 후 사용 해주세요.";
   static const String MSG_LOGIN_FAIL = "ID 또는 Passwoard 를 확인하세요.";
