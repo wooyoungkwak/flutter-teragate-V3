@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:simple_fontellico_progress_dialog/simple_fontico_loading.dart';
 import 'package:teragate_v3/config/env.dart';
@@ -18,11 +19,7 @@ class Home extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
 
-  const Home(
-      {required this.eventStreamController,
-      required this.beaconStreamController,
-      Key? key})
-      : super(key: key);
+  const Home({required this.eventStreamController, required this.beaconStreamController, Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -74,10 +71,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    dialog = SimpleFontelicoProgressDialog(
-        context: context,
-        barrierDimisable: false,
-        duration: const Duration(milliseconds: 3000));
+    dialog = SimpleFontelicoProgressDialog(context: context, barrierDimisable: false, duration: const Duration(milliseconds: 3000));
 
     return WillPopScope(
       onWillPop: () {
@@ -89,7 +83,7 @@ class _HomeState extends State<Home> {
         padding: EdgeInsets.only(top: statusBarHeight),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/$backgroundPath"),
+            image: backgroundPath.startsWith("/data") ? FileImage(File(backgroundPath)) : AssetImage("assets/$backgroundPath") as ImageProvider,
             fit: BoxFit.cover,
           ),
         ),
@@ -184,8 +178,7 @@ class _HomeState extends State<Home> {
                           ClipOval(
                             child: Image.network(
                               profilePicture,
-                              errorBuilder: ((context, error, stackTrace) =>
-                                  _errorImage()),
+                              errorBuilder: ((context, error, stackTrace) => _errorImage()),
                               fit: BoxFit.cover,
                               width: 48,
                               height: 48,
@@ -195,8 +188,7 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               CustomText(
-                                padding: const EdgeInsets.only(
-                                    left: 14.0, right: 4.0),
+                                padding: const EdgeInsets.only(left: 14.0, right: 4.0),
                                 text: profileName,
                                 size: 28.0,
                               ),
