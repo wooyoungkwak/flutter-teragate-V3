@@ -173,81 +173,95 @@ class _ThemeState extends State<ThemeMain> {
 
                               //스크롤뷰로 감싸야 하는 곳
                               Expanded(
-                                child: Column(
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Checkbox(
-                                                activeColor: const Color(0xffF5F5F5),
-                                                checkColor: Colors.black,
-                                                value: _isCheckedBackground,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _isCheckedBackground = value!;
-                                                  });
-                                                  Env.CHECKED_BACKGOURND = value!;
-                                                }),
-                                            const CustomText(
-                                              text: "배경색 사용",
-                                              size: 14,
-                                              weight: FontWeight.w400,
-                                              color: Colors.black,
-                                            ),
-                                          ],
-                                        ),
-                                        AnimatedOpacity(
-                                          opacity: _isCheckedBackground ? 1.0 : 0.0,
-                                          duration: const Duration(milliseconds: 500),
-                                          child: Visibility(
-                                            maintainAnimation: true,
-                                            maintainState: true,
-                                            visible: _isCheckedBackground,
-                                            child: Row(
-                                              children: List.generate(backgrounListItems.length, (index) => initContainerByImageBox(list: backgrounListItems, index: index)),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Checkbox(
+                                                  activeColor: const Color(0xffF5F5F5),
+                                                  checkColor: Colors.black,
+                                                  value: _isCheckedBackground,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _isCheckedBackground = value!;
+                                                    });
+                                                    Env.CHECKED_BACKGOURND = value!;
+                                                  }),
+                                              const CustomText(
+                                                text: "배경색 사용",
+                                                size: 14,
+                                                weight: FontWeight.w400,
+                                                color: Colors.black,
+                                              ),
+                                            ],
+                                          ),
+                                          AnimatedOpacity(
+                                            opacity: _isCheckedBackground ? 1.0 : 0.0,
+                                            duration: const Duration(milliseconds: 500),
+                                            child: Visibility(
+                                              maintainAnimation: true,
+                                              maintainState: true,
+                                              visible: _isCheckedBackground,
+                                              child: Row(
+                                                children: List.generate(backgrounListItems.length, (index) => initContainerByImageBox(list: backgrounListItems, index: index)),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Checkbox(
-                                                activeColor: const Color(0xffF5F5F5),
-                                                checkColor: Colors.black,
-                                                value: _isCheckedTheme,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _isCheckedTheme = value!;
-                                                  });
-                                                  Env.CHECKED_THEME = value!;
-                                                }),
-                                            const CustomText(
-                                              text: "테마 사용",
-                                              size: 14,
-                                              weight: FontWeight.w400,
-                                              color: Colors.black,
-                                            ),
-                                            SizedBox(width: 50, child: TextButton(onPressed: _addCustomBackground, child: const Text(" + ", style: TextStyle(fontSize: 20)))),
-                                            SizedBox(width: 40, child: TextButton(onPressed: _deleteCustomBackground, child: const Text(" - ", style: TextStyle(fontSize: 20, color: Colors.red)))),
+                                        ],
+                                      ),
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Checkbox(
+                                                  activeColor: const Color(0xffF5F5F5),
+                                                  checkColor: Colors.black,
+                                                  value: _isCheckedTheme,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _isCheckedTheme = value!;
+                                                    });
+                                                    Env.CHECKED_THEME = value!;
+                                                  }),
+                                              const CustomText(
+                                                text: "테마 사용",
+                                                size: 14,
+                                                weight: FontWeight.w400,
+                                                color: Colors.black,
+                                              ),
+                                              SizedBox(width: 50, child: TextButton(onPressed: _addCustomBackground, child: const Text(" + ", style: TextStyle(fontSize: 20)))),
+                                              SizedBox(width: 40, child: TextButton(onPressed: _deleteCustomBackground, child: const Text(" - ", style: TextStyle(fontSize: 20, color: Colors.red)))),
 
-                                            //이미지버튼 추가(리스트에 삽입해야함. )
-                                          ],
-                                        ),
-                                        AnimatedOpacity(
-                                            opacity: _isCheckedTheme ? 1.0 : 0.0,
-                                            duration: const Duration(milliseconds: 500),
+                                              //이미지버튼 추가(리스트에 삽입해야함. )
+                                            ],
+                                          ),
+                                          AnimatedOpacity(
+                                              opacity: _isCheckedTheme ? 1.0 : 0.0,
+                                              duration: const Duration(milliseconds: 500),
 
-                                            //저장된 테마값이 5개 이상일때는 스크롤뷰로 넣고, 아니면 기존 컬럼으로 넣기.
-                                            child: themeListItmes.length > 5
-                                                ? SingleChildScrollView(
-                                                    scrollDirection: Axis.horizontal,
-                                                    child: Column(
+                                              //저장된 테마값이 5개 이상일때는 스크롤뷰로 넣고, 아니면 기존 컬럼으로 넣기.
+                                              child: themeListItmes.length > 5
+                                                  ? SingleChildScrollView(
+                                                      scrollDirection: Axis.horizontal,
+                                                      child: Column(
+                                                        children: [
+                                                          Visibility(
+                                                            maintainAnimation: true,
+                                                            maintainState: true,
+                                                            visible: _isCheckedTheme,
+                                                            child: Row(
+                                                              //스크롤뷰로 감싸기.
+                                                              children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ))
+                                                  : Column(
                                                       children: [
                                                         Visibility(
                                                           maintainAnimation: true,
@@ -260,22 +274,10 @@ class _ThemeState extends State<ThemeMain> {
                                                         ),
                                                       ],
                                                     ))
-                                                : Column(
-                                                    children: [
-                                                      Visibility(
-                                                        maintainAnimation: true,
-                                                        maintainState: true,
-                                                        visible: _isCheckedTheme,
-                                                        child: Row(
-                                                          //스크롤뷰로 감싸기.
-                                                          children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ))
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -355,7 +357,9 @@ class _ThemeState extends State<ThemeMain> {
                           FileImage(File(list[index]["image"]), scale: 0.2)
                           :
                           //기존 이미지면
-                          AssetImage("assets/${list[index]["image"]}.png") as ImageProvider,
+                          list[index]["image"].toString().startsWith('/private')
+                              ? FileImage(File(list[index]["image"]), scale: 0.2)
+                              : AssetImage("assets/${list[index]["image"]}.png") as ImageProvider,
                       fit: BoxFit.fill
                       // Image.asset("assets/${list[index]["image"]}.png", fit: BoxFit.fitHeight) as ImageProvider,
                       )),

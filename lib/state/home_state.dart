@@ -83,7 +83,11 @@ class _HomeState extends State<Home> {
         padding: EdgeInsets.only(top: statusBarHeight),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: backgroundPath.startsWith("/data") ? FileImage(File(backgroundPath)) : AssetImage("assets/$backgroundPath") as ImageProvider,
+            image: backgroundPath.startsWith("/data")
+                ? FileImage(File(backgroundPath))
+                : backgroundPath.toString().startsWith('/private')
+                    ? FileImage(File(backgroundPath))
+                    : AssetImage("assets/$backgroundPath") as ImageProvider,
             fit: BoxFit.cover,
           ),
         ),
