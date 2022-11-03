@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +17,8 @@ import 'package:teragate_v3/state/widgets/synchonization_dialog.dart';
 import 'package:teragate_v3/utils/alarm_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
+import 'package:image_picker/image_picker.dart';
+
 class ThemeMain extends StatefulWidget {
   final StreamController eventStreamController;
   final StreamController beaconStreamController;
@@ -30,39 +34,22 @@ class _ThemeState extends State<ThemeMain> {
   late bool _isCheckedTheme;
   late bool _isCheckedBackground;
   bool isImage = false;
+
+  //임시 변수들
+  late File _image = File("assets/background1.png");
+
   List<int> indexImage = [];
   List backgrounListItems = [
-    {
-      "value": false,
-      "image": "background1",
-    },
-    {
-      "value": false,
-      "image": "background2",
-    },
-    {
-      "value": false,
-      "image": "background3",
-    },
-    {
-      "value": false,
-      "image": "background4",
-    }
+    {"value": false, "image": "background1"},
+    {"value": false, "image": "background2"},
+    {"value": false, "image": "background3"},
+    {"value": false, "image": "background4"}
   ];
 
   List themeListItmes = [
-    {
-      "value": false,
-      "image": "theme1",
-    },
-    {
-      "value": false,
-      "image": "theme2",
-    },
-    {
-      "value": false,
-      "image": "theme3",
-    }
+    {"value": false, "image": "theme1"},
+    {"value": false, "image": "theme2"},
+    {"value": false, "image": "theme3"},
   ];
 
   late SecureStorage secureStorage;
@@ -72,9 +59,14 @@ class _ThemeState extends State<ThemeMain> {
   @override
   void initState() {
     super.initState();
+
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     workInfo = Env.INIT_STATE_WORK_INFO;
     secureStorage = SecureStorage();
+
+    //배열초기화
+    _initArray();
+
     Env.EVENT_FUNCTION = _setUI;
     Env.BEACON_FUNCTION = _setBeaconUI;
     _isCheckedBackground = Env.CHECKED_BACKGOURND;
@@ -178,10 +170,10 @@ class _ThemeState extends State<ThemeMain> {
                                       onChanged: (value) {})
                                 ],
                               ),
+
+                              //스크롤뷰로 감싸야 하는 곳
                               Expanded(
-                                child: ListView(
-                                  padding: const EdgeInsets.all(0.0),
-                                  shrinkWrap: true,
+                                child: Column(
                                   children: [
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.start,
@@ -241,20 +233,46 @@ class _ThemeState extends State<ThemeMain> {
                                               weight: FontWeight.w400,
                                               color: Colors.black,
                                             ),
+                                            SizedBox(width: 50, child: TextButton(onPressed: _addCustomBackground, child: const Text(" + ", style: TextStyle(fontSize: 20)))),
+                                            SizedBox(width: 40, child: TextButton(onPressed: _deleteCustomBackground, child: const Text(" - ", style: TextStyle(fontSize: 20, color: Colors.red)))),
+
+                                            //이미지버튼 추가(리스트에 삽입해야함. )
                                           ],
                                         ),
                                         AnimatedOpacity(
-                                          opacity: _isCheckedTheme ? 1.0 : 0.0,
-                                          duration: const Duration(milliseconds: 500),
-                                          child: Visibility(
-                                            maintainAnimation: true,
-                                            maintainState: true,
-                                            visible: _isCheckedTheme,
-                                            child: Row(
-                                              children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
-                                            ),
-                                          ),
-                                        ),
+                                            opacity: _isCheckedTheme ? 1.0 : 0.0,
+                                            duration: const Duration(milliseconds: 500),
+
+                                            //저장된 테마값이 5개 이상일때는 스크롤뷰로 넣고, 아니면 기존 컬럼으로 넣기.
+                                            child: themeListItmes.length > 5
+                                                ? SingleChildScrollView(
+                                                    scrollDirection: Axis.horizontal,
+                                                    child: Column(
+                                                      children: [
+                                                        Visibility(
+                                                          maintainAnimation: true,
+                                                          maintainState: true,
+                                                          visible: _isCheckedTheme,
+                                                          child: Row(
+                                                            //스크롤뷰로 감싸기.
+                                                            children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ))
+                                                : Column(
+                                                    children: [
+                                                      Visibility(
+                                                        maintainAnimation: true,
+                                                        maintainState: true,
+                                                        visible: _isCheckedTheme,
+                                                        child: Row(
+                                                          //스크롤뷰로 감싸기.
+                                                          children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ))
                                       ],
                                     ),
                                   ],
@@ -294,22 +312,54 @@ class _ThemeState extends State<ThemeMain> {
   }
 
   //이미지 박스
+
   Container initContainerByImageBox({required int index, required list}) {
     return Container(
-      margin: const EdgeInsets.all(8),
-      height: 100,
-      width: 50,
-      decoration: list[index]["value"] ? BoxDecoration(border: Border.all(color: const Color(0xff26C145), width: 5)) : null,
-      child: GestureDetector(
-          onTap: () {
-            setState(() {
-              _initListReset();
-              list[index]["value"] = true;
-            });
-            _setBackgroundPath("${list[index]["image"]}.png");
-          },
-          child: Image.asset("assets/${list[index]["image"]}.png", fit: BoxFit.fitHeight)),
-    );
+        margin: const EdgeInsets.all(8),
+        height: 100,
+        width: 50,
+        decoration: list[index]["value"] ? BoxDecoration(border: Border.all(color: const Color(0xff26C145), width: 5)) : null,
+        child: GestureDetector(
+            onTap: () {
+              setState(() {
+                //바로 홈화면으로 가게
+
+                _initListReset();
+                list[index]["value"] = true;
+
+                //탭하면 포인터 유지될수 있도록 변경
+                var jsonVar = json.encode(themeListItmes);
+
+                secureStorage.write(Env.KEY_SAVED_ARRAY, jsonVar);
+              });
+
+              // _setBackgroundPath("${list[index]["image"]}.png");
+
+              if (list[index]["image"].toString().startsWith("/data")) {
+                //커스텀 이미지
+
+                _setBackgroundPath(list[index]["image"]);
+              } else {
+                //기본 이미지
+                _setBackgroundPath("${list[index]["image"]}.png");
+              }
+            },
+            //커스텀 이미지일때만 특정 UI를 사용.
+
+            child: Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: list[index]["image"].toString().startsWith('/data')
+                          ?
+                          //data 시작이 맞으면
+                          FileImage(File(list[index]["image"]), scale: 0.2)
+                          :
+                          //기존 이미지면
+                          AssetImage("assets/${list[index]["image"]}.png") as ImageProvider,
+                      fit: BoxFit.fill
+                      // Image.asset("assets/${list[index]["image"]}.png", fit: BoxFit.fitHeight) as ImageProvider,
+                      )),
+            )));
   }
 
   void _setUI(WorkInfo workInfo) {
@@ -375,4 +425,155 @@ class _ThemeState extends State<ThemeMain> {
       }
     }
   }
+
+  void _addCustomBackground() async {
+    ImagePicker picker = ImagePicker();
+    //이미지 선택 후 해당 이미지를 기존 해상도로 불러오기.
+
+    _initListReset();
+
+    try {
+      //이미지 개수 제한 : 8개 (변경)
+
+      if (themeListItmes.length > 7) {
+        flutterDialog(context, "이미지 개수 제한", "8개 이상으로는 추가할 수 없습니다.");
+      } else {
+        XFile? pickedFile = await picker.pickImage(
+            source: ImageSource.gallery,
+            // maxWidth: 621,
+            // maxHeight: 1344,
+
+            //이부분 해상도 변경을 해야합니다.
+            maxWidth: 900,
+            maxHeight: 1600,
+
+            //이미지 퀼리티는 0 ~ 100 사이에서 조절 가능.
+            imageQuality: 20);
+
+        //NULL 체크
+        if (pickedFile != null) {
+          _image = File(pickedFile.path);
+
+          //배열초기화.
+          _initListReset();
+
+          //배열에 파일 추가.
+
+          String jsonString = '{"value" : false , "image" : "${_image.path}"}';
+
+          themeListItmes.add(jsonDecode(jsonString));
+
+          setState(() {
+            //선택된 이미지파일을 메인으로 넘기기. (_image.path 를 넘기기.)
+            _setBackgroundPath(_image.path);
+
+            //하이라이트 되는 부분 변경
+            themeListItmes.last["value"] = true;
+
+            var jsonVar = json.encode(themeListItmes);
+
+            secureStorage.write(Env.KEY_SAVED_ARRAY, jsonVar);
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        //이미지 선택 취소나 오류발생시...
+      });
+    }
+  }
+
+  void _deleteCustomBackground() {
+    //조건 : 기존 테마 3개는 고정으로 놔두고 4개째인 커스텀 이미지부터 추가 / 제거작업 하기.
+    _initListReset();
+
+    if (themeListItmes.length > 3) {
+      themeListItmes.removeLast();
+
+      //배열 저장 후, 현재 마지막으로 되어있는 이미지를 배경으로 설정.
+
+      //하이라이트 되는 부분 변경
+      themeListItmes.last["value"] = true;
+
+      var jsonVar = json.encode(themeListItmes);
+
+      secureStorage.write(Env.KEY_SAVED_ARRAY, jsonVar);
+
+      if (themeListItmes.last["image"] == "theme3") {
+        _setBackgroundPath(themeListItmes.last["image"] + ".png");
+        //마지막 배열 지우고 다시 배열 생성해서 저장해줘야함...
+
+        secureStorage.delete(Env.KEY_SAVED_ARRAY);
+      } else {
+        _setBackgroundPath(themeListItmes.last["image"]);
+      }
+
+      setState(() {});
+    } else {
+      flutterDialog(context, "오류", "삭제할 이미지가 없습니다.");
+
+      //마지막 커스텀이미지 삭제시 3번 이미지를 전달
+      _setBackgroundPath(themeListItmes.last["image"] + ".png");
+
+      secureStorage.delete(Env.KEY_SAVED_ARRAY);
+
+      themeListItmes.last["value"] = true;
+
+      setState(() {});
+    }
+  }
+
+  void _initArray() async {
+    var tempListVar = await secureStorage.read(Env.KEY_SAVED_ARRAY);
+
+    if (tempListVar!.isNotEmpty) {
+      //널값이 아니면 값이 저장되있다는 의미임. 해당값을 배열에 넣어주기.
+
+      themeListItmes = jsonDecode(tempListVar);
+
+      //UI갱신
+    } else {
+      //저장된 값이 없으니까 배열저장이 안되있어야함.
+
+    }
+
+    setState(() {});
+  }
+}
+
+void flutterDialog(BuildContext context, String titleText, String bodyText) {
+  showDialog(
+      context: context,
+      //barrierDismissible - Dialog를 제외한 다른 화면 터치 x
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          //Dialog Main Title
+          title: Column(
+            children: <Widget>[
+              Text(titleText),
+            ],
+          ),
+          //
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                bodyText,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("확인"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      });
 }

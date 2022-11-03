@@ -106,4 +106,6 @@ class Env {
   static Function? EVENT_WEEK_FUNCTION;
   static Function? BEACON_FUNCTION;
   static String? BACKGROUND_PATH;
+
+  static const String KEY_SAVED_ARRAY = 'savedArray';
 }

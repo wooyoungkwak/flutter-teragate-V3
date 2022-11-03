@@ -16,9 +16,7 @@ class BeaconsPlugin {
 
   // Send the message [msg] with the [msgDebugLevel] value. 1 = error, 2 = info
   static void printDebugMessage(String? msg, int msgDebugLevel) {
-    if (_debugLevel >= msgDebugLevel) {
-      print('beacons_plugin: $msg');
-    }
+    if (_debugLevel >= msgDebugLevel) {}
   }
 
   static Future<void> startMonitoring() async {
@@ -32,8 +30,7 @@ class BeaconsPlugin {
   }
 
   static Future<void> addRegion(String identifier, String uuid) async {
-    final String? result = await channel.invokeMethod(
-        'addRegion', <String, dynamic>{'identifier': identifier, 'uuid': uuid});
+    final String? result = await channel.invokeMethod('addRegion', <String, dynamic>{'identifier': identifier, 'uuid': uuid});
     printDebugMessage(result, 2);
   }
 
@@ -59,51 +56,31 @@ class BeaconsPlugin {
   }
 
   static Future<void> addBeaconLayoutForAndroid(String layout) async {
-    final String? result = await channel.invokeMethod(
-        'addBeaconLayoutForAndroid', <String, dynamic>{'layout': layout});
+    final String? result = await channel.invokeMethod('addBeaconLayoutForAndroid', <String, dynamic>{'layout': layout});
     printDebugMessage(result, 2);
   }
 
-  static Future<void> setForegroundScanPeriodForAndroid(
-      {int foregroundScanPeriod = 1100,
-      int foregroundBetweenScanPeriod = 0}) async {
-    final String? result = await channel
-        .invokeMethod('setForegroundScanPeriodForAndroid', <String, dynamic>{
-      'foregroundScanPeriod': foregroundScanPeriod,
-      'foregroundBetweenScanPeriod': foregroundBetweenScanPeriod
-    });
+  static Future<void> setForegroundScanPeriodForAndroid({int foregroundScanPeriod = 1100, int foregroundBetweenScanPeriod = 0}) async {
+    final String? result =
+        await channel.invokeMethod('setForegroundScanPeriodForAndroid', <String, dynamic>{'foregroundScanPeriod': foregroundScanPeriod, 'foregroundBetweenScanPeriod': foregroundBetweenScanPeriod});
     printDebugMessage(result, 2);
   }
 
-  static Future<void> setBackgroundScanPeriodForAndroid(
-      {int backgroundScanPeriod = 1100,
-      int backgroundBetweenScanPeriod = 0}) async {
-    final String? result = await channel
-        .invokeMethod('setBackgroundScanPeriodForAndroid', <String, dynamic>{
-      'backgroundScanPeriod': backgroundScanPeriod,
-      'backgroundBetweenScanPeriod': backgroundBetweenScanPeriod
-    });
+  static Future<void> setBackgroundScanPeriodForAndroid({int backgroundScanPeriod = 1100, int backgroundBetweenScanPeriod = 0}) async {
+    final String? result =
+        await channel.invokeMethod('setBackgroundScanPeriodForAndroid', <String, dynamic>{'backgroundScanPeriod': backgroundScanPeriod, 'backgroundBetweenScanPeriod': backgroundBetweenScanPeriod});
     printDebugMessage(result, 2);
   }
 
-  static Future<void> setDisclosureDialogMessage(
-      {String? title, String? message}) async {
-    final String? result = await channel.invokeMethod(
-        'setDisclosureDialogMessage',
-        <String, dynamic>{'title': title, 'message': message});
+  static Future<void> setDisclosureDialogMessage({String? title, String? message}) async {
+    final String? result = await channel.invokeMethod('setDisclosureDialogMessage', <String, dynamic>{'title': title, 'message': message});
     printDebugMessage(result, 2);
   }
 
-  static Future<void> addRegionForIOS(
-      String uuid, int major, int minor, String name) async {
+  static Future<void> addRegionForIOS(String uuid, int major, int minor, String name) async {
     final String? result = await channel.invokeMethod(
       'addRegionForIOS',
-      <String, dynamic>{
-        'uuid': uuid,
-        'major': major,
-        'minor': minor,
-        'name': name
-      },
+      <String, dynamic>{'uuid': uuid, 'major': major, 'minor': minor, 'name': name},
     );
     printDebugMessage(result, 2);
   }
@@ -111,8 +88,8 @@ class BeaconsPlugin {
   static listenToBeacons(StreamController controller) async {
     event_channel.receiveBroadcastStream().listen((dynamic event) {
       printDebugMessage('Received: $event', 2);
-      // TODO :  로그 찍기 ... 
-      
+      // TODO :  로그 찍기 ...
+
       controller.add(event);
     }, onError: (dynamic error) {
       printDebugMessage('Received error: ${error.message}', 1);
