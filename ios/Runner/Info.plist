@@ -34,6 +34,10 @@
 	<string>Need Location permission</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Need Location permission</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Library Access Warning</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>My description about why I need this capability</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
