@@ -178,6 +178,7 @@ class _ThemeState extends State<ThemeMain> {
                                     children: [
                                       Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
@@ -207,6 +208,7 @@ class _ThemeState extends State<ThemeMain> {
                                               maintainState: true,
                                               visible: _isCheckedBackground,
                                               child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
                                                 children: List.generate(backgrounListItems.length, (index) => initContainerByImageBox(list: backgrounListItems, index: index)),
                                               ),
                                             ),
@@ -215,6 +217,7 @@ class _ThemeState extends State<ThemeMain> {
                                       ),
                                       Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
@@ -241,39 +244,27 @@ class _ThemeState extends State<ThemeMain> {
                                             ],
                                           ),
                                           AnimatedOpacity(
-                                              opacity: _isCheckedTheme ? 1.0 : 0.0,
-                                              duration: const Duration(milliseconds: 500),
+                                            opacity: _isCheckedTheme ? 1.0 : 0.0,
+                                            duration: const Duration(milliseconds: 500),
 
-                                              //저장된 테마값이 5개 이상일때는 스크롤뷰로 넣고, 아니면 기존 컬럼으로 넣기.
-                                              child: themeListItmes.length > 5
-                                                  ? SingleChildScrollView(
-                                                      scrollDirection: Axis.horizontal,
-                                                      child: Column(
-                                                        children: [
-                                                          Visibility(
-                                                            maintainAnimation: true,
-                                                            maintainState: true,
-                                                            visible: _isCheckedTheme,
-                                                            child: Row(
-                                                              //스크롤뷰로 감싸기.
-                                                              children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ))
-                                                  : Column(
-                                                      children: [
-                                                        Visibility(
-                                                          maintainAnimation: true,
-                                                          maintainState: true,
-                                                          visible: _isCheckedTheme,
-                                                          child: Row(
-                                                            //스크롤뷰로 감싸기.
-                                                            children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ))
+                                            //저장된 테마값이 5개 이상일때는 스크롤뷰로 넣고, 아니면 기존 컬럼으로 넣기.
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Column(
+                                                children: [
+                                                  Visibility(
+                                                    maintainAnimation: true,
+                                                    maintainState: true,
+                                                    visible: _isCheckedTheme,
+                                                    child: Row(
+                                                      //스크롤뷰로 감싸기.
+                                                      children: List.generate(themeListItmes.length, (index) => initContainerByImageBox(list: themeListItmes, index: index)),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ],
