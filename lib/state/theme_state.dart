@@ -443,7 +443,7 @@ class _ThemeState extends State<ThemeMain> {
             maxHeight: 1600,
 
             //이미지 퀼리티는 0 ~ 100 사이에서 조절 가능.
-            imageQuality: 20);
+            imageQuality: 100);
 
         //NULL 체크
         if (pickedFile != null) {
