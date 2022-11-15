@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:teragate_v3/utils/log_util.dart';
 
 class BeaconsPlugin {
   static const MethodChannel channel = const MethodChannel('beacons_plugin');
@@ -16,7 +17,7 @@ class BeaconsPlugin {
 
   // Send the message [msg] with the [msgDebugLevel] value. 1 = error, 2 = info
   static void printDebugMessage(String? msg, int msgDebugLevel) {
-    if (_debugLevel >= msgDebugLevel) {}
+    Log.debug(msg);
   }
 
   static Future<void> startMonitoring() async {
@@ -61,14 +62,12 @@ class BeaconsPlugin {
   }
 
   static Future<void> setForegroundScanPeriodForAndroid({int foregroundScanPeriod = 1100, int foregroundBetweenScanPeriod = 0}) async {
-    final String? result =
-        await channel.invokeMethod('setForegroundScanPeriodForAndroid', <String, dynamic>{'foregroundScanPeriod': foregroundScanPeriod, 'foregroundBetweenScanPeriod': foregroundBetweenScanPeriod});
+    final String? result = await channel.invokeMethod('setForegroundScanPeriodForAndroid', <String, dynamic>{'foregroundScanPeriod': foregroundScanPeriod, 'foregroundBetweenScanPeriod': foregroundBetweenScanPeriod});
     printDebugMessage(result, 2);
   }
 
   static Future<void> setBackgroundScanPeriodForAndroid({int backgroundScanPeriod = 1100, int backgroundBetweenScanPeriod = 0}) async {
-    final String? result =
-        await channel.invokeMethod('setBackgroundScanPeriodForAndroid', <String, dynamic>{'backgroundScanPeriod': backgroundScanPeriod, 'backgroundBetweenScanPeriod': backgroundBetweenScanPeriod});
+    final String? result = await channel.invokeMethod('setBackgroundScanPeriodForAndroid', <String, dynamic>{'backgroundScanPeriod': backgroundScanPeriod, 'backgroundBetweenScanPeriod': backgroundBetweenScanPeriod});
     printDebugMessage(result, 2);
   }
 
