@@ -14,7 +14,7 @@ Future<void> initBeacon(
     BuildContext context,
     StreamController beaconStreamController,
     SecureStorage secureStorage,
-    dynamic? uuids) async {
+    dynamic uuids) async {
   if (Platform.isAndroid) {
     await BeaconsPlugin.setDisclosureDialogMessage(
         title: "Need Location Permission",
@@ -26,13 +26,12 @@ Future<void> initBeacon(
       if (call.method == 'scannerReady') {
         await startBeacon(uuids);
       } else if (call.method == 'isPermissionDialogShown') {
-        // showConfirmDialog(context, "알림", "Beacon 을 검색 할 수 없습니다. 권한을 확인 하세요.");
         Log.debug("Beacon 을 검색 할 수 없습니다. 권한을 확인 하세요.");
       }
     });
     await BeaconsPlugin.runInBackground(true);
   } else if (Platform.isIOS) {
-    BeaconsPlugin.setDebugLevel(2);
+    
     Future.delayed(const Duration(milliseconds: 3000), () async {
       await startBeacon(uuids);
     }); //Send 'true' to run in background
@@ -53,7 +52,7 @@ String getUUID(dynamic event) {
 }
 
 // 비콘 설정
-Future<void> _setBeacon(dynamic? uuids) async {
+Future<void> _setBeacon(dynamic uuids) async {
   if (uuids == null) {
     await BeaconsPlugin.addRegion("iBeacon", Env.UUID_DEFAULT);
   } else {
@@ -73,7 +72,7 @@ Future<void> _setBeacon(dynamic? uuids) async {
 }
 
 // 비콘 시작
-Future<void> startBeacon(dynamic? uuids) async {
+Future<void> startBeacon(dynamic uuids) async {
   await _setBeacon(uuids);
   await BeaconsPlugin.startMonitoring();
 }

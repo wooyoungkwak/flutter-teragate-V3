@@ -442,7 +442,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _syncghoniztionHomeUI(WorkInfo? workInfo) async {
     dialog.show(message: "로딩중...");
-    await sendMessageByWork(context, secureStorage).then((workInfo) async {
+    sendMessageByWork(context, secureStorage).then((workInfo) {
       if (workInfo!.success) {
         _resetState(workInfo);
         dialog.hide();
@@ -465,7 +465,7 @@ class _HomeState extends State<Home> {
   Future<void> getIn() async {
     dialog.show(message: "로딩중...");
 
-    await sendMessageByGetIn(context, secureStorage).then((workInfo) {
+    sendMessageByGetIn(context, secureStorage).then((workInfo) {
       if (workInfo!.success) {
         dialog.hide();
         showSyncDialog(
@@ -483,18 +483,18 @@ class _HomeState extends State<Home> {
           ),
         );
       }
-    });
 
-    await sendMessageByWork(context, secureStorage).then((workInfo) async {
-      if (workInfo!.success) {
-        _resetState(workInfo);
-      }
+      sendMessageByWork(context, secureStorage).then((workInfo) {
+        if (workInfo!.success) {
+          _resetState(workInfo);
+        }
+      });
     });
   }
 
   Future<void> getOut() async {
     dialog.show(message: "로딩중...");
-    await sendMessageByGetOut(context, secureStorage).then((workInfo) {
+    sendMessageByGetOut(context, secureStorage).then((workInfo) {
       if (workInfo!.success) {
         dialog.hide();
         showSyncDialog(
@@ -504,12 +504,12 @@ class _HomeState extends State<Home> {
           ),
         );
       }
-    });
 
-    await sendMessageByWork(context, secureStorage).then((workInfo) async {
-      if (workInfo!.success) {
-        _resetState(workInfo);
-      }
+      sendMessageByWork(context, secureStorage).then((workInfo) {
+        if (workInfo!.success) {
+          _resetState(workInfo);
+        }
+      });
     });
   }
 

@@ -1,23 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/utils/log_util.dart';
 
 class BeaconsPlugin {
-  static const MethodChannel channel = const MethodChannel('beacons_plugin');
-  static const event_channel = EventChannel('beacons_plugin_stream');
+  static const MethodChannel channel = MethodChannel('beacons_plugin');
+  static const eventChannel = EventChannel('beacons_plugin_stream');
 
-  // 0 = no messages, 1 = only errors, 2 = all
-  static int _debugLevel = 2;
-
-  /// Set the message level value [value] for debugging purpose. 0 = no messages, 1 = errors, 2 = all
-  static void setDebugLevel(int value) {
-    _debugLevel = value;
-  }
-
-  // Send the message [msg] with the [msgDebugLevel] value. 1 = error, 2 = info
   static void printDebugMessage(String? msg, int msgDebugLevel) {
-    Log.debug(msg);
+    if (Env.isDebug) Log.debug(msg);
   }
 
   static Future<void> startMonitoring() async {
@@ -85,7 +77,7 @@ class BeaconsPlugin {
   }
 
   static listenToBeacons(StreamController controller) async {
-    event_channel.receiveBroadcastStream().listen((dynamic event) {
+    eventChannel.receiveBroadcastStream().listen((dynamic event) {
       printDebugMessage('Received: $event', 2);
       // TODO :  로그 찍기 ...
 
