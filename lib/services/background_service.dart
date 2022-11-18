@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:teragate_v3/config/env.dart';
 import 'package:teragate_v3/models/result_model.dart';
@@ -9,17 +10,24 @@ import 'package:teragate_v3/utils/log_util.dart';
 import 'package:teragate_v3/utils/time_util.dart';
 
 StreamSubscription startBeaconSubscription(StreamController streamController, SecureStorage secureStorage) {
+  String oldScanTime = "";
+  Map<String, dynamic> eventMap;
   return streamController.stream.listen((event) {
     if (event.isNotEmpty) {
-      _processEvent(secureStorage, event);
+      eventMap = jsonDecode(event);
+      if (oldScanTime == eventMap["scanTime"]) {
+        return;
+      }
+
+      _processEvent(secureStorage, eventMap);
     }
   }, onError: (dynamic error) {
     Log.error('Received error: ${error.message}');
   });
 }
 
-Future<void> _processEvent(SecureStorage secureStorage, var event) async {
-  String uuid = getUUID(event);
+Future<void> _processEvent(SecureStorage secureStorage, Map<String, dynamic> eventMap) async {
+  String uuid = getUUID(eventMap);
 
   Log.debug(" *** uuid = $uuid :: UUIDS SIZE = ${Env.UUIDS.length}");
 
@@ -51,12 +59,12 @@ void stopBeaconSubscription(StreamSubscription? streamSubscription) {
 Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorage) async {
   int count = 0;
 
-  Timer? timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  Timer? timer = Timer.periodic(const Duration(seconds: 60), (timer) {
     // ignore: unnecessary_null_comparison
     if (Env.INNER_TIME == null) return;
 
     int diff = getNow().difference(Env.INNER_TIME).inSeconds;
-    Log.debug(" *** diff = $diff");
+    if(Env.isDebug) Log.debug(" *** diff = $diff");
 
     if (diff == 60) {
       Env.CURRENT_UUID = "";
@@ -66,14 +74,14 @@ Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorag
       // 서버에 전송
       if (Env.LOCATION_STATE == "in_work") {
         sendMessageTracking(context, secureStorage, "", Env.CURRENT_PLACE).then((workInfo) {
-          Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}");
+          if(Env.isDebug) Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}");
           // 외부(비콘 범위 밖) 상태 변경
           setLocationState(secureStorage, "out_work");
-          Log.debug("비콘 외부(비콘 범위 밖에서) LOCATION_STAET : ${Env.LOCATION_STATE}");
+          if(Env.isDebug) Log.debug("비콘 외부(비콘 범위 밖에서) LOCATION_STAET : ${Env.LOCATION_STATE}");
         });
       }
     } else {
-      Log.debug("비콘 내부에 있을 때 LOCATION_STAET : ${Env.LOCATION_STATE}");
+      if(Env.isDebug) Log.debug("비콘 내부에 있을 때 LOCATION_STAET : ${Env.LOCATION_STATE}");
 
       if (Env.OLD_PLACE == "" || Env.OLD_PLACE == "---") {
         // 외부에서 내부 ( 사무실 또는 회의실 또는 기타 장소) 에 들어온 경우 와 처음 설치 했을때 경우의 변경 이벤트 체크
