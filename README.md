@@ -12,3 +12,6 @@ A new Flutter project.
   * compileSdkVersion : 33
   * minSdkVersion : 21
   * targetSdkVersion : 33  
+
+### Beacons_plugin 2.0.8 
+- https://pub.dev/packages/beacons_plugin
