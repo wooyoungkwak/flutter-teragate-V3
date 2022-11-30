@@ -162,7 +162,7 @@ class _WeekState extends State<Week> {
             ],
           ),
           bottomNavigationBar: BottomNavBar(
-            currentLocation: Env.CURRENT_PLACE,
+            currentLocation: Env.OLD_PLACE,
             currentTime: getPickerTime(getNow()),
             function: _synchonizationWeekUI,
           )),

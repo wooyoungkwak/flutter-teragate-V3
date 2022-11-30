@@ -286,7 +286,7 @@ class _ThemeState extends State<ThemeMain> {
                 ),
               ],
             ),
-            bottomNavigationBar: BottomNavBar(currentLocation: Env.CURRENT_PLACE, currentTime: getPickerTime(getNow()), function: _synchonizationThemeUI)),
+            bottomNavigationBar: BottomNavBar(currentLocation: Env.OLD_PLACE, currentTime: getPickerTime(getNow()), function: _synchonizationThemeUI)),
       ),
     );
   }

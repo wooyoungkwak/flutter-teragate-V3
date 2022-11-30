@@ -54,12 +54,14 @@ class BeaconsPlugin {
   }
 
   static Future<void> setForegroundScanPeriodForAndroid({int foregroundScanPeriod = 1100, int foregroundBetweenScanPeriod = 0}) async {
-    final String? result = await channel.invokeMethod('setForegroundScanPeriodForAndroid', <String, dynamic>{'foregroundScanPeriod': foregroundScanPeriod, 'foregroundBetweenScanPeriod': foregroundBetweenScanPeriod});
+    final String? result =
+        await channel.invokeMethod('setForegroundScanPeriodForAndroid', <String, dynamic>{'foregroundScanPeriod': foregroundScanPeriod, 'foregroundBetweenScanPeriod': foregroundBetweenScanPeriod});
     printDebugMessage(result, 2);
   }
 
   static Future<void> setBackgroundScanPeriodForAndroid({int backgroundScanPeriod = 1100, int backgroundBetweenScanPeriod = 0}) async {
-    final String? result = await channel.invokeMethod('setBackgroundScanPeriodForAndroid', <String, dynamic>{'backgroundScanPeriod': backgroundScanPeriod, 'backgroundBetweenScanPeriod': backgroundBetweenScanPeriod});
+    final String? result =
+        await channel.invokeMethod('setBackgroundScanPeriodForAndroid', <String, dynamic>{'backgroundScanPeriod': backgroundScanPeriod, 'backgroundBetweenScanPeriod': backgroundBetweenScanPeriod});
     printDebugMessage(result, 2);
   }
 
@@ -78,7 +80,7 @@ class BeaconsPlugin {
 
   static listenToBeacons(StreamController controller) async {
     eventChannel.receiveBroadcastStream().listen((dynamic event) {
-      printDebugMessage('Received: $event', 2);
+      // printDebugMessage('Received: $event', 2);
       // TODO :  로그 찍기 ...
 
       controller.add(event);

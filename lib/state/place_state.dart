@@ -151,7 +151,7 @@ class _PlaceState extends State<Place> {
             ],
           ),
           bottomNavigationBar: BottomNavBar(
-            currentLocation: Env.CURRENT_PLACE,
+            currentLocation: Env.OLD_PLACE,
             currentTime: getPickerTime(getNow()),
             function: _synchonizationPlaceUI,
           )),
@@ -195,9 +195,9 @@ class _PlaceState extends State<Place> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: const Color(0xffF5F5F5), borderRadius: BorderRadius.circular(8)),
               child: Stack(alignment: Alignment.topLeft, children: [
-                Env.CURRENT_PLACE == ""
+                Env.OLD_PLACE == ""
                     ? Container()
-                    : (Env.CURRENT_PLACE == list[index]
+                    : (Env.OLD_PLACE == list[index]
                         ? const Icon(
                             Icons.location_on_rounded,
                             color: Colors.red,

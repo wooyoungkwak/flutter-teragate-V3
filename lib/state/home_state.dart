@@ -252,7 +252,7 @@ class _HomeState extends State<Home> {
           ),
           // Bottom Navigation Bar
           bottomNavigationBar: BottomNavBar(
-            currentLocation: Env.CURRENT_PLACE,
+            currentLocation: Env.OLD_PLACE,
             currentTime: getPickerTime(getNow()),
             function: _syncghoniztionHomeUI,
           ),
@@ -373,6 +373,8 @@ class _HomeState extends State<Home> {
   Color _setGetOutColor(String getOutTime) {
     if (isLeave) {
       return const Color(0xffFF3823);
+    } else if (workState != "업무중" && workTime != "-") {
+      return const Color(0xffFF3823);
     } else {
       return Colors.white;
     }
@@ -422,6 +424,7 @@ class _HomeState extends State<Home> {
   void _setUI(WorkInfo workInfo) {
     if (workInfo.success) {
       Map<String, dynamic> setInfoMap = getWorkState(workInfo);
+      Log.debug(workInfo.toString());
       setState(() {
         // 시간
         currentHour = getDateToStringForHHInNow();

@@ -59,12 +59,12 @@ void stopBeaconSubscription(StreamSubscription? streamSubscription) {
 Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorage) async {
   int count = 0;
 
-  Timer? timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+  Timer? timer = Timer.periodic(const Duration(seconds: 1), (timer) {
     // ignore: unnecessary_null_comparison
     if (Env.INNER_TIME == null) return;
 
     int diff = getNow().difference(Env.INNER_TIME).inSeconds;
-    if(Env.isDebug) Log.debug(" *** diff = $diff");
+    if (Env.isDebug) Log.debug(" *** diff = $diff");
 
     if (diff == 60) {
       Env.CURRENT_UUID = "";
@@ -74,25 +74,27 @@ Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorag
       // 서버에 전송
       if (Env.LOCATION_STATE == "in_work") {
         sendMessageTracking(context, secureStorage, "", Env.CURRENT_PLACE).then((workInfo) {
-          if(Env.isDebug) Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}");
+          Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}");
           // 외부(비콘 범위 밖) 상태 변경
           setLocationState(secureStorage, "out_work");
-          if(Env.isDebug) Log.debug("비콘 외부(비콘 범위 밖에서) LOCATION_STAET : ${Env.LOCATION_STATE}");
+          _setWorkInfo(context, secureStorage);
+
+          Log.debug("비콘 외부(비콘 범위 밖에서) LOCATION_STAET : ${Env.LOCATION_STATE}");
         });
       }
     } else {
-      if(Env.isDebug) Log.debug("비콘 내부에 있을 때 LOCATION_STAET : ${Env.LOCATION_STATE}");
-
       if (Env.OLD_PLACE == "" || Env.OLD_PLACE == "---") {
         // 외부에서 내부 ( 사무실 또는 회의실 또는 기타 장소) 에 들어온 경우 와 처음 설치 했을때 경우의 변경 이벤트 체크
         if (Env.OLD_PLACE != Env.CURRENT_PLACE) {
           Env.CHANGE_COUNT = 1;
           Env.OLD_PLACE = Env.CURRENT_PLACE;
           // 서버에 전송
+          Log.debug("비콘 내부에 있을 때 LOCATION_STAET : ${Env.LOCATION_STATE}");
           sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) {
             Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}");
             // 외부에서 내부 또는 처음 설치시 상태 변경
             setLocationState(secureStorage, "in_work");
+            _setWorkInfo(context, secureStorage);
           });
         }
       } else {
@@ -102,7 +104,10 @@ Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorag
             Env.CHANGE_COUNT = 1;
             Env.OLD_PLACE = Env.CURRENT_PLACE;
             // 서버에 전송
-            sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) => Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}"));
+            sendMessageTracking(context, secureStorage, Env.CURRENT_UUID, Env.CURRENT_PLACE).then((workInfo) {
+              Log.debug(" tracking event = ${workInfo == null ? "" : workInfo.success.toString()}");
+              _setWorkInfo(context, secureStorage);
+            });
           } else {
             Env.CHANGE_COUNT++;
           }
@@ -113,18 +118,7 @@ Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorag
     }
 
     if (count == 60) {
-      // 금일 출근 퇴근 정보 요청
-      sendMessageByWork(context, secureStorage).then((workInfo) {
-        Env.EVENT_FUNCTION == null ? "" : Env.EVENT_FUNCTION!(workInfo);
-      });
-
-      Future.delayed(const Duration(seconds: 2), () {
-        // 일주일간 출근 퇴근 정보 요청
-        sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
-          Env.INIT_STATE_WEEK_INFO = weekInfo;
-          Env.EVENT_WEEK_FUNCTION == null ? "" : Env.EVENT_WEEK_FUNCTION!(weekInfo);
-        });
-      });
+      _setWorkInfo(context, secureStorage);
       count = 0;
     } else {
       count++;
@@ -132,6 +126,22 @@ Future<Timer> startBeaconTimer(BuildContext? context, SecureStorage secureStorag
   });
 
   return timer;
+}
+
+void _setWorkInfo(BuildContext? context, SecureStorage secureStorage) {
+  // 금일 출근 퇴근 정보 요청
+  sendMessageByWork(context, secureStorage).then((workInfo) {
+    Env.INIT_STATE_WORK_INFO = workInfo;
+    Env.EVENT_FUNCTION == null ? "" : Env.EVENT_FUNCTION!(workInfo);
+  });
+
+  Future.delayed(const Duration(seconds: 2), () {
+    // 일주일간 출근 퇴근 정보 요청
+    sendMessageByWeekWork(context, secureStorage).then((weekInfo) {
+      Env.INIT_STATE_WEEK_INFO = weekInfo;
+      Env.EVENT_WEEK_FUNCTION == null ? "" : Env.EVENT_WEEK_FUNCTION!(weekInfo);
+    });
+  });
 }
 
 Future<Timer> startUiTimer(Function setUI) async {
